@@ -24,8 +24,7 @@ function nav(active) {
     ["questions.html", "Questions", "questions"],
     ["visuals.html", "Visuals", "visuals"],
     ["exam.html", "Exam Kit", "exam"],
-    ["flashcards.html", "Flashcards", "flashcards"],
-    ["changelog.html", "Changelog", "changelog"]
+    ["flashcards.html", "Flashcards", "flashcards"]
   ];
   return `
     <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
@@ -35,7 +34,7 @@ function nav(active) {
     </nav>
     <div class="update-alert" id="update-alert">
       <span id="update-message">A newer version is available.</span>
-      <a href="changelog.html">Changelog</a>
+      <a href="index.html#live-changelog">Live changelog</a>
       <button type="button" id="update-close" aria-label="Dismiss update alert">${icon("close", 12)}</button>
     </div>
   `;

@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.06.04-week1.27",
+    "date": "2026-06-04",
+    "title": "Cleaned homepage and question bank",
+    "items": [
+      "Renamed the homepage hero to Intro To Data Science and simplified the current coverage section.",
+      "Removed the standalone changelog page, homepage next-actions/source audit/source verification panels, and the homepage changelog card.",
+      "Removed the question-bank practice overlay and adjusted source stat cards so labels fit cleanly."
+    ]
+  },
+  {
     "version": "2026.06.04-week1.26",
     "date": "2026-06-04",
     "title": "Added guide active recall",

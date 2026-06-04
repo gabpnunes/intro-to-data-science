@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.04-week1.26";
+const SITE_VERSION = "2026.06.04-week1.27";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",

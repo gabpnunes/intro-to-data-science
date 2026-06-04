@@ -30,7 +30,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 ## Current Website Coverage
 
 - Static site root: `docs/`.
-- Pages: `index.html`, `guide.html`, `questions.html`, `visuals.html`, `exam.html`, `flashcards.html`, `changelog.html`.
+- Pages: `index.html`, `guide.html`, `questions.html`, `visuals.html`, `exam.html`, `flashcards.html`.
 - Shared files: `shared.css`, `site.js`, `data.js`, `version.json`, `changelog.json`.
 - Implemented Part 1 topics:
   - Data Science and CRISP-DM
@@ -51,21 +51,18 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - `questions.html` has a dedicated source dropdown in addition to text search, topic, difficulty, type, solution status, and progress filters.
   - The source dropdown groups questions by source sheet/section, currently Tutorial 0 Questions, Tutorial 1 Questions, Tutorial 2 Exercises, and Tutorial 2 Exam Questions.
   - Query parameters can prefill `search`, `topic`, `source`, `difficulty`, `type`, `status`, and `progress`, which supports direct links from homepage recommendations and source-audit notes.
-  - Source summary cards at the top of `questions.html` show each sheet's official/provisional coverage, completed count, revisit count, and direct filter/practice controls.
-- Question-bank practice mode:
-  - `questions.html` includes an exam-style overlay that starts from the current filters or the current revisit set.
-  - Practice sessions shuffle questions, keep solutions hidden until reveal, track elapsed time, and store recent session summaries in `ids_practice_history`.
-  - Progress markings still use `ids_question_status`.
+  - Source summary cards at the top of `questions.html` show each sheet's official/provisional coverage, completed count, revisit count, mistake-note count, and a direct filter control.
+  - The previous question-bank practice overlay was removed on 2026-06-04 at the user's request; keep `questions.html` focused on the source-linked bank unless the user asks to rebuild a practice workflow.
 - Question-bank mistake notes:
   - `questions.html` lets the student save per-question mistake notes in localStorage under `ids_question_notes`.
-  - Mistake notes appear in normal question cards and practice mode, are searchable, and can be filtered with the `notes` query parameter/filter.
+  - Mistake notes appear in normal question cards, are searchable, and can be filtered with the `notes` query parameter/filter.
   - Notes are student-authored study state only; never treat them as official source material or use them to overwrite official/provisional solution wording.
 - Homepage progress dashboard:
   - `index.html` reads `ids_question_status` and `ids_flashcards` from localStorage.
   - It also reads `ids_guide_topic_status`, which is set by Reviewed/Revisit controls on each guide topic.
   - It summarizes reviewed guide topics, guide revisit flags, guide checkpoint progress, completed questions, question revisit flags, mistake-note count, derivation progress, missed recall count, reviewed cards, due cards, and official/provisional solution coverage.
-  - The Next Study Actions panel uses `ids_guide_topic_status`, `ids_guide_checks`, `ids_question_status`, `ids_question_notes`, `ids_flashcards`, `ids_exam_checklist`, `ids_exam_derivations`, and `ids_exam_drill_misses` to suggest up to four direct next actions.
-  - The Progress Backup panel exports/imports `ids_question_status`, `ids_question_notes`, `ids_practice_history`, `ids_flashcards`, `ids_guide_topic_status`, `ids_guide_checks`, `ids_exam_checklist`, `ids_exam_derivations`, `ids_exam_drill_history`, and `ids_exam_drill_misses` using schema `uva-ids-progress-v1`.
+  - The homepage now uses a plain Current Coverage bullet list plus the live changelog, rather than source verification, source audit, or next-study-action panels.
+  - The Progress Backup panel exports/imports `ids_question_status`, `ids_question_notes`, `ids_flashcards`, `ids_guide_topic_status`, `ids_guide_checks`, `ids_exam_checklist`, `ids_exam_derivations`, `ids_exam_drill_history`, and `ids_exam_drill_misses` using schema `uva-ids-progress-v1`.
   - It refreshes periodically and on browser `storage` events so progress made in another tab can appear without a page reload.
 - Study-guide progress:
   - `guide.html` adds Reviewed and Revisit controls to every topic section.
@@ -75,9 +72,8 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Filtered guide topics hide both the main section and matching sidebar link, update a visible count, and show an empty state when no topics match.
   - `GUIDE_CHECKS` in `docs/data.js` stores source-linked active-recall prompts for each Part 1 guide topic.
   - `guide.html` renders checkpoint answers hidden by default and saves Got it/Revisit state in `ids_guide_checks`.
-- Homepage source verification:
-  - `SOURCE_INVENTORY` in `docs/data.js` powers the student-facing Source Verification panel.
-  - Use statuses such as `verified`, `incorporated`, `official`, `provisional`, `linked`, and `pending` to keep current evidence visible.
+- Source inventory:
+  - `SOURCE_INVENTORY` in `docs/data.js` still records incorporated, official, provisional, linked, and pending sources for maintainers, but it is no longer rendered as a homepage Source Verification panel.
   - Update this matrix whenever new files are added, official solutions arrive, or linked media is fully inspected.
 - Flashcards:
   - The Part 1 SRS-style deck contains high-yield cards across all current topics.
@@ -118,7 +114,6 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 6. Check browser console for JavaScript and MathJax errors.
 7. Test:
    - question filters
-   - question practice mode start/reveal/next/done/revisit/exit
    - hidden solution toggles
    - completed/revisit localStorage state
    - flashcard topic tabs
