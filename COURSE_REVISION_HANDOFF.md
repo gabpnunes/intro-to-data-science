@@ -22,7 +22,8 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 - `Part1/Part1 Slides.pdf`: 83-slide Part 1 deck on preprocessing and exploratory data analysis.
 - `Part1/Tutorial 0 Questions.pdf`: self-study tutorial questions.
 - `Part1/Tutorial 0 Solutions.pdf`: official solutions available and incorporated.
-- `Part1/Tutorial 1 Questions.pdf`: questions available; official solutions pending.
+- `Part1/Tutorial 1 Questions.pdf`: questions available and incorporated.
+- `Part1/Tutorial 1 Solutions.pdf`: official solutions available and incorporated on 2026-06-04.
 - `Part1/Tutorial 2 Questions.pdf`: questions and exam-style questions available; official solutions pending.
 - `Part1/RCode_Part_1.R`: R examples for missing values, outliers, summaries, transformations, and churn EDA.
 - `Part1/telecom.txt`, `Outlier.txt`, `dtData1.RDS`, `churn.txt`: datasets used by the R script.
@@ -39,9 +40,9 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Summarizing a Data Set
   - Data Transformation
   - Exploratory Data Analysis
-- Tutorial 0 official solutions are included in `docs/data.js`.
+- Tutorial 0 and Tutorial 1 official solutions are included in `docs/data.js`.
 - Tutorial 0 official solution PDF pages were visually rendered and checked on 2026-06-03; Q5 uses `officialSolutionHtml` so the CRISP-DM mapping remains table-shaped like the PDF source.
-- Tutorial 1 and Tutorial 2 solutions are provisional and marked `unofficial`.
+- Tutorial 1 official solutions are included in `docs/data.js`; Tutorial 2 solutions are provisional and marked `unofficial`.
 - Question-bank fidelity:
   - Table-heavy questions may use `questionHtml` for source-style layout while preserving `text` for search/filter matching.
   - Current source-style table questions: `t0q4`, `t2q1`, `t2q2`.
@@ -97,7 +98,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Formula/R prompts rated as missed are persisted in `ids_exam_drill_misses` and shown in a missed-recall queue on `exam.html`.
   - The missed-recall queue can start a focused drill over only missed prompts; rating a prompt as Got it clears it from the queue.
   - Drill mode keeps answers hidden until reveal, then records Got it/Missed ratings in recent session summaries.
-  - Keep Tutorial 1/2-dependent formula and recall wording provisional until official solution PDFs are available.
+  - Keep Tutorial 2-dependent formula and recall wording provisional until the official solution PDF is available.
 - Homepage roadmap status:
   - Part 1 is live.
   - Part 2 PCA is coming soon until Week 2 files are supplied and verified.
@@ -105,6 +106,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 - Current visible source-audit notes:
   - Tutorial 2 Exercise 1: table caption says 6 observations but the table lists observations 1 through 7. Current calculations use all 7 listed rows.
   - Tutorial 0 Question 3 official solution: asks for two tasks but lists several examples, with awkwardly placed labels. Official wording is preserved and the explanation layer clarifies how to answer.
+  - Tutorial 1 Question 4: question sheet asks about `mean(Data.New)`, while the official solution PDF states `mean(Data)`. Official wording is preserved and the source note explains that the result is `NA` either way because `mean(Data)` is computed from a vector containing missing values.
 
 ## Verification Workflow
 
@@ -127,7 +129,6 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 
 ## Pending Future Work
 
-- Replace Tutorial 1 provisional solutions with official wording when the official solution PDF is supplied.
 - Replace Tutorial 2 provisional solutions with official wording when the official solution PDF is supplied.
 - Add Part 2 and Part 3 materials as soon as the user provides the files.
 - When adding Part 2 or Part 3, change the corresponding `COURSE_PARTS` entry in `docs/data.js` from `coming soon` to `live` only after study guide content, question-bank entries, flashcards, source notes, and verification have been completed.

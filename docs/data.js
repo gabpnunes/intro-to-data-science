@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.04-week1.28";
+const SITE_VERSION = "2026.06.04-week1.29";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -7,6 +7,7 @@ const SOURCES = {
   tut0q: "Part1/Tutorial 0 Questions.pdf",
   tut0s: "Part1/Tutorial 0 Solutions.pdf",
   tut1q: "Part1/Tutorial 1 Questions.pdf",
+  tut1s: "Part1/Tutorial 1 Solutions.pdf",
   tut2q: "Part1/Tutorial 2 Questions.pdf",
   datasets: "Part1 datasets: telecom.txt, Outlier.txt, dtData1.RDS, churn.txt",
   media: "Linked Week 1 videos/articles from Introduction_Data_Science.md"
@@ -40,8 +41,14 @@ const SOURCE_INVENTORY = [
   {
     label: "Tutorial 1 questions",
     source: SOURCES.tut1q,
-    status: "provisional",
-    detail: "Questions are source-checked; solutions remain unofficial until the official solution PDF is supplied."
+    status: "incorporated",
+    detail: "Questions are source-checked and reconciled with the official Tutorial 1 solution PDF."
+  },
+  {
+    label: "Tutorial 1 solutions",
+    source: SOURCES.tut1s,
+    status: "official",
+    detail: "Official wording is preserved separately from explanations; reconciled on 2026-06-04."
   },
   {
     label: "Tutorial 2 questions",
@@ -69,9 +76,9 @@ const SOURCE_INVENTORY = [
   },
   {
     label: "Future official solutions",
-    source: "Tutorial 1 and Tutorial 2 official solution PDFs",
+    source: "Tutorial 2 official solution PDF",
     status: "pending",
-    detail: "When supplied, provisional solutions must be reconciled against official wording."
+    detail: "When supplied, provisional Tutorial 2 solutions must be reconciled against official wording."
   }
 ];
 
@@ -81,7 +88,7 @@ const COURSE_PARTS = [
     label: "Part 1",
     title: "Data preprocessing and exploratory data analysis",
     status: "live",
-    coverage: "Slides, Tutorial 0-2 questions, Tutorial 0 official solutions, R examples, and datasets are incorporated.",
+    coverage: "Slides, Tutorial 0-2 questions, Tutorial 0-1 official solutions, R examples, and datasets are incorporated.",
     topics: ["CRISP-DM", "Missing values", "Outliers", "Summaries", "Transformations", "EDA"]
   },
   {
@@ -120,6 +127,15 @@ const ERRATA_NOTES = [
     title: "Official solution lists more than two possible tasks",
     note: "Question 3 asks for two tasks, but the official solution provides several acceptable examples and has labels such as 'Data Cleaning:' and 'Feature Engineering:' placed awkwardly in the text.",
     action: "The site preserves the official wording exactly and adds a separate explanation telling you to choose two tasks and justify them in an exam answer."
+  },
+  {
+    id: "err-t1-q4-mean-target",
+    severity: "wording mismatch",
+    source: "Part1/Tutorial 1 Questions.pdf and Part1/Tutorial 1 Solutions.pdf, Question 4",
+    relatedQuestionId: "t1q4",
+    title: "Question sheet asks mean(Data.New), solution sheet says mean(Data)",
+    note: "Tutorial 1 Question 4 asks for the result of mean(Data.New), while the official solution PDF phrases part b as mean(Data). The result remains NA because the replacement value mean(Data) is computed before imputation and Data still contains missing values.",
+    action: "The site preserves the official solution wording and adds a separate explanation for the question-sheet version."
   }
 ];
 
@@ -351,7 +367,7 @@ const EXAM_KIT = {
     "Can you explain why lognormal mean exceeds lognormal median?",
     "Can you choose between raw scale, z-score standardization, min-max scaling, and log transformation?",
     "Can you interpret `prop.table(mytable, 2)` as column-wise conditional proportions?",
-    "Can you name which Tutorial 1/2 solutions are still provisional and must be reconciled later?"
+    "Can you name which Tutorial 2 solutions are still provisional and must be reconciled later?"
   ]
 };
 
@@ -803,9 +819,15 @@ const QUESTIONS = [
     source: "Tutorial 1 Questions, Q1",
     difficulty: "medium",
     type: "proof",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider a data set X1, X2, ..., X30 with 30 observations. Assume that each observation can be missing and assume that the probability that an observation is missing is 0.05. Moreover, missing values are spread evenly through the data and occur independently of each other. Denote by Di the random variable which takes value 1 if observation i is missing and 0 otherwise. Show that the probability that the data set of 30 observations contains at least one missing value is close to 80%.",
-    explanation: "Unofficial solution: It is easier to compute the complement. The probability that one observation is not missing is 0.95. By independence, the probability that none of the 30 observations are missing is 0.95^30 ≈ 0.2146. Therefore P(at least one missing) = 1 - 0.95^30 ≈ 0.7854, close to 80%."
+    officialSolution: "The data set consists of 30 variables: X1, ..., X30. Let Di denote a dummy variable that takes the value 1 if Xi is missing\nDi = 1 if Xi is missing, 0 otherwise.\nNow, Di has a Bernoulli distribution with P(Di = 1) = 0.05. If we assume that the missingness is independent across the variables, i.e. Di are i.i.d., we obtain the probability of at least one variable is missing is\nP(D1 + ... + D30 >= 1) = 1 - P(D1 = ... = D30 = 0) = 1 - 0.95^30 = 0.7854\nwhich is close to the 80% mentioned.",
+    officialSolutionHtml: `<p>The data set consists of 30 variables: \\(X_1, \\ldots, X_{30}\\). Let \\(D_i\\) denote a dummy variable that takes the value 1 if \\(X_i\\) is missing</p>
+      <div class="math-block">\\[D_i = \\begin{cases}1 & X_i \\text{ is missing,}\\\\0 & \\text{otherwise.}\\end{cases}\\]</div>
+      <p>Now, \\(D_i\\) has a Bernoulli distribution with \\(P(D_i = 1) = 0.05\\). If we assume that the missingness is independent across the variables, i.e. \\(D_i\\) are i.i.d., we obtain the probability of at least one variable is missing is</p>
+      <div class="math-block">\\[P(D_1+\\cdots+D_{30}\\ge 1)=1-P(D_1=\\cdots=D_{30}=0)=1-0.95^{30}=0.7854\\]</div>
+      <p>which is close to the 80% mentioned.</p>`,
+    explanation: "The complement is the clean route: instead of adding many cases with one or more missing values, compute 1 minus the probability of no missing values. Independence lets you multiply the 30 non-missing probabilities."
   },
   {
     id: "t1q2",
@@ -814,9 +836,23 @@ const QUESTIONS = [
     source: "Tutorial 1 Questions, Q2",
     difficulty: "hard",
     type: "proof",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider n1 + m independent and identical random variables X1, ..., Xn1 and Xn1+1, ..., Xn1+m. Denote by S1 the random mean over the first n1 random variables whereas S2 denotes the random mean over all random variables. Assume E[X1] = mu and Var[X1] = sigma^2. (a) Show that E[S1] = E[S2] = mu. (b) Show that Var[S1] / Var[S2] = 1 + m/n1. (c) Interpret the result if the last m observations have to be deleted because of missing values.",
-    explanation: "Unofficial solution: By linearity, E[S1]=(1/n1)n1 mu=mu and E[S2]=(1/(n1+m))(n1+m)mu=mu. With independence, Var(S1)=sigma^2/n1 and Var(S2)=sigma^2/(n1+m). Their ratio is (sigma^2/n1)/(sigma^2/(n1+m))=(n1+m)/n1=1+m/n1. Deleting missing observations keeps the mean estimator unbiased under these assumptions, but increases variance/uncertainty."
+    officialSolution: "Question a: We start with determining the expected value of S1:\nE[S1] = E[1/n1 sum_{i=1}^{n1} Xi] = 1/n1 sum_{i=1}^{n1} E[Xi] = mu.\nThe derivation for E[S2] = mu is similar.\nQuestion b: We can determine the variance of S1 as follows:\nVar[S1] = Var[1/n1 sum_{i=1}^{n1} Xi] = 1/n1^2 Var[sum_{i=1}^{n1} Xi].\nIf we use the independence between the random variables, we find Var[S1] = n1 sigma^2 / n1^2 = sigma^2 / n1. Similarly, we find for S2 that Var[S2] = sigma^2 / (n1 + m), which then results in Var[S1]/Var[S2] = 1 + m/n1.\nSince m, n1 > 0, we find that the variance of S1 is always larger than the variance of S2 because the sum S2 aggregates more elements than the sum S1.\nQuestion c: Assume that Xi is the i-th observation in our data set and we want to use the data to estimate the mean. Then S2 denotes the sample mean. Assume also that we can repeat our experiment and construct a new data set. We can then again estimate the mean, and this will in general give a different estimate. The result in Question a states that in both cases, you will obtain a value 'close' to mu. The fluctuations around this mean are quantified by the variance. Question b then states that the estimator for the mean is less accurate if there is less data. For example, if there are missing values in the data set, then removing the missing values will reduce the size of the data set and therefore reduce the accuracy of the estimation of the mean.",
+    officialSolutionHtml: `<p><strong>Question a:</strong> We start with determining the expected value of \\(S_1\\):</p>
+      <div class="math-block">\\[\\begin{aligned}E[S_1] &= E\\left[\\frac{1}{n_1}\\sum_{i=1}^{n_1}X_i\\right] \\\\ &= \\frac{1}{n_1}\\sum_{i=1}^{n_1}E[X_i] \\\\ &= \\mu.\\end{aligned}\\]</div>
+      <p>The derivation for \\(E[S_2]=\\mu\\) is similar.</p>
+      <p><strong>Question b:</strong> We can determine the variance of \\(S_1\\) as follows:</p>
+      <div class="math-block">\\[\\begin{aligned}\\operatorname{Var}[S_1] &= \\operatorname{Var}\\left[\\frac{1}{n_1}\\sum_{i=1}^{n_1}X_i\\right] \\\\ &= \\frac{1}{n_1^2}\\operatorname{Var}\\left[\\sum_{i=1}^{n_1}X_i\\right].\\end{aligned}\\]</div>
+      <p>If we use the independence between the random variables, we find</p>
+      <div class="math-block">\\[\\operatorname{Var}[S_1]=\\frac{n_1\\sigma^2}{n_1^2}=\\frac{\\sigma^2}{n_1}.\\]</div>
+      <p>Similarly, we find for \\(S_2\\) that</p>
+      <div class="math-block">\\[\\operatorname{Var}[S_2]=\\frac{\\sigma^2}{n_1+m},\\]</div>
+      <p>which then results in</p>
+      <div class="math-block">\\[\\frac{\\operatorname{Var}[S_1]}{\\operatorname{Var}[S_2]}=1+\\frac{m}{n_1}.\\]</div>
+      <p>Since \\(m,n_1>0\\), we find that the variance of \\(S_1\\) is always larger than the variance of \\(S_2\\) because the sum \\(S_2\\) aggregates more elements than the sum \\(S_1\\).</p>
+      <p><strong>Question c:</strong> Assume that \\(X_i\\) is the \\(i\\)-th observation in our data set and we want to use the data to estimate the mean. Then \\(S_2\\) denotes the sample mean. Assume also that we can repeat our experiment and construct a new data set. We can then again estimate the mean, and this will in general give a different estimate. The result in Question a states that in both cases, you will obtain a value 'close' to \\(\\mu\\). The fluctuations around this mean are quantified by the variance. Question b then states that the estimator for the mean is less accurate if there is less data. For example, if there are missing values in the data set, then removing the missing values will reduce the size of the data set and therefore reduce the accuracy of the estimation of the mean.</p>`,
+    explanation: "Linearity of expectation gives the same expected mean whether you use n1 or n1+m observations. The important exam interpretation is variance: deleting observations does not create bias under these assumptions, but it makes the estimate noisier."
   },
   {
     id: "t1q3",
@@ -825,14 +861,15 @@ const QUESTIONS = [
     source: "Tutorial 1 Questions, Q3",
     difficulty: "medium",
     type: "short",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider the following R code.\n> Data=data.frame(c(100,NA,90,75,110,132), c(NA,1,5,0.5,NA, \"na\"))\n> names(Data)=c(\"Variable 1\", \"Variable 2\")\n> sum(is.na(Data))\nWhat is the output after running this code?",
     questionHtml: `<p>Consider the following R code.</p>
       <pre class="code">&gt; Data=data.frame(c(100,NA,90,75,110,132), c(NA,1,5,0.5,NA, "na"))
 &gt; names(Data)=c("Variable 1", "Variable 2")
 &gt; sum(is.na(Data))</pre>
       <p>What is the output after running this code?</p>`,
-    explanation: "Unofficial solution: The output is 3. In the first column, one value is actual NA. In the second column, the first and fifth entries are actual NA, while the string 'na' is text, not missing. So sum(is.na(Data)) counts 1+2=3."
+    officialSolution: "The output is 3.\nNote that the \"na\" is not recognised by R as a missing value.",
+    explanation: "R only counts actual `NA` values here. The first column has one actual missing value, and the second column has two actual missing values; the string \"na\" is ordinary text."
   },
   {
     id: "t1q4",
@@ -841,8 +878,9 @@ const QUESTIONS = [
     source: "Tutorial 1 Questions, Q4",
     difficulty: "medium",
     type: "short",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider the following R code which is used to handle missing values, where Data is a vector with observations.\n>sum(is.na(Data))\n[1] 8\n> Data.New=replace(Data,which(is.na(Data)), mean(Data))\n(a) Explain how missing values are handled with this code?\n(b) If you execute mean(Data.New), what will be the result? Explain.\n(c) How can we correct the code such that missing values are handled correctly?",
+    sourceNote: "Source audit: Tutorial 1 Questions asks about mean(Data.New), while Tutorial 1 Solutions states mean(Data). The official solution wording is preserved; the result is NA either way because the replacement mean is computed from Data while Data still contains NA.",
     questionHtml: `<p>Consider the following R code which is used to handle missing values, where <code>Data</code> is a vector with observations.</p>
       <pre class="code">&gt;sum(is.na(Data))
 [1] 8
@@ -850,7 +888,12 @@ const QUESTIONS = [
       <p>(a) Explain how missing values are handled with this code?</p>
       <p>(b) If you execute <code>mean(Data.New)</code>, what will be the result? Explain.</p>
       <p>(c) How can we correct the code such that missing values are handled correctly?</p>`,
-    explanation: "Unofficial solution: The intention is to replace each missing value by the mean. But mean(Data) is NA when Data contains NA values, so the replacement inserts NA again. Therefore mean(Data.New) is also NA. Correct code: Data.New = replace(Data, which(is.na(Data)), mean(Data[!is.na(Data)])) or mean(Data, na.rm=TRUE)."
+    officialSolution: "Question a: Missing values are replaced by the mean value.\nQuestion b: The result will be NA. The reason is that we replace missing values in the data set Data by mean(Data). However, since the vector Data contains missing values, mean(Data) will give back NA.\nQuestion c: We have to take the mean over the elements in Data which do not have missing values. The correct code is as follows:\nreplace(Data,which(is.na(Data)), mean(Data[- which(is.na(Data))]))",
+    officialSolutionHtml: `<p><strong>Question a:</strong> Missing values are replaced by the mean value.</p>
+      <p><strong>Question b:</strong> The result will be <code>NA</code>. The reason is that we replace missing values in the data set <code>Data</code> by <code>mean(Data)</code>. However, since the vector <code>Data</code> contains missing values, <code>mean(Data)</code> will give back <code>NA</code>.</p>
+      <p><strong>Question c:</strong> We have to take the mean over the elements in <code>Data</code> which do not have missing values. The correct code is as follows:</p>
+      <pre class="code">replace(Data,which(is.na(Data)), mean(Data[- which(is.na(Data))]))</pre>`,
+    explanation: "The trap is that `mean(Data)` is computed before replacement, and because `Data` still contains missing values, that mean is `NA`. So the attempted imputation replaces each missing value with `NA` again."
   },
   {
     id: "t1q5",
@@ -859,7 +902,7 @@ const QUESTIONS = [
     source: "Tutorial 1 Questions, Q5",
     difficulty: "hard",
     type: "code",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider the following R code which allows you to extract data from the S&P 500 of the last year.\ninstall.packages(\"quantmod\")\nlibrary(quantmod)\n# Get S&P 500 data (last 1 year)\ngetSymbols(\"^GSPC\", from=Sys.Date()-365, to=Sys.Date())\nprices = Cl(GSPC)\n# Plot\nplot(prices, main=\"Daily prices S&P 500\")\nThe daily log returns can be determined by using the daily price levels St of the S&P 500 as follows: Rt = log(St/St-1).\n(a) Determine the log returns using the vector with price levels which is stored in prices.\n(b) Create a plot that shows the boxplot and a histogram of the returns.\n(c) Remove the outliers of the data set. You can start with the following code.\nboxplot(returns)\nbp <- boxplot(returns, plot = FALSE)\noutliers <- bp$out\nAn interesting function is the in function, which you can test with the following code:\nx=c(0,2,4,20)\ny=seq(1:10)\nx%in% y\n(d) Compare the histogram of the data set without outliers with a normal distribution. You can use the mean and sd to determine the mean and the standard deviation of a data set.",
     questionHtml: `<p>Consider the following R code which allows you to extract data from the S&amp;P 500 of the last year.</p>
       <pre class="code">install.packages("quantmod")
@@ -882,7 +925,41 @@ outliers &lt;- bp$out</pre>
 y=seq(1:10)
 x%in% y</pre>
       <p>(d) Compare the histogram of the data set without outliers with a normal distribution. You can use the <code>mean</code> and <code>sd</code> to determine the mean and the standard deviation of a data set.</p>`,
-    explanation: "Unofficial solution: returns = diff(log(prices)) or returns = log(prices[-1]/prices[-length(prices)]). Use boxplot(returns) and hist(returns). Then bp=boxplot(returns, plot=FALSE); outliers=bp$out; returns.clean = returns[!(returns %in% outliers)]. For comparison, draw a density histogram and overlay dnorm(x, mean(returns.clean), sd(returns.clean))."
+    officialSolution: "rm(list=ls())\ninstall.packages(\"quantmod\")\nlibrary(quantmod)\n# Get S&P 500 data (last 1 year)\ngetSymbols(\"^GSPC\", from=Sys.Date()-365, to=Sys.Date())\n# Extract closing prices\nprices <- Cl(GSPC)\n# Plot\nplot(prices, main=\"Daily prices S&P 500\")\n### Question a:\n# Compute daily log returns\nreturns <- diff(log(prices))\n# We cannot determine the logreturn of the first day\nsum(is.na(returns))\nwhich(is.na(returns))\n# Remove NA\nreturns <- na.omit(returns)\n# View first rows\nhead(returns)\n# Plot\nplot(returns, main=\"Daily Log Returns S&P 500 (Last Year)\")\n### Question b\npar(mfrow=c(1,2))\nhist(returns,50)\nboxplot(returns)\n### Question c\nbp <- boxplot(returns, plot = FALSE)\noutliers <- bp$out\nreturns=returns[-which(outliers %in% returns)]\n### Question d\nhist(returns, breaks = 50, freq = FALSE)\ncurve(dnorm(x, mean=mean(returns), sd=sd(returns)),\ncol=\"red\", lwd=2, add=TRUE)",
+    officialSolutionHtml: `<pre class="code">rm(list=ls())
+install.packages("quantmod")
+library(quantmod)
+# Get S&amp;P 500 data (last 1 year)
+getSymbols("^GSPC", from=Sys.Date()-365, to=Sys.Date())
+# Extract closing prices
+prices &lt;- Cl(GSPC)
+# Plot
+plot(prices, main="Daily prices S&amp;P 500")
+### Question a:
+# Compute daily log returns
+returns &lt;- diff(log(prices))
+# We cannot determine the logreturn of the first day
+sum(is.na(returns))
+which(is.na(returns))
+# Remove NA
+returns &lt;- na.omit(returns)
+# View first rows
+head(returns)
+# Plot
+plot(returns, main="Daily Log Returns S&amp;P 500 (Last Year)")
+### Question b
+par(mfrow=c(1,2))
+hist(returns,50)
+boxplot(returns)
+### Question c
+bp &lt;- boxplot(returns, plot = FALSE)
+outliers &lt;- bp$out
+returns=returns[-which(outliers %in% returns)]
+### Question d
+hist(returns, breaks = 50, freq = FALSE)
+curve(dnorm(x, mean=mean(returns), sd=sd(returns)),
+col="red", lwd=2, add=TRUE)</pre>`,
+    explanation: "The official code uses `diff(log(prices))`, which computes consecutive log-price differences. It then omits the first unavailable return, plots a histogram and boxplot, removes values identified by the boxplot rule, and overlays a normal density with the cleaned returns' mean and standard deviation."
   },
   {
     id: "t2q1",

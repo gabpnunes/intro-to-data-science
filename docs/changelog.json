@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.06.04-week1.29",
+    "date": "2026-06-04",
+    "title": "Reconciled Tutorial 1 official solutions",
+    "items": [
+      "Added Part1/Tutorial 1 Solutions.pdf as an official source.",
+      "Updated Tutorial 1 question-bank solutions from unofficial to official while keeping explanations separate.",
+      "Added a source-audit note for the Tutorial 1 Q4 mean(Data.New) versus mean(Data) wording mismatch."
+    ]
+  },
+  {
     "version": "2026.06.04-week1.28",
     "date": "2026-06-04",
     "title": "Upgraded flashcards",
