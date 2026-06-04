@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Study Guide</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .read-bar { position: fixed; top: 0; left: 0; z-index: 600; width: 0; height: 2px; background: var(--accent); opacity: .7; }
+    .guide-layout {
+      position: relative;
+      z-index: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 96px 40px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .guide-layout > * { min-width: 0; }
+    .sidebar {
+      position: sticky;
+      top: 86px;
+      max-height: calc(100vh - 105px);
+      overflow-y: auto;
+      padding: 16px 12px;
+    }
+    .side-title { padding: 4px 8px 12px; color: var(--faint); font-size: 9px; letter-spacing: .16em; text-transform: uppercase; }
+    .side-link {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1.3;
+    }
+    .side-link:hover { color: var(--text); background: var(--panel-soft); }
+    .side-link.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+    .side-week { min-width: 24px; color: var(--faint); font-size: 9px; letter-spacing: .08em; }
+    .guide-header { margin: 0 0 28px; }
+    .guide-tools {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      margin: 16px 0;
+    }
+    .guide-tools .input { min-width: 0; }
+    .guide-tools .select { min-width: 170px; }
+    .guide-filter-count {
+      margin: 0;
+      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.5;
+      grid-column: 1 / -1;
+    }
+    .topic-section {
+      scroll-margin-top: 88px;
+      margin-bottom: 68px;
+      padding-bottom: 58px;
+      border-bottom: 1px solid var(--line);
+    }
+    .topic-section.hidden,
+    .side-link.hidden { display: none; }
+    .guide-empty {
+      display: none;
+      padding: 18px 20px;
+      margin: 0 0 36px;
+    }
+    .guide-empty.visible { display: block; }
+    .topic-section:last-child { border-bottom: 0; }
+    .topic-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 20px;
+    }
+    .topic-top h2 { margin: 0 0 9px; font-size: clamp(24px, 3vw, 34px); font-weight: 300; }
+    .topic-short { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+    .topic-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 185px;
+    }
+    .topic-actions .text-btn.active.reviewed {
+      color: var(--accent);
+      border-color: var(--accent-line);
+      background: var(--accent-soft);
+    }
+    .topic-actions .text-btn.active.revisit {
+      color: var(--warn);
+      border-color: rgba(251,191,36,.28);
+      background: var(--warn-soft);
+    }
+    .side-link.reviewed::after,
+    .side-link.revisit::after {
+      margin-left: auto;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .side-link.reviewed::after { content: "done"; color: var(--accent); }
+    .side-link.revisit::after { content: "revisit"; color: var(--warn); }
+    .guide-card { padding: 20px; margin: 13px 0; }
+    .guide-card h3 { margin: 0 0 12px; font-size: 18px; font-weight: 400; }
+    .guide-card p { color: var(--muted); font-size: 13px; line-height: 1.75; }
+    .guide-card p:last-child { margin-bottom: 0; }
+    .trap-list { display: grid; gap: 8px; margin: 12px 0 0; }
+    .trap-item { padding: 10px 12px; border: 1px solid rgba(251,191,36,.2); border-radius: var(--radius); background: var(--warn-soft); color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .checkpoint-card { border-color: rgba(147,197,253,.18); }
+    .checkpoint-head,
+    .checkpoint-top,
+    .checkpoint-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .checkpoint-head { justify-content: space-between; margin-bottom: 12px; }
+    .checkpoint-head h3 { margin: 0; }
+    .checkpoint-list { display: grid; gap: 10px; }
+    .checkpoint-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .checkpoint-item.got {
+      border-color: var(--accent-line);
+      background: var(--accent-soft);
+    }
+    .checkpoint-item.revisit {
+      border-color: rgba(251,191,36,.24);
+      background: var(--warn-soft);
+    }
+    .checkpoint-item p {
+      margin: 9px 0 0;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .checkpoint-item details {
+      margin-top: 10px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.12);
+    }
+    .checkpoint-item summary {
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .checkpoint-actions { margin-top: 10px; }
+    .checkpoint-actions .text-btn.active.got {
+      color: var(--accent);
+      border-color: var(--accent-line);
+      background: var(--accent-soft);
+    }
+    .checkpoint-actions .text-btn.active.revisit {
+      color: var(--warn);
+      border-color: rgba(251,191,36,.28);
+      background: var(--warn-soft);
+    }
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 10px; margin-top: 16px; }
+    .media-grid a { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--muted); text-decoration: none; background: var(--panel-soft); font-size: 12px; line-height: 1.5; }
+    .media-grid a:hover { color: var(--text); border-color: var(--line-strong); }
+    .audit-grid { display: grid; gap: 10px; margin-top: 14px; }
+    .audit-note { padding: 13px 14px; border: 1px solid rgba(251,191,36,.22); border-radius: var(--radius); background: var(--warn-soft); }
+    .audit-note h4 { margin: 0 0 7px; font-size: 13px; font-weight: 500; }
+    .audit-note p { margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    @media (max-width: 920px) {
+      .guide-layout { grid-template-columns: 1fr; padding-left: 20px; padding-right: 20px; }
+      .sidebar { position: relative; top: auto; max-height: none; display: flex; gap: 6px; overflow-x: auto; }
+      .sidebar { width: 100%; max-width: 100%; }
+      .side-title { display: none; }
+      .side-link { min-width: 190px; }
+      .topic-top { grid-template-columns: 1fr; }
+      .topic-actions { justify-content: flex-start; min-width: 0; }
+      .guide-tools { grid-template-columns: 1fr; }
+      .guide-tools .select { width: 100%; }
+    }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <div class="read-bar" id="read-bar"></div>
+  <div class="guide-layout">
+    <aside class="glass sidebar" id="sidebar"><div class="side-title">Part 1 Topics</div></aside>
+    <main>
+      <header class="guide-header">
+        <p class="eyebrow">01 · Content Understanding</p>
+        <h1 class="page-title">Part 1 study guide</h1>
+        <p class="page-sub">Detailed explanations from the Week 1/Part 1 material. Official sources stay separate from interpretation; diagrams are rebuilt as static SVG so the page is GitHub Pages-friendly.</p>
+        <div class="callout warn"><strong>Source policy:</strong> local course files are treated as examinable authority. Linked videos/articles are included as external resources unless they can be inspected reliably.</div>
+        <section class="glass guide-tools">
+          <input class="input" id="guide-search" placeholder="Search guide topics, formulas, R code, traps, or sources">
+          <select class="select" id="guide-status">
+            <option value="">All guide status</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="revisit">To revisit</option>
+            <option value="unreviewed">Not reviewed</option>
+          </select>
+          <p class="guide-filter-count" id="guide-filter-count"></p>
+        </section>
+      </header>
+      <div id="guide-content"></div>
+      <section class="glass guide-card guide-empty" id="guide-empty">
+        <h3>No matching guide topics</h3>
+        <p>Try widening the search term or switching back to all guide statuses.</p>
+      </section>
+      <section class="glass guide-card">
+        <h3>Source Audit Notes</h3>
+        <p>These notes flag likely source typos or ambiguities found while scanning the current files. Official content is preserved; the notes explain how this site handles the issue for studying.</p>
+        <div class="audit-grid" id="audit-grid"></div>
+      </section>
+      <section class="glass guide-card">
+        <h3>Linked Media</h3>
+        <p>These are listed in the course outline. They are linked for study flow, but their content is not treated as verified examinable detail unless it also appears in the local course files.</p>
+        <div class="media-grid" id="media-grid"></div>
+      </section>
+    </main>
+  </div>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("guide");
+    const topicStateKey = "ids_guide_topic_status";
+    const guideCheckKey = "ids_guide_checks";
+    let topicStatus = getStore(topicStateKey, {});
+    let guideCheckStatus = getStore(guideCheckKey, {});
+    const guideSearch = document.getElementById("guide-search");
+    const guideStatus = document.getElementById("guide-status");
+    const guideCount = document.getElementById("guide-filter-count");
+    const guideEmpty = document.getElementById("guide-empty");
+    const sidebar = document.getElementById("sidebar");
+    TOPICS.forEach(t => {
+      const b = document.createElement("button");
+      b.className = "side-link";
+      b.dataset.topic = t.id;
+      b.innerHTML = `<span class="side-week">${t.week}</span><span>${escapeHtml(t.title)}</span>`;
+      b.addEventListener("click", () => document.getElementById(t.id).scrollIntoView({ behavior: "smooth" }));
+      sidebar.appendChild(b);
+    });
+    function checksForTopic(topicId) {
+      return GUIDE_CHECKS.filter(check => check.topic === topicId);
+    }
+    function checkpointBlock(topic) {
+      const checks = checksForTopic(topic.id);
+      if (!checks.length) return "";
+      return `
+        <article class="glass guide-card checkpoint-card" data-checkpoint-topic="${topic.id}">
+          <div class="checkpoint-head">
+            <h3>Active recall checkpoint</h3>
+            <span class="badge b-source" data-checkpoint-summary="${topic.id}">0/${checks.length} got it</span>
+          </div>
+          <div class="checkpoint-list">
+            ${checks.map(check => `
+              <div class="checkpoint-item" data-guide-check="${check.id}">
+                <div class="checkpoint-top">
+                  <span class="badge b-topic">${escapeHtml(topic.title)}</span>
+                  <span class="badge b-source">${escapeHtml(check.source)}</span>
+                  <span class="badge b-type" data-guide-check-state="${check.id}">unmarked</span>
+                </div>
+                <p>${escapeHtml(check.prompt)}</p>
+                <details>
+                  <summary>${icon("eye")} Reveal answer</summary>
+                  <p>${escapeHtml(check.answer)}</p>
+                </details>
+                <div class="checkpoint-actions">
+                  <button class="text-btn" data-guide-check-action="revisit" data-guide-check-id="${check.id}">${icon("bookmark")} Revisit</button>
+                  <button class="text-btn" data-guide-check-action="got" data-guide-check-id="${check.id}">${icon("check")} Got it</button>
+                </div>
+              </div>`).join("")}
+          </div>
+        </article>`;
+    }
+
+    document.getElementById("guide-content").innerHTML = TOPICS.map(t => `
+      <section class="topic-section" id="${t.id}" data-topic="${t.id}">
+        <div class="topic-top">
+          <div>
+            <p class="eyebrow">${escapeHtml(t.part)} · ${escapeHtml(t.week)}</p>
+            <h2>${escapeHtml(t.title)}</h2>
+            <p class="topic-short">${escapeHtml(t.short)}</p>
+            <div class="tag-row">${t.tags.map(tag => `<span class="badge b-topic">${escapeHtml(tag)}</span>`).join("")}</div>
+          </div>
+          <div class="topic-actions">
+            <button class="text-btn" data-topic-action="revisit" data-topic-id="${t.id}">${icon("bookmark")} Revisit</button>
+            <button class="text-btn" data-topic-action="reviewed" data-topic-id="${t.id}">${icon("check")} Reviewed</button>
+            <a class="text-btn" href="questions.html?topic=${encodeURIComponent(t.id)}">${icon("list")} Practice</a>
+          </div>
+        </div>
+        ${t.sections.map(section => `
+          <article class="glass guide-card">
+            <h3>${escapeHtml(section.heading)}</h3>
+            ${(section.body || []).map(p => `<p>${p}</p>`).join("")}
+            ${section.math ? `<div class="math-block">${section.math}</div>` : ""}
+            ${section.proof ? `<div class="callout good"><strong>Reasoning:</strong> ${section.proof}</div>` : ""}
+            ${section.code ? `<pre class="code">${escapeHtml(section.code)}</pre>` : ""}
+            ${section.diagram ? `<div class="viz" data-diagram="${section.diagram}"></div>` : ""}
+            ${section.traps ? `<div class="trap-list">${section.traps.map(x => `<div class="trap-item">${escapeHtml(x)}</div>`).join("")}</div>` : ""}
+          </article>`).join("")}
+        ${checkpointBlock(t)}
+        <div class="source-list">${t.sources.map(s => `<span class="source-pill">${escapeHtml(s)}</span>`).join("")}</div>
+      </section>`).join("");
+
+    document.querySelectorAll("[data-diagram]").forEach(el => drawDiagram(el.dataset.diagram, el));
+    function topicHaystack(topic) {
+      const sections = topic.sections.flatMap(section => [
+        section.heading,
+        ...(section.body || []),
+        section.math || "",
+        section.proof || "",
+        section.code || "",
+        ...(section.traps || [])
+      ]);
+      const checks = checksForTopic(topic.id).flatMap(check => [check.prompt, check.answer, check.source]);
+      return [
+        topic.title,
+        topic.short,
+        topic.part,
+        topic.week,
+        ...topic.tags,
+        ...topic.sources,
+        ...sections,
+        ...checks
+      ].join(" ").toLowerCase();
+    }
+    function topicMatchesFilter(topic) {
+      const search = guideSearch.value.trim().toLowerCase();
+      const status = guideStatus.value;
+      const state = topicStatus[topic.id] || "";
+      if (search && !topicHaystack(topic).includes(search)) return false;
+      if (status === "reviewed" && state !== "reviewed") return false;
+      if (status === "revisit" && state !== "revisit") return false;
+      if (status === "unreviewed" && state) return false;
+      return true;
+    }
+    function applyGuideFilters() {
+      let visible = 0;
+      TOPICS.forEach(topic => {
+        const show = topicMatchesFilter(topic);
+        if (show) visible += 1;
+        document.getElementById(topic.id)?.classList.toggle("hidden", !show);
+        document.querySelector(`.side-link[data-topic="${topic.id}"]`)?.classList.toggle("hidden", !show);
+      });
+      guideCount.textContent = `${visible} of ${TOPICS.length} topics visible`;
+      guideEmpty.classList.toggle("visible", visible === 0);
+    }
+    function setTopicStatus(id, value) {
+      topicStatus[id] = topicStatus[id] === value ? null : value;
+      setStore(topicStateKey, topicStatus);
+      renderTopicStatus();
+    }
+    function renderTopicStatus() {
+      document.querySelectorAll("[data-topic-action]").forEach(btn => {
+        const id = btn.dataset.topicId;
+        const value = btn.dataset.topicAction;
+        btn.classList.toggle("active", topicStatus[id] === value);
+        btn.classList.toggle("reviewed", value === "reviewed");
+        btn.classList.toggle("revisit", value === "revisit");
+      });
+      document.querySelectorAll(".side-link").forEach(link => {
+        const state = topicStatus[link.dataset.topic];
+        link.classList.toggle("reviewed", state === "reviewed");
+        link.classList.toggle("revisit", state === "revisit");
+      });
+      applyGuideFilters();
+    }
+    function setGuideCheck(id, value) {
+      guideCheckStatus[id] = guideCheckStatus[id] === value ? null : value;
+      setStore(guideCheckKey, guideCheckStatus);
+      renderGuideChecks();
+    }
+    function renderGuideChecks() {
+      document.querySelectorAll("[data-guide-check]").forEach(card => {
+        const id = card.dataset.guideCheck;
+        const state = guideCheckStatus[id] || "";
+        card.classList.toggle("got", state === "got");
+        card.classList.toggle("revisit", state === "revisit");
+      });
+      document.querySelectorAll("[data-guide-check-state]").forEach(badge => {
+        const state = guideCheckStatus[badge.dataset.guideCheckState] || "unmarked";
+        badge.textContent = state === "got" ? "got it" : state;
+        badge.className = `badge ${state === "got" ? "b-official" : state === "revisit" ? "b-unofficial" : "b-type"}`;
+      });
+      document.querySelectorAll("[data-guide-check-action]").forEach(btn => {
+        const state = guideCheckStatus[btn.dataset.guideCheckId] || "";
+        const value = btn.dataset.guideCheckAction;
+        btn.classList.toggle("active", state === value);
+        btn.classList.toggle("got", value === "got");
+        btn.classList.toggle("revisit", value === "revisit");
+      });
+      document.querySelectorAll("[data-checkpoint-summary]").forEach(summary => {
+        const checks = checksForTopic(summary.dataset.checkpointSummary);
+        const got = checks.filter(check => guideCheckStatus[check.id] === "got").length;
+        const revisit = checks.filter(check => guideCheckStatus[check.id] === "revisit").length;
+        summary.textContent = `${got}/${checks.length} got it${revisit ? ` · ${revisit} revisit` : ""}`;
+        summary.className = `badge ${got === checks.length ? "b-official" : revisit ? "b-unofficial" : "b-source"}`;
+      });
+    }
+    document.querySelectorAll("[data-topic-action]").forEach(btn => {
+      btn.addEventListener("click", () => setTopicStatus(btn.dataset.topicId, btn.dataset.topicAction));
+    });
+    document.querySelectorAll("[data-guide-check-action]").forEach(btn => {
+      btn.addEventListener("click", () => setGuideCheck(btn.dataset.guideCheckId, btn.dataset.guideCheckAction));
+    });
+    document.querySelectorAll(".checkpoint-item details").forEach(details => {
+      details.addEventListener("toggle", rerenderMath);
+    });
+    guideSearch.addEventListener("input", applyGuideFilters);
+    guideStatus.addEventListener("input", applyGuideFilters);
+    renderTopicStatus();
+    renderGuideChecks();
+    document.getElementById("audit-grid").innerHTML = ERRATA_NOTES.map(note => `
+      <article class="audit-note">
+        <h4>${escapeHtml(note.title)} ${note.relatedQuestionId ? `<a class="badge b-source" href="questions.html?search=${encodeURIComponent(note.relatedQuestionId)}">${escapeHtml(note.relatedQuestionId)}</a>` : ""}</h4>
+        <p><strong>${escapeHtml(note.source)}</strong></p>
+        <p>${escapeHtml(note.note)}</p>
+        <p>${escapeHtml(note.action)}</p>
+      </article>`).join("");
+    document.getElementById("media-grid").innerHTML = MEDIA_LINKS.map(m => `<a href="${m.url}" target="_blank" rel="noreferrer">${escapeHtml(m.label)}<br><span class="source-pill">${escapeHtml(m.status)}</span></a>`).join("");
+    rerenderMath();
+
+    const links = [...document.querySelectorAll(".side-link")];
+    const sections = [...document.querySelectorAll(".topic-section")];
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        links.forEach(l => l.classList.toggle("active", l.dataset.topic === entry.target.dataset.topic));
+      });
+    }, { rootMargin: "-80px 0px -55% 0px" });
+    sections.forEach(s => observer.observe(s));
+    window.addEventListener("scroll", () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      document.getElementById("read-bar").style.width = `${Math.min(100, (scrollY / max) * 100)}%`;
+    }, { passive: true });
+  </script>
+</body>
+</html>

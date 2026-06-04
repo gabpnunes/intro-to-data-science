@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Exam Kit</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .kit-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .kit-grid > * { min-width: 0; }
+    .kit-section { padding: 20px; }
+    .kit-section h2 { margin: 0 0 14px; font-size: 20px; font-weight: 400; }
+    .drill-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+    .drill-panel h2 { margin: 0 0 5px; font-size: 17px; font-weight: 400; }
+    .drill-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .drill-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .missed-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+    .missed-panel h2 { margin: 0 0 5px; font-size: 17px; font-weight: 400; }
+    .missed-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .missed-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .missed-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .missed-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .missed-item span {
+      display: block;
+      margin-top: 3px;
+      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    .drill-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 700;
+      display: none;
+      overflow-y: auto;
+      padding: 86px 24px 38px;
+      background: var(--bg);
+    }
+    .drill-overlay.visible { display: block; }
+    .drill-shell { max-width: 900px; margin: 0 auto; }
+    .drill-bar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .drill-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .drill-stat {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 11px;
+      background: var(--panel-soft);
+    }
+    .drill-card { padding: 20px; }
+    .drill-card h2 { margin: 0 0 10px; font-size: 24px; font-weight: 300; line-height: 1.25; }
+    .drill-card p { color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .drill-answer {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.14);
+    }
+    .drill-answer.visible { display: block; }
+    .drill-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .drill-nav-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .formula-list, .frame-list, .check-list, .r-list, .derivation-list { display: grid; gap: 10px; }
+    .formula-card, .frame-card, .r-card, .derivation-card, .check-item {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .formula-top, .frame-top, .r-top, .derivation-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 9px;
+    }
+    .formula-card h3, .frame-card h3, .r-card h3, .derivation-card h3 {
+      width: 100%;
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .math-block {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.14);
+      overflow-x: auto;
+    }
+    .kit-label {
+      margin: 9px 0 4px;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .formula-card p, .frame-card p, .r-card p, .derivation-card p, .check-item {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .formula-card p, .frame-card p, .r-card p, .derivation-card p { margin: 0; }
+    .derivation-card details {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.14);
+    }
+    .derivation-card summary {
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .derivation-card ol {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .derivation-card li { margin-bottom: 8px; }
+    .r-code {
+      margin: 10px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .cue-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 10px;
+    }
+    .check-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 9px;
+      align-items: start;
+    }
+    .check-item input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--accent);
+    }
+    .kit-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .kit-stat {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .kit-stat span {
+      display: block;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .kit-stat strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 22px;
+      font-weight: 300;
+    }
+    @media (max-width: 920px) {
+      .kit-grid { grid-template-columns: 1fr; }
+      .kit-stats { grid-template-columns: 1fr; }
+      .drill-panel, .drill-bar, .missed-panel, .missed-item { grid-template-columns: 1fr; }
+      .drill-actions, .drill-stats { justify-content: flex-start; }
+      .drill-overlay { padding-left: 14px; padding-right: 14px; }
+    }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">05 · Exam Kit</p>
+    <h1 class="page-title">Part 1 exam kit</h1>
+    <p class="page-sub">A compact source-linked layer for recall, derivations, and answer structure. Tutorial 1 and 2 solution-dependent items remain provisional until official solution files are supplied.</p>
+    <section class="glass drill-panel">
+      <div>
+        <h2>Recall drill</h2>
+        <p>Hide the answer, recall the formula or R command, then reveal and rate the attempt.</p>
+      </div>
+      <div class="drill-actions">
+        <button class="text-btn primary" id="start-formula-drill"></button>
+        <button class="text-btn" id="start-r-drill"></button>
+        <button class="text-btn" id="start-mixed-drill"></button>
+      </div>
+    </section>
+    <section class="glass missed-panel" id="missed-recall">
+      <div>
+        <h2>Missed recall queue</h2>
+        <p>Prompts you rate as missed are saved here until you recall them correctly. Use this when you want a focused weak-spots pass.</p>
+        <div class="missed-list" id="missed-list"></div>
+      </div>
+      <div class="drill-actions">
+        <button class="text-btn primary" id="start-missed-drill"></button>
+        <button class="text-btn" id="clear-missed-drill"></button>
+      </div>
+    </section>
+    <div class="kit-grid">
+      <section class="glass kit-section">
+        <h2>Formula Triggers</h2>
+        <div class="formula-list" id="formula-list"></div>
+      </section>
+      <aside>
+        <section class="glass kit-section">
+          <h2>Mastery Snapshot</h2>
+          <div class="kit-stats" id="kit-stats"></div>
+          <div class="check-list" id="check-list"></div>
+        </section>
+      </aside>
+      <section class="glass kit-section" id="derivation-coach" style="grid-column:1 / -1">
+        <h2>Derivation Coach</h2>
+        <div class="derivation-list" id="derivation-list"></div>
+      </section>
+      <section class="glass kit-section" style="grid-column:1 / -1">
+        <h2>R Command Clinic</h2>
+        <div class="r-list" id="r-list"></div>
+      </section>
+      <section class="glass kit-section" style="grid-column:1 / -1">
+        <h2>Answer Frames</h2>
+        <div class="frame-list" id="frame-list"></div>
+      </section>
+    </div>
+  </main>
+  <section class="drill-overlay" id="drill-overlay" aria-hidden="true">
+    <div class="drill-shell">
+      <div class="glass drill-bar">
+        <div>
+          <strong id="drill-title">Recall drill</strong>
+          <span class="badge b-source" id="drill-mode">mixed</span>
+        </div>
+        <div class="drill-stats">
+          <span class="drill-stat" id="drill-progress"></span>
+          <button class="text-btn" id="drill-exit"></button>
+        </div>
+      </div>
+      <article class="glass drill-card" id="drill-card"></article>
+    </div>
+  </section>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("exam");
+    const checkKey = "ids_exam_checklist";
+    const derivationKey = "ids_exam_derivations";
+    const drillKey = "ids_exam_drill_history";
+    const missKey = "ids_exam_drill_misses";
+    let checks = getStore(checkKey, {});
+    let derivations = getStore(derivationKey, {});
+    let misses = getStore(missKey, {});
+    let drill = { active: false, queue: [], index: 0, revealed: false, correct: 0, attempts: 0, mode: "mixed", startedAt: 0 };
+    document.getElementById("formula-list").innerHTML = EXAM_KIT.formulas.map(item => `
+      <article class="formula-card">
+        <div class="formula-top">
+          <h3>${escapeHtml(item.label)}</h3>
+          <span class="badge b-topic">${escapeHtml(item.topic)}</span>
+          <span class="badge b-source">${escapeHtml(item.source)}</span>
+        </div>
+        <div class="math-block">${item.formula}</div>
+        <p class="kit-label">Use when</p>
+        <p>${escapeHtml(item.use)}</p>
+        <p class="kit-label">Trap</p>
+        <p>${escapeHtml(item.trap)}</p>
+      </article>`).join("");
+    document.getElementById("frame-list").innerHTML = EXAM_KIT.answerFrames.map(frame => `
+      <article class="frame-card">
+        <div class="frame-top">
+          <h3>${escapeHtml(frame.title)}</h3>
+          <span class="badge b-source">${escapeHtml(frame.source)}</span>
+        </div>
+        <div class="cue-row">${frame.cues.map(cue => `<span class="source-pill">${escapeHtml(cue)}</span>`).join("")}</div>
+        <p>${escapeHtml(frame.answer)}</p>
+      </article>`).join("");
+    document.getElementById("r-list").innerHTML = EXAM_KIT.rCommands.map(item => `
+      <article class="r-card">
+        <div class="r-top">
+          <h3>${escapeHtml(item.label)}</h3>
+          <span class="badge b-topic">${escapeHtml(item.topic)}</span>
+          <span class="badge b-source">${escapeHtml(item.source)}</span>
+        </div>
+        <pre class="r-code">${escapeHtml(item.code)}</pre>
+        <p class="kit-label">Use when</p>
+        <p>${escapeHtml(item.use)}</p>
+        <p class="kit-label">Trap</p>
+        <p>${escapeHtml(item.trap)}</p>
+      </article>`).join("");
+    function renderDerivations() {
+      document.getElementById("derivation-list").innerHTML = EXAM_KIT.derivations.map(item => `
+        <article class="derivation-card">
+          <div class="derivation-top">
+            <h3>${escapeHtml(item.label)}</h3>
+            <span class="badge b-topic">${escapeHtml(item.topic)}</span>
+            <span class="badge b-source">${escapeHtml(item.source)}</span>
+            ${derivations[item.id] ? `<span class="badge b-official">understood</span>` : ""}
+          </div>
+          <p>${escapeHtml(item.goal)}</p>
+          <details>
+            <summary>${icon("eye")} Reveal reasoning steps</summary>
+            <ol>${item.steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+            <p class="kit-label">Check yourself</p>
+            <p>${escapeHtml(item.check)}</p>
+          </details>
+          <label class="check-item">
+            <input type="checkbox" data-derivation="${escapeHtml(item.id)}" ${derivations[item.id] ? "checked" : ""}>
+            <span>I can reproduce this derivation without looking.</span>
+          </label>
+        </article>`).join("");
+      document.querySelectorAll("[data-derivation]").forEach(input => {
+        input.addEventListener("change", () => {
+          derivations[input.dataset.derivation] = input.checked;
+          if (!input.checked) delete derivations[input.dataset.derivation];
+          setStore(derivationKey, derivations);
+          renderDerivations();
+          renderChecklist();
+          rerenderMath();
+        });
+      });
+      document.querySelectorAll(".derivation-card details").forEach(details => {
+        details.addEventListener("toggle", rerenderMath);
+      });
+    }
+    function renderChecklist() {
+      const done = EXAM_KIT.checklist.filter((_, i) => checks[i]).length;
+      const derivationDone = EXAM_KIT.derivations.filter(item => derivations[item.id]).length;
+      document.getElementById("kit-stats").innerHTML = `
+        <div class="kit-stat"><span>Formulas</span><strong>${EXAM_KIT.formulas.length}</strong></div>
+        <div class="kit-stat"><span>Derivations</span><strong>${derivationDone}/${EXAM_KIT.derivations.length}</strong></div>
+        <div class="kit-stat"><span>R commands</span><strong>${EXAM_KIT.rCommands.length}</strong></div>
+        <div class="kit-stat"><span>Frames</span><strong>${EXAM_KIT.answerFrames.length}</strong></div>
+        <div class="kit-stat"><span>Checklist</span><strong>${done}/${EXAM_KIT.checklist.length}</strong></div>`;
+      document.getElementById("check-list").innerHTML = EXAM_KIT.checklist.map((item, i) => `
+        <label class="check-item">
+          <input type="checkbox" data-check="${i}" ${checks[i] ? "checked" : ""}>
+          <span>${escapeHtml(item)}</span>
+        </label>`).join("");
+      document.querySelectorAll("[data-check]").forEach(input => {
+        input.addEventListener("change", () => {
+          checks[input.dataset.check] = input.checked;
+          setStore(checkKey, checks);
+          renderChecklist();
+        });
+      });
+    }
+    function formulaPrompt(item) {
+      return {
+        kind: "formula",
+        label: item.label,
+        topic: item.topic,
+        source: item.source,
+        prompt: `Recall the formula and when to use it: ${item.label}`,
+        answerHtml: `<div class="math-block">${item.formula}</div><p class="kit-label">Use when</p><p>${escapeHtml(item.use)}</p><p class="kit-label">Trap</p><p>${escapeHtml(item.trap)}</p>`
+      };
+    }
+    function rPrompt(item) {
+      return {
+        kind: "R",
+        label: item.label,
+        topic: item.topic,
+        source: item.source,
+        prompt: `Write or recognize the R command pattern: ${item.label}`,
+        answerHtml: `<pre class="r-code">${escapeHtml(item.code)}</pre><p class="kit-label">Use when</p><p>${escapeHtml(item.use)}</p><p class="kit-label">Trap</p><p>${escapeHtml(item.trap)}</p>`
+      };
+    }
+    function promptKey(item) {
+      return `${item.kind}:${item.label}`;
+    }
+    function allPrompts() {
+      return [...EXAM_KIT.formulas.map(formulaPrompt), ...EXAM_KIT.rCommands.map(rPrompt)];
+    }
+    function recordRecall(item, isCorrect) {
+      const key = promptKey(item);
+      if (isCorrect) {
+        delete misses[key];
+      } else {
+        const previous = misses[key] || { count: 0 };
+        misses[key] = {
+          kind: item.kind,
+          label: item.label,
+          topic: item.topic,
+          source: item.source,
+          count: previous.count + 1,
+          lastMissedAt: new Date().toISOString()
+        };
+      }
+      setStore(missKey, misses);
+      renderMisses();
+    }
+    function missedQueue() {
+      const active = new Set(Object.keys(misses));
+      return allPrompts().filter(item => active.has(promptKey(item)));
+    }
+    function renderMisses() {
+      const rows = Object.values(misses).sort((a, b) => (b.count || 0) - (a.count || 0) || String(a.label).localeCompare(String(b.label)));
+      const list = document.getElementById("missed-list");
+      document.getElementById("start-missed-drill").disabled = rows.length === 0;
+      document.getElementById("clear-missed-drill").disabled = rows.length === 0;
+      if (!rows.length) {
+        list.innerHTML = `<div class="check-item"><span>No missed recall prompts saved yet.</span></div>`;
+        return;
+      }
+      list.innerHTML = rows.map(item => `
+        <article class="missed-item">
+          <div>
+            <strong>${escapeHtml(item.label)}</strong>
+            <span>${escapeHtml(item.kind)} · ${escapeHtml(item.topic)} · ${escapeHtml(item.source)}</span>
+          </div>
+          <span class="badge b-unofficial">${escapeHtml(item.count || 1)} missed</span>
+        </article>`).join("");
+    }
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+    function startDrill(mode) {
+      const formulas = EXAM_KIT.formulas.map(formulaPrompt);
+      const commands = EXAM_KIT.rCommands.map(rPrompt);
+      const queue = mode === "formula" ? formulas : mode === "r" ? commands : [...formulas, ...commands];
+      const chosen = mode === "missed" ? missedQueue() : queue;
+      if (!chosen.length) return;
+      drill = { active: true, queue: shuffle(chosen), index: 0, revealed: false, correct: 0, attempts: 0, mode, startedAt: Date.now() };
+      document.getElementById("drill-overlay").classList.add("visible");
+      document.getElementById("drill-overlay").setAttribute("aria-hidden", "false");
+      renderDrill();
+    }
+    function exitDrill(save = true) {
+      if (save && drill.active) {
+        const history = getStore(drillKey, []);
+        history.unshift({
+          at: new Date().toISOString(),
+          mode: drill.mode,
+          count: drill.queue.length,
+          attempts: drill.attempts,
+          correct: drill.correct,
+          elapsedMs: Date.now() - drill.startedAt
+        });
+        setStore(drillKey, history.slice(0, 12));
+      }
+      drill.active = false;
+      document.getElementById("drill-overlay").classList.remove("visible");
+      document.getElementById("drill-overlay").setAttribute("aria-hidden", "true");
+    }
+    function rateDrill(isCorrect) {
+      const item = drill.queue[drill.index];
+      drill.attempts += 1;
+      if (isCorrect) drill.correct += 1;
+      if (item) recordRecall(item, isCorrect);
+      drill.index += 1;
+      drill.revealed = false;
+      renderDrill();
+    }
+    function renderDrill() {
+      const card = document.getElementById("drill-card");
+      document.getElementById("drill-mode").textContent = drill.mode === "r" ? "R commands" : drill.mode === "missed" ? "missed recall" : drill.mode;
+      document.getElementById("drill-progress").textContent = `${Math.min(drill.index + 1, drill.queue.length)} / ${drill.queue.length}`;
+      const item = drill.queue[drill.index];
+      if (!item) {
+        card.innerHTML = `
+          <h2>Drill complete</h2>
+          <p>You rated ${drill.correct} of ${drill.attempts} revealed prompts as recalled.</p>
+          <div class="drill-nav">
+            <button class="text-btn primary" onclick="exitDrill(true)">Back to Exam Kit</button>
+            <button class="text-btn" onclick="startDrill('${drill.mode}')">${icon("refresh")} Repeat mode</button>
+          </div>`;
+        document.getElementById("drill-progress").textContent = `${drill.queue.length} / ${drill.queue.length}`;
+        return;
+      }
+      card.innerHTML = `
+        <div class="formula-top">
+          <span class="badge b-topic">${escapeHtml(item.topic)}</span>
+          <span class="badge b-source">${escapeHtml(item.source)}</span>
+          <span class="badge b-type">${escapeHtml(item.kind)}</span>
+        </div>
+        <h2>${escapeHtml(item.label)}</h2>
+        <p>${escapeHtml(item.prompt)}</p>
+        ${drill.revealed ? `<div class="drill-answer visible">${item.answerHtml}</div>` : ""}
+        <div class="drill-nav">
+          <div class="drill-nav-group">
+            <button class="text-btn primary" onclick="drill.revealed=!drill.revealed;renderDrill()">${drill.revealed ? "Hide answer" : "Reveal answer"}</button>
+            <button class="text-btn" onclick="drill.index=Math.max(0,drill.index-1);drill.revealed=false;renderDrill()" ${drill.index === 0 ? "disabled" : ""}>Previous</button>
+          </div>
+          <div class="drill-nav-group">
+            <button class="text-btn" onclick="rateDrill(false)" ${drill.revealed ? "" : "disabled"}>Missed</button>
+            <button class="text-btn primary" onclick="rateDrill(true)" ${drill.revealed ? "" : "disabled"}>Got it</button>
+          </div>
+        </div>`;
+      rerenderMath();
+    }
+    window.startDrill = startDrill;
+    window.exitDrill = exitDrill;
+    window.renderDrill = renderDrill;
+    window.rateDrill = rateDrill;
+    renderDerivations();
+    renderChecklist();
+    renderMisses();
+    document.getElementById("start-formula-drill").innerHTML = `${icon("cards")} Formula drill`;
+    document.getElementById("start-r-drill").innerHTML = `${icon("list")} R drill`;
+    document.getElementById("start-mixed-drill").innerHTML = `${icon("arrow")} Mixed drill`;
+    document.getElementById("start-missed-drill").innerHTML = `${icon("refresh")} Drill missed`;
+    document.getElementById("clear-missed-drill").innerHTML = `${icon("trash")} Clear`;
+    document.getElementById("drill-exit").innerHTML = `${icon("close")} Exit`;
+    document.getElementById("start-formula-drill").addEventListener("click", () => startDrill("formula"));
+    document.getElementById("start-r-drill").addEventListener("click", () => startDrill("r"));
+    document.getElementById("start-mixed-drill").addEventListener("click", () => startDrill("mixed"));
+    document.getElementById("start-missed-drill").addEventListener("click", () => startDrill("missed"));
+    document.getElementById("clear-missed-drill").addEventListener("click", () => {
+      misses = {};
+      setStore(missKey, misses);
+      renderMisses();
+    });
+    document.getElementById("drill-exit").addEventListener("click", () => exitDrill(true));
+    window.addEventListener("keydown", e => {
+      if (!drill.active) return;
+      if (e.key === "Escape") exitDrill(true);
+      if (e.key === " ") {
+        e.preventDefault();
+        drill.revealed = !drill.revealed;
+        renderDrill();
+      }
+    });
+    rerenderMath();
+  </script>
+</body>
+</html>

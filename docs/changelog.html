@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Changelog</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .version-panel { padding: 18px 20px; margin-bottom: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: center; }
+    .version-panel p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .entries { display: grid; gap: 14px; }
+    .entry { padding: 20px; }
+    .entry h2 { margin: 0 0 7px; font-size: 20px; font-weight: 400; }
+    .entry time { color: var(--faint); font-size: 11px; }
+    .entry ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .entry li + li { margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">06 · Live Changelog</p>
+    <h1 class="page-title">Updates and source revisions</h1>
+    <p class="page-sub">This page is backed by <code>changelog.json</code>. Open pages also poll <code>version.json</code> and show a refresh alert when a newer deployed version appears.</p>
+    <section class="glass version-panel">
+      <p><strong>Current bundled version:</strong> <span id="current-version"></span></p>
+      <button class="text-btn primary" id="manual-check"></button>
+    </section>
+    <div class="entries" id="entries"></div>
+  </main>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("changelog");
+    document.getElementById("current-version").textContent = SITE_VERSION;
+    document.getElementById("manual-check").innerHTML = `${icon("refresh")} Check for updates`;
+    async function renderChangelog() {
+      const entries = await loadJson("changelog.json");
+      document.getElementById("entries").innerHTML = entries.map(e => `
+        <article class="glass entry">
+          <h2>${escapeHtml(e.title)} ${e.version === SITE_VERSION ? `<span class="badge b-official">current</span>` : ""}</h2>
+          <time>${escapeHtml(e.date)} · ${escapeHtml(e.version)}</time>
+          <ul>${(e.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+        </article>`).join("");
+    }
+    document.getElementById("manual-check").addEventListener("click", async () => {
+      const data = await loadJson("version.json");
+      const alert = document.getElementById("update-alert");
+      const msg = document.getElementById("update-message");
+      if (data.version !== SITE_VERSION) {
+        msg.textContent = `Version ${data.version} is live. Refresh to see the newest changes.`;
+        alert.classList.add("visible");
+      } else {
+        msg.textContent = "You are already viewing the latest bundled version.";
+        alert.classList.add("visible");
+      }
+    });
+    renderChangelog().catch(() => {
+      document.getElementById("entries").innerHTML = `<div class="glass entry"><h2>Changelog unavailable</h2><p class="page-sub">Serve the site over HTTP to load JSON files.</p></div>`;
+    });
+  </script>
+</body>
+</html>

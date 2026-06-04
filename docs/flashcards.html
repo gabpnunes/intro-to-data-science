@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Flashcards</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+    .tab { padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
+    .tab.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
+    .stats { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; margin-bottom: 18px; }
+    .stat { padding: 8px 12px; border-right: 1px solid var(--line); }
+    .stat:last-child { border-right: 0; }
+    .stat span { display: block; color: var(--faint); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .stat strong { font-size: 22px; font-weight: 300; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px; }
+    .fc { min-height: 158px; perspective: 1000px; cursor: pointer; }
+    .fc-inner { position: relative; width: 100%; height: 158px; transform-style: preserve-3d; transition: transform .45s ease; }
+    .fc.flipped .fc-inner { transform: rotateY(180deg); }
+    .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .back { transform: rotateY(180deg); background: var(--panel-strong); }
+    .term { font-size: 15px; font-weight: 500; }
+    .hint, .def, .src { color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .src { margin-top: 10px; color: var(--faint); }
+    .study { position: fixed; inset: 0; z-index: 700; display: none; background: var(--bg); padding: 80px 20px 30px; }
+    .study.visible { display: grid; place-items: center; }
+    .study-box { width: min(620px, 100%); text-align: center; }
+    .study-card { min-height: 300px; display: grid; place-items: center; padding: 32px; margin-bottom: 18px; }
+    .study-card h2 { margin: 0 0 12px; font-weight: 400; }
+    .rating { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; }
+    .rating .text-btn { min-width: 92px; justify-content: center; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">03 · Flashcards</p>
+    <h1 class="page-title">Key concepts</h1>
+    <p class="page-sub">Definitions and formula triggers from Part 1. Review ratings are saved locally in your browser.</p>
+    <div class="tabs" id="tabs"></div>
+    <div class="glass stats" id="stats"></div>
+    <div class="grid" id="grid"></div>
+  </main>
+  <section class="study" id="study">
+    <div class="study-box">
+      <button class="text-btn" id="exit-study" style="margin-bottom:16px">Exit</button>
+      <div class="glass study-card" id="study-card"></div>
+      <div class="rating" id="rating"></div>
+    </div>
+  </section>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("flashcards");
+    document.getElementById("exit-study").innerHTML = `${icon("close")} Exit`;
+    const key = "ids_flashcards";
+    const DAY = 86400000;
+    let topic = "all";
+    let srs = getStore(key, {});
+    let queue = [];
+    let current = 0;
+    let revealed = false;
+    const topics = [{ id: "all", title: "All" }, ...TOPICS.map(t => ({ id: t.id, title: t.title }))];
+
+    function cardId(card, i) { return `${card.topic}_${i}_${card.front.replace(/\\W/g,"").slice(0,12)}`; }
+    function dueCards() {
+      const now = Date.now();
+      return CARDS.map((card, i) => ({ ...card, index: i, id: cardId(card, i), meta: srs[cardId(card, i)] || { due: 0, interval: 0, reps: 0 } }))
+        .filter(c => topic === "all" || c.topic === topic)
+        .filter(c => !c.meta.due || c.meta.due <= now);
+    }
+    function visibleCards() { return CARDS.map((card, i) => ({ ...card, index: i, id: cardId(card, i) })).filter(c => topic === "all" || c.topic === topic); }
+    function setTopic(id) { topic = id; render(); }
+    window.setTopic = setTopic;
+
+    function rate(label) {
+      const card = queue[current];
+      if (!card) return;
+      const prior = srs[card.id] || { interval: 0, reps: 0, ease: 2.5 };
+      let interval = prior.interval || 0;
+      let ease = prior.ease || 2.5;
+      if (label === "again") { interval = 0; ease = Math.max(1.3, ease - .2); }
+      if (label === "hard") interval = Math.max(1, Math.round((interval || 1) * 1.2));
+      if (label === "good") interval = Math.max(1, Math.round((interval || 1) * ease));
+      if (label === "easy") { ease += .15; interval = Math.max(4, Math.round((interval || 1) * ease * 1.3)); }
+      srs[card.id] = { interval, ease, reps: (prior.reps || 0) + 1, due: Date.now() + (label === "again" ? 10 * 60000 : interval * DAY) };
+      setStore(key, srs);
+      current++;
+      revealed = false;
+      renderStudy();
+      render();
+    }
+    window.rate = rate;
+    function startStudy() {
+      queue = dueCards();
+      current = 0;
+      revealed = false;
+      document.getElementById("study").classList.add("visible");
+      renderStudy();
+    }
+    window.startStudy = startStudy;
+    function renderStudy() {
+      const card = queue[current];
+      const box = document.getElementById("study-card");
+      const rating = document.getElementById("rating");
+      if (!card) {
+        box.innerHTML = `<div><h2>Session complete</h2><p class="def">No due cards left for this topic.</p></div>`;
+        rating.innerHTML = `<button class="text-btn primary" onclick="document.getElementById('study').classList.remove('visible')">Back</button>`;
+        return;
+      }
+      box.innerHTML = revealed
+        ? `<div><h2>${escapeHtml(card.front)}</h2><p class="def">${escapeHtml(card.back)}</p><p class="src">${escapeHtml(card.source)}</p></div>`
+        : `<div><h2>${escapeHtml(card.front)}</h2><p class="hint">Click card or press Space to reveal</p></div>`;
+      rating.innerHTML = revealed ? `
+        <button class="text-btn" onclick="rate('again')">Again</button>
+        <button class="text-btn" onclick="rate('hard')">Hard</button>
+        <button class="text-btn primary" onclick="rate('good')">Good</button>
+        <button class="text-btn" onclick="rate('easy')">Easy</button>` : "";
+    }
+    document.getElementById("study-card").addEventListener("click", () => { revealed = true; renderStudy(); });
+    document.getElementById("exit-study").addEventListener("click", () => document.getElementById("study").classList.remove("visible"));
+    window.addEventListener("keydown", e => {
+      if (!document.getElementById("study").classList.contains("visible")) return;
+      if (e.key === " ") { e.preventDefault(); revealed = true; renderStudy(); }
+      if (revealed && ["1","2","3","4"].includes(e.key)) rate(["again","hard","good","easy"][Number(e.key)-1]);
+      if (e.key === "Escape") document.getElementById("study").classList.remove("visible");
+    });
+    function render() {
+      document.getElementById("tabs").innerHTML = topics.map(t => `<button class="tab ${topic === t.id ? "active" : ""}" onclick="setTopic('${t.id}')">${escapeHtml(t.title)}</button>`).join("");
+      const cards = visibleCards();
+      const due = dueCards();
+      const learned = cards.filter(c => srs[c.id]?.reps).length;
+      document.getElementById("stats").innerHTML = `
+        <div class="stat"><span>Visible</span><strong>${cards.length}</strong></div>
+        <div class="stat"><span>Due</span><strong>${due.length}</strong></div>
+        <div class="stat"><span>Reviewed</span><strong>${learned}</strong></div>
+        <button class="text-btn primary" onclick="startStudy()" ${due.length ? "" : "disabled"}>${icon("cards")} Study Due</button>`;
+      document.getElementById("grid").innerHTML = cards.map(c => `
+        <div class="fc" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="glass face"><div class="term">${escapeHtml(c.front)}</div><div class="hint">tap to reveal</div></div>
+            <div class="glass face back"><div class="def">${escapeHtml(c.back)}</div><div class="src">${escapeHtml(c.source)}</div></div>
+          </div>
+        </div>`).join("");
+    }
+    render();
+  </script>
+</body>
+</html>

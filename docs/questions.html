@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Question Bank</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .q-meta { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; color: var(--faint); font-size: 11px; }
+    .q-list { display: grid; gap: 11px; }
+    .q-list > * { min-width: 0; }
+    .q-card { min-width: 0; padding: 18px 20px; }
+    .q-card.done { opacity: .58; }
+    .q-top { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-bottom: 11px; }
+    .q-text { white-space: pre-line; color: var(--text); font-size: 13px; line-height: 1.65; }
+    .q-text { min-width: 0; }
+    .q-text p { margin: 0 0 10px; white-space: normal; }
+    .source-table-wrap {
+      max-width: 100%;
+      margin: 12px 0;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.12);
+    }
+    .source-caption {
+      padding: 10px 12px 0;
+      color: var(--faint);
+      font-size: 11px;
+      text-align: center;
+    }
+    .source-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: normal;
+    }
+    .source-table.compact { min-width: 360px; }
+    .source-table th,
+    .source-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    .source-table th {
+      color: var(--text);
+      font-weight: 500;
+      background: var(--panel-soft);
+    }
+    .source-table tr:last-child td { border-bottom: 0; }
+    .q-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .q-src { color: var(--faint); font-size: 11px; }
+    .q-actions { display: flex; gap: 6px; }
+    .icon-btn.active.revisit { color: var(--warn); border-color: rgba(251,191,36,.28); background: var(--warn-soft); }
+    .icon-btn.active.done { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+    .solution {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.12);
+    }
+    .solution.visible { display: block; }
+    .solution h3 { margin: 0 0 8px; font-size: 13px; font-weight: 500; }
+    .solution p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.65; white-space: pre-line; }
+    .source-note {
+      margin-top: 12px;
+      padding: 11px 12px;
+      border: 1px solid rgba(251,191,36,.22);
+      border-radius: var(--radius);
+      background: var(--warn-soft);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .note-box {
+      margin-top: 13px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.12);
+    }
+    .note-box summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      list-style: none;
+    }
+    .note-box summary::-webkit-details-marker { display: none; }
+    .note-box summary .badge { margin-left: auto; }
+    .note-box textarea {
+      width: 100%;
+      min-height: 92px;
+      margin-top: 11px;
+      resize: vertical;
+    }
+    .note-hint {
+      margin: 8px 0 0;
+      color: var(--faint);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .empty { padding: 42px; text-align: center; color: var(--faint); font-size: 13px; }
+    .practice-panel {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+    .practice-panel h2 { margin: 0 0 5px; font-size: 17px; font-weight: 400; }
+    .practice-panel p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .practice-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .practice-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 700;
+      display: none;
+      background: var(--bg);
+      overflow-y: auto;
+      padding: 86px 24px 38px;
+    }
+    .practice-overlay.visible { display: block; }
+    .practice-shell {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .practice-bar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .practice-title { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .practice-title strong { font-size: 14px; font-weight: 500; }
+    .practice-stats { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .practice-stat {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 11px;
+      background: var(--panel-soft);
+    }
+    .practice-card { padding: 20px; }
+    .practice-card .q-text { font-size: 14px; }
+    .practice-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .practice-nav-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .practice-summary {
+      display: none;
+      padding: 20px;
+      text-align: center;
+    }
+    .practice-summary.visible { display: block; }
+    .practice-summary h2 { margin: 0 0 10px; font-size: 24px; font-weight: 300; }
+    .practice-summary p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .practice-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .practice-metric {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .practice-metric span {
+      display: block;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .practice-metric strong {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .source-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 0 0 18px;
+    }
+    .source-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .source-card h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .source-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    .source-card-top,
+    .source-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+    .source-card-top { justify-content: space-between; margin-bottom: 8px; }
+    .source-card-actions { margin-top: 12px; }
+    .source-card-actions .text-btn { min-height: 30px; }
+    .source-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .source-stat {
+      min-width: 0;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.1);
+    }
+    .source-stat span {
+      display: block;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .source-stat strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    @media (max-width: 700px) {
+      .q-foot { align-items: flex-start; flex-direction: column; }
+      .practice-panel, .practice-bar { grid-template-columns: 1fr; }
+      .practice-actions, .practice-stats { justify-content: flex-start; }
+      .practice-metrics { grid-template-columns: 1fr; }
+      .source-stats { grid-template-columns: 1fr; }
+      .practice-overlay { padding-left: 14px; padding-right: 14px; }
+    }
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">02 · Question Bank</p>
+    <h1 class="page-title">Practice questions</h1>
+    <p class="page-sub">Questions are copied from the current tutorial sheets. Tutorial 0 official solutions are preserved as official text; Tutorial 1 and 2 solutions are provisional until the official PDFs are released.</p>
+    <section class="glass practice-panel">
+      <div>
+        <h2>Exam-style practice mode</h2>
+        <p>Uses your current filters, shuffles the selected questions, keeps solutions hidden, and tracks elapsed time while you work through them.</p>
+      </div>
+      <div class="practice-actions">
+        <button class="text-btn primary" id="start-practice"></button>
+        <button class="text-btn" id="start-revisit"></button>
+      </div>
+    </section>
+    <section class="source-summary" id="source-summary"></section>
+    <div class="filter-row">
+      <input class="input" id="search" placeholder="Search question text or source">
+      <select class="select" id="topic"><option value="">All topics</option></select>
+      <select class="select" id="source"><option value="">All sources</option></select>
+      <select class="select" id="difficulty"><option value="">All difficulty</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+      <select class="select" id="type"><option value="">All types</option></select>
+      <select class="select" id="status"><option value="">All solutions</option><option value="official">Official</option><option value="unofficial">Unofficial</option><option value="pending">Pending</option></select>
+      <select class="select" id="progress"><option value="">All progress</option><option value="revisit">To revisit</option><option value="done">Completed</option></select>
+      <select class="select" id="notes"><option value="">All notes</option><option value="noted">Has mistake note</option><option value="empty">No note yet</option></select>
+    </div>
+    <div class="q-meta"><span id="q-count"></span><span>Solutions hidden by default</span></div>
+    <div class="q-list" id="q-list"></div>
+  </main>
+  <section class="practice-overlay" id="practice-overlay" aria-hidden="true">
+    <div class="practice-shell">
+      <div class="glass practice-bar">
+        <div class="practice-title">
+          <strong id="practice-heading">Practice session</strong>
+          <span class="badge b-source" id="practice-source">filtered set</span>
+        </div>
+        <div class="practice-stats">
+          <span class="practice-stat" id="practice-progress"></span>
+          <span class="practice-stat" id="practice-timer"></span>
+          <button class="text-btn" id="practice-exit"></button>
+        </div>
+      </div>
+      <article class="glass practice-card" id="practice-card"></article>
+      <article class="glass practice-summary" id="practice-summary"></article>
+    </div>
+  </section>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("questions");
+    const stateKey = "ids_question_status";
+    const notesKey = "ids_question_notes";
+    const sessionKey = "ids_practice_history";
+    let statusMap = getStore(stateKey, {});
+    let noteMap = getStore(notesKey, {});
+    let practice = { active: false, questions: [], index: 0, startedAt: 0, revealed: false };
+    let practiceTimer = null;
+    const topicSelect = document.getElementById("topic");
+    const sourceSelect = document.getElementById("source");
+    function sourceGroup(q) {
+      return q.source.replace(/,\s*Q\d+.*/, "");
+    }
+    const sourceGroups = [...new Set(QUESTIONS.map(sourceGroup))].sort();
+    TOPICS.forEach(t => topicSelect.insertAdjacentHTML("beforeend", `<option value="${t.id}">${escapeHtml(t.title)}</option>`));
+    sourceGroups.forEach(src => sourceSelect.insertAdjacentHTML("beforeend", `<option value="${src}">${escapeHtml(src)}</option>`));
+    [...new Set(QUESTIONS.map(q => q.type))].sort().forEach(type => document.getElementById("type").insertAdjacentHTML("beforeend", `<option value="${type}">${type}</option>`));
+    const params = new URLSearchParams(location.search);
+    if (params.get("topic")) topicSelect.value = params.get("topic");
+    if (params.get("source")) sourceSelect.value = params.get("source");
+    if (params.get("search")) document.getElementById("search").value = params.get("search");
+    ["difficulty", "type", "status", "progress", "notes"].forEach(id => {
+      if (params.get(id)) document.getElementById(id).value = params.get(id);
+    });
+
+    function questionNote(id) {
+      return noteMap[id]?.text || "";
+    }
+    function hasQuestionNote(id) {
+      return questionNote(id).trim().length > 0;
+    }
+    function saveQuestionNote(id, value) {
+      const text = String(value || "");
+      if (text.trim()) {
+        noteMap[id] = { text, updatedAt: new Date().toISOString() };
+      } else {
+        delete noteMap[id];
+      }
+      setStore(notesKey, noteMap);
+      renderSourceSummary();
+    }
+    function noteBox(q) {
+      const text = questionNote(q.id);
+      return `
+        <details class="note-box" ${text.trim() ? "open" : ""}>
+          <summary>${icon("list")} Mistake note ${text.trim() ? `<span class="badge b-source">saved</span>` : ""}</summary>
+          <textarea class="input" data-note-id="${q.id}" placeholder="Write why this question needs another pass, the trap you fell into, or the step you want to remember.">${escapeHtml(text)}</textarea>
+          <p class="note-hint">Saved locally in this browser and included in the homepage progress backup.</p>
+        </details>`;
+    }
+    function bindNoteInputs(root = document) {
+      root.querySelectorAll("[data-note-id]").forEach(input => {
+        input.addEventListener("input", () => saveQuestionNote(input.dataset.noteId, input.value));
+      });
+    }
+    function filtered() {
+      const s = document.getElementById("search").value.toLowerCase();
+      const topic = topicSelect.value;
+      const source = sourceSelect.value;
+      const diff = document.getElementById("difficulty").value;
+      const type = document.getElementById("type").value;
+      const sol = document.getElementById("status").value;
+      const progress = document.getElementById("progress").value;
+      const notes = document.getElementById("notes").value;
+      return QUESTIONS.filter(q => {
+        const hay = `${q.text} ${q.source} ${q.topicName}`.toLowerCase();
+        const noteHay = `${q.id} ${q.sourceNote || ""} ${questionNote(q.id)}`.toLowerCase();
+        if (s && !hay.includes(s) && !noteHay.includes(s)) return false;
+        if (topic && q.topic !== topic) return false;
+        if (source && sourceGroup(q) !== source) return false;
+        if (diff && q.difficulty !== diff) return false;
+        if (type && q.type !== type) return false;
+        if (sol && q.solutionStatus !== sol) return false;
+        if (progress && statusMap[q.id] !== progress) return false;
+        if (notes === "noted" && !hasQuestionNote(q.id)) return false;
+        if (notes === "empty" && hasQuestionNote(q.id)) return false;
+        return true;
+      });
+    }
+    function shuffleQuestions(rows) {
+      const copy = [...rows];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+    function elapsedLabel(ms) {
+      const total = Math.max(0, Math.floor(ms / 1000));
+      const m = String(Math.floor(total / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+    function toggleProgress(id, value) {
+      statusMap[id] = statusMap[id] === value ? null : value;
+      setStore(stateKey, statusMap);
+      render();
+    }
+    function toggleSolution(id) {
+      document.getElementById(`solution-${id}`)?.classList.toggle("visible");
+      rerenderMath();
+    }
+    function setPracticeProgress(id, value) {
+      toggleProgress(id, value);
+      renderPractice();
+    }
+    function officialSolutionBlock(q) {
+      if (!q.officialSolution && !q.officialSolutionHtml) return "";
+      return `<h3>Official solution text</h3>${q.officialSolutionHtml || `<p>${formatText(q.officialSolution)}</p>`}`;
+    }
+    function groupBadge(rows) {
+      const official = rows.filter(q => q.solutionStatus === "official").length;
+      const unofficial = rows.filter(q => q.solutionStatus === "unofficial").length;
+      if (official === rows.length) return `<span class="badge b-official">official</span>`;
+      if (unofficial === rows.length) return `<span class="badge b-unofficial">provisional</span>`;
+      return `<span class="badge b-pending">mixed</span>`;
+    }
+    function renderSourceSummary() {
+      document.getElementById("source-summary").innerHTML = sourceGroups.map(group => {
+        const rows = QUESTIONS.filter(q => sourceGroup(q) === group);
+        const done = rows.filter(q => statusMap[q.id] === "done").length;
+        const revisit = rows.filter(q => statusMap[q.id] === "revisit").length;
+        const noted = rows.filter(q => hasQuestionNote(q.id)).length;
+        const official = rows.filter(q => q.solutionStatus === "official").length;
+        return `
+          <article class="glass source-card">
+            <div class="source-card-top">
+              <h2>${escapeHtml(group)}</h2>
+              ${groupBadge(rows)}
+            </div>
+            <p>${official}/${rows.length} official solutions. ${rows.length - official} provisional or pending reconciliation.</p>
+            <div class="source-stats">
+              <div class="source-stat"><span>questions</span><strong>${rows.length}</strong></div>
+              <div class="source-stat"><span>done</span><strong>${done}</strong></div>
+              <div class="source-stat"><span>revisit</span><strong>${revisit}</strong></div>
+              <div class="source-stat"><span>notes</span><strong>${noted}</strong></div>
+            </div>
+            <div class="source-card-actions">
+              <button class="text-btn" data-source-summary="${escapeHtml(group)}">${icon("list")} Filter</button>
+              <button class="text-btn" data-source-practice="${escapeHtml(group)}">${icon("arrow")} Practice</button>
+            </div>
+          </article>`;
+      }).join("");
+      document.querySelectorAll("[data-source-summary]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          sourceSelect.value = btn.dataset.sourceSummary;
+          document.getElementById("progress").value = "";
+          render();
+        });
+      });
+      document.querySelectorAll("[data-source-practice]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          sourceSelect.value = btn.dataset.sourcePractice;
+          document.getElementById("progress").value = "";
+          render();
+          startPractice("filtered");
+        });
+      });
+    }
+    function startPractice(mode = "filtered") {
+      const base = mode === "revisit" ? QUESTIONS.filter(q => statusMap[q.id] === "revisit") : filtered();
+      if (!base.length) {
+        document.getElementById("q-list").innerHTML = `<div class="glass empty">No questions available for that practice set.</div>`;
+        return;
+      }
+      practice = { active: true, questions: shuffleQuestions(base), index: 0, startedAt: Date.now(), revealed: false, mode };
+      document.getElementById("practice-overlay").classList.add("visible");
+      document.getElementById("practice-overlay").setAttribute("aria-hidden", "false");
+      if (practiceTimer) window.clearInterval(practiceTimer);
+      practiceTimer = window.setInterval(renderPracticeTimer, 1000);
+      renderPractice();
+    }
+    function exitPractice(save = true) {
+      if (save && practice.active) {
+        const history = getStore(sessionKey, []);
+        history.unshift({
+          at: new Date().toISOString(),
+          count: practice.questions.length,
+          elapsedMs: Date.now() - practice.startedAt,
+          noted: practice.questions.filter(q => hasQuestionNote(q.id)).length,
+          mode: practice.mode || "filtered"
+        });
+        setStore(sessionKey, history.slice(0, 12));
+      }
+      practice.active = false;
+      if (practiceTimer) window.clearInterval(practiceTimer);
+      practiceTimer = null;
+      document.getElementById("practice-overlay").classList.remove("visible");
+      document.getElementById("practice-overlay").setAttribute("aria-hidden", "true");
+      render();
+    }
+    function renderPracticeTimer() {
+      if (!practice.active) return;
+      document.getElementById("practice-timer").textContent = `Time ${elapsedLabel(Date.now() - practice.startedAt)}`;
+    }
+    function renderPractice() {
+      const card = document.getElementById("practice-card");
+      const summary = document.getElementById("practice-summary");
+      const q = practice.questions[practice.index];
+      renderPracticeTimer();
+      document.getElementById("practice-heading").textContent = practice.mode === "revisit" ? "Revisit practice" : "Filtered practice";
+      document.getElementById("practice-source").textContent = `${practice.questions.length} questions`;
+      document.getElementById("practice-progress").textContent = `${Math.min(practice.index + 1, practice.questions.length)} / ${practice.questions.length}`;
+      if (!q) {
+        card.style.display = "none";
+        summary.classList.add("visible");
+        const doneCount = practice.questions.filter(x => statusMap[x.id] === "done").length;
+        const revisitCount = practice.questions.filter(x => statusMap[x.id] === "revisit").length;
+        const notedCount = practice.questions.filter(x => hasQuestionNote(x.id)).length;
+        summary.innerHTML = `
+          <h2>Session complete</h2>
+          <p>You worked through ${practice.questions.length} questions in ${elapsedLabel(Date.now() - practice.startedAt)}.</p>
+          <div class="practice-metrics">
+            <div class="practice-metric"><span>completed</span><strong>${doneCount}</strong></div>
+            <div class="practice-metric"><span>to revisit</span><strong>${revisitCount}</strong></div>
+            <div class="practice-metric"><span>mistake notes</span><strong>${notedCount}</strong></div>
+            <div class="practice-metric"><span>mode</span><strong>${escapeHtml(practice.mode || "filtered")}</strong></div>
+          </div>
+          <button class="text-btn primary" id="practice-back" onclick="exitPractice(true)">Back to bank</button>`;
+        return;
+      }
+      card.style.display = "block";
+      summary.classList.remove("visible");
+      const st = statusMap[q.id];
+      const official = officialSolutionBlock(q);
+      const solution = practice.revealed ? `
+        <div class="solution visible">
+          ${official}
+          <h3>${q.solutionStatus === "official" ? "Explanation" : "Provisional solution"}</h3>
+          <p>${formatText(q.explanation || "No solution available yet.")}</p>
+        </div>` : "";
+      card.innerHTML = `
+        <div class="q-top">
+          <span class="badge b-${q.difficulty}">${escapeHtml(q.difficulty)}</span>
+          <span class="badge b-type">${escapeHtml(q.type)}</span>
+          <span class="badge b-topic">${escapeHtml(q.topicName)}</span>
+          <span class="badge b-source">${escapeHtml(sourceGroup(q))}</span>
+          ${statusBadge(q.solutionStatus)}
+        </div>
+        <div class="q-text">${q.questionHtml || formatText(q.text)}</div>
+        ${q.sourceNote ? `<div class="source-note"><strong>Source audit:</strong> ${escapeHtml(q.sourceNote.replace(/^Source audit:\s*/i, ""))}</div>` : ""}
+        <div class="q-foot"><span class="q-src">${escapeHtml(q.source)}</span></div>
+        ${solution}
+        ${noteBox(q)}
+        <div class="practice-nav">
+          <div class="practice-nav-group">
+            <button class="text-btn" id="practice-prev" onclick="practice.index=Math.max(0,practice.index-1);practice.revealed=false;renderPractice()" ${practice.index === 0 ? "disabled" : ""}>Previous</button>
+            <button class="text-btn primary" id="practice-reveal" onclick="practice.revealed=!practice.revealed;renderPractice()">${practice.revealed ? "Hide solution" : "Reveal solution"}</button>
+            <button class="text-btn" id="practice-next" onclick="practice.index++;practice.revealed=false;renderPractice()">${practice.index === practice.questions.length - 1 ? "Finish" : "Next"}</button>
+          </div>
+          <div class="practice-nav-group">
+            <button class="text-btn ${st === "revisit" ? "primary" : ""}" id="practice-mark-revisit" onclick="setPracticeProgress('${q.id}','revisit')">${icon("bookmark")} Revisit</button>
+            <button class="text-btn ${st === "done" ? "primary" : ""}" id="practice-mark-done" onclick="setPracticeProgress('${q.id}','done')">${icon("check")} Done</button>
+          </div>
+        </div>`;
+      bindNoteInputs(card);
+      rerenderMath();
+    }
+    window.toggleProgress = toggleProgress;
+    window.toggleSolution = toggleSolution;
+    window.startPractice = startPractice;
+    window.exitPractice = exitPractice;
+    window.renderPractice = renderPractice;
+    window.setPracticeProgress = setPracticeProgress;
+
+    function render() {
+      const list = document.getElementById("q-list");
+      const rows = filtered();
+      renderSourceSummary();
+      document.getElementById("q-count").textContent = `${rows.length} of ${QUESTIONS.length} questions`;
+      if (!rows.length) {
+        list.innerHTML = `<div class="glass empty">No questions match your filters.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(q => {
+        const st = statusMap[q.id];
+        const official = officialSolutionBlock(q);
+        const questionBody = q.questionHtml || formatText(q.text);
+        return `
+          <article class="glass q-card ${st === "done" ? "done" : ""}">
+            <div class="q-top">
+              <span class="badge b-${q.difficulty}">${escapeHtml(q.difficulty)}</span>
+              <span class="badge b-type">${escapeHtml(q.type)}</span>
+              <span class="badge b-topic">${escapeHtml(q.topicName)}</span>
+              <span class="badge b-source">${escapeHtml(sourceGroup(q))}</span>
+              ${statusBadge(q.solutionStatus)}
+            </div>
+            <div class="q-text">${questionBody}</div>
+            ${q.sourceNote ? `<div class="source-note"><strong>Source audit:</strong> ${escapeHtml(q.sourceNote.replace(/^Source audit:\s*/i, ""))}</div>` : ""}
+            <div class="q-foot">
+              <span class="q-src">${escapeHtml(q.source)}</span>
+              <div class="q-actions">
+                <button class="icon-btn" onclick="toggleSolution('${q.id}')" title="Reveal solution">${icon("eye")}</button>
+                <button class="icon-btn ${st === "revisit" ? "active revisit" : ""}" onclick="toggleProgress('${q.id}','revisit')" title="Mark to revisit">${icon("bookmark")}</button>
+                <button class="icon-btn ${st === "done" ? "active done" : ""}" onclick="toggleProgress('${q.id}','done')" title="Mark completed">${icon("check")}</button>
+              </div>
+            </div>
+            <div class="solution" id="solution-${q.id}">
+              ${official}
+              <h3>${q.solutionStatus === "official" ? "Explanation" : "Provisional solution"}</h3>
+              <p>${formatText(q.explanation || "No solution available yet.")}</p>
+            </div>
+            ${noteBox(q)}
+          </article>`;
+      }).join("");
+      bindNoteInputs(list);
+      rerenderMath();
+    }
+    ["search","topic","source","difficulty","type","status","progress","notes"].forEach(id => document.getElementById(id).addEventListener("input", render));
+    document.getElementById("start-practice").innerHTML = `${icon("arrow")} Start filtered set`;
+    document.getElementById("start-revisit").innerHTML = `${icon("bookmark")} Revisit set`;
+    document.getElementById("practice-exit").innerHTML = `${icon("close")} Exit`;
+    document.getElementById("start-practice").addEventListener("click", () => startPractice("filtered"));
+    document.getElementById("start-revisit").addEventListener("click", () => startPractice("revisit"));
+    document.getElementById("practice-exit").addEventListener("click", () => exitPractice(true));
+    window.addEventListener("keydown", e => {
+      if (!practice.active) return;
+      if (e.key === "Escape") exitPractice(true);
+      if (e.key === " " && document.getElementById("practice-overlay").classList.contains("visible")) {
+        e.preventDefault();
+        practice.revealed = !practice.revealed;
+        renderPractice();
+      }
+    });
+    render();
+  </script>
+</body>
+</html>

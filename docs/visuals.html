@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDS Visual Lab</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+    .lab-grid > * { min-width: 0; }
+    .lab-card { width: 100%; min-width: 0; padding: 18px; }
+    .lab-card.wide { grid-column: 1 / -1; }
+    .lab-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .lab-card h2 { margin: 0 0 7px; font-size: 18px; font-weight: 400; line-height: 1.25; }
+    .lab-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .plot-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      min-height: 230px;
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.14);
+      overflow: hidden;
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .control {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+    .control strong { color: var(--text); font-weight: 500; }
+    input[type="range"] {
+      width: 100%;
+      min-width: 0;
+      accent-color: var(--accent);
+    }
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .metric {
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .metric span { display: block; color: var(--faint); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+    .metric strong { display: block; margin-top: 4px; font-size: 16px; font-weight: 400; }
+    .formula-strip {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--accent-line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: var(--accent-soft);
+      font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x: auto;
+    }
+    .source-mini {
+      display: inline-flex;
+      margin-top: 10px;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    @media (max-width: 920px) {
+      .lab-grid { grid-template-columns: 1fr; }
+      .lab-head { flex-direction: column; }
+      .controls, .metric-row { grid-template-columns: 1fr; }
+      .plot-wrap { min-height: 260px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <p class="eyebrow">04 · Visual Lab</p>
+    <h1 class="page-title">Interactive Part 1 graphs</h1>
+    <p class="page-sub">Canvas-based visual checks for the main Part 1 ideas. Synthetic examples are deterministic; the churn EDA panel uses summary statistics extracted from the actual course dataset.</p>
+    <div class="lab-grid">
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Missing values and mean imputation</h2>
+            <p>Replacing missing values at the observed mean keeps the center stable but compresses the spread.</p>
+          </div>
+          <span class="badge b-topic">missing</span>
+        </div>
+        <div class="plot-wrap"><canvas id="missing-plot"></canvas></div>
+        <div class="metric-row" id="missing-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Missing rate</strong><span id="missing-rate-label"></span></label>
+            <input id="missing-rate" type="range" min="0" max="45" value="20" step="1">
+          </div>
+          <div class="control">
+            <label><strong>Mean imputation</strong><span id="impute-label"></span></label>
+            <input id="impute-toggle" type="range" min="0" max="1" value="1" step="1">
+          </div>
+        </div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Boxplot fences under normality</h2>
+            <p>The usual 1.5 IQR rule marks about 0.7% of normal observations as outliers.</p>
+          </div>
+          <span class="badge b-topic">outliers</span>
+        </div>
+        <div class="plot-wrap"><canvas id="boxplot-plot"></canvas></div>
+        <div class="metric-row" id="boxplot-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Fence multiplier</strong><span id="fence-label"></span></label>
+            <input id="fence-k" type="range" min="0.5" max="2.5" value="1.5" step="0.05">
+          </div>
+          <div class="control">
+            <label><strong>Normal sigma</strong><span id="sigma-label"></span></label>
+            <input id="normal-sigma" type="range" min="0.5" max="3" value="1" step="0.1">
+          </div>
+        </div>
+        <div class="formula-strip">fences = Q1 - k IQR, Q3 + k IQR</div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Normal vs lognormal summaries</h2>
+            <p>Right skew pulls the mean above the median; the gap grows with log-scale sigma.</p>
+          </div>
+          <span class="badge b-topic">summaries</span>
+        </div>
+        <div class="plot-wrap"><canvas id="skew-plot"></canvas></div>
+        <div class="metric-row" id="skew-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Lognormal sigma</strong><span id="skew-sigma-label"></span></label>
+            <input id="skew-sigma" type="range" min="0.2" max="1.8" value="1" step="0.05">
+          </div>
+          <div class="control">
+            <label><strong>Lognormal mu</strong><span id="skew-mu-label"></span></label>
+            <input id="skew-mu" type="range" min="0" max="3" value="2" step="0.1">
+          </div>
+        </div>
+        <div class="formula-strip">median / mean = exp(-sigma^2 / 2)</div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Scaling before distance models</h2>
+            <p>A large-scale variable dominates distances until both variables are standardized.</p>
+          </div>
+          <span class="badge b-topic">transforms</span>
+        </div>
+        <div class="plot-wrap"><canvas id="scaling-plot"></canvas></div>
+        <div class="metric-row" id="scaling-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>X scale</strong><span id="xscale-label"></span></label>
+            <input id="x-scale" type="range" min="1" max="80" value="40" step="1">
+          </div>
+          <div class="control">
+            <label><strong>Standardized view</strong><span id="standardized-label"></span></label>
+            <input id="standardized-toggle" type="range" min="0" max="1" value="0" step="1">
+          </div>
+        </div>
+      </section>
+
+      <section class="glass lab-card wide">
+        <div class="lab-head">
+          <div>
+            <h2>Churn EDA from the course dataset</h2>
+            <p>Recreates the R script's churn checks: conditional probabilities for international plan and boxplot summaries for evening charge.</p>
+            <span class="source-mini" id="churn-source"></span>
+          </div>
+          <span class="badge b-topic">eda</span>
+        </div>
+        <div class="plot-wrap"><canvas id="churn-plot"></canvas></div>
+        <div class="metric-row" id="churn-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>View</strong><span id="churn-view-label"></span></label>
+            <select class="select" id="churn-view">
+              <option value="plan">Intl.Plan vs churn</option>
+              <option value="eve">Eve.Charge by churn</option>
+            </select>
+          </div>
+          <div class="control">
+            <label><strong>R focus</strong><span>table + prop.table</span></label>
+            <div class="formula-strip">mytable = table(churn$Churn, churn$Intl.Plan); prop.table(mytable, 2)</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+  <script>
+    mountShell("visuals");
+
+    const TAU = Math.PI * 2;
+    const green = "rgba(74,222,128,.82)";
+    const yellow = "rgba(251,191,36,.82)";
+    const blue = "rgba(147,197,253,.82)";
+    const red = "rgba(248,113,113,.86)";
+    const text = "rgba(255,255,255,.72)";
+    const grid = "rgba(255,255,255,.12)";
+
+    function rand(seed) {
+      let s = seed >>> 0;
+      return () => {
+        s = (1664525 * s + 1013904223) >>> 0;
+        return s / 4294967296;
+      };
+    }
+    function normalSamples(n, seed = 7) {
+      const r = rand(seed);
+      const out = [];
+      for (let i = 0; i < n; i += 2) {
+        const u1 = Math.max(r(), 1e-9);
+        const u2 = r();
+        const mag = Math.sqrt(-2 * Math.log(u1));
+        out.push(mag * Math.cos(TAU * u2), mag * Math.sin(TAU * u2));
+      }
+      return out.slice(0, n);
+    }
+    function mean(xs) { return xs.reduce((a,b) => a + b, 0) / xs.length; }
+    function sd(xs) {
+      const m = mean(xs);
+      return Math.sqrt(xs.reduce((a,b) => a + (b - m) ** 2, 0) / Math.max(1, xs.length - 1));
+    }
+    function normPdf(x, mu = 0, sigma = 1) {
+      return Math.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * Math.sqrt(TAU));
+    }
+    function erf(x) {
+      const sign = x < 0 ? -1 : 1;
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const t = 1 / (1 + p * Math.abs(x));
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
+    }
+    function normCdf(x) { return 0.5 * (1 + erf(x / Math.sqrt(2))); }
+    function setup(canvas) {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.font = "12px Space Grotesk, sans-serif";
+      return { ctx, w: rect.width, h: rect.height, pad: 34 };
+    }
+    function axes(ctx, w, h, pad, labelX = "x", labelY = "density") {
+      ctx.strokeStyle = grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, h - pad);
+      ctx.lineTo(w - pad, h - pad);
+      ctx.moveTo(pad, h - pad);
+      ctx.lineTo(pad, pad);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.44)";
+      ctx.fillText(labelX, w - pad - 8, h - 12);
+      ctx.fillText(labelY, 8, pad);
+    }
+    function metrics(id, items) {
+      document.getElementById(id).innerHTML = items.map(([k, v]) => `<div class="metric"><span>${escapeHtml(k)}</span><strong>${escapeHtml(v)}</strong></div>`).join("");
+    }
+    function drawLine(ctx, pts, color) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
+      ctx.stroke();
+    }
+
+    const base = normalSamples(120, 42).map(x => 100 + 24 * x);
+    function drawMissing() {
+      const rate = Number(document.getElementById("missing-rate").value) / 100;
+      const impute = Number(document.getElementById("impute-toggle").value) === 1;
+      document.getElementById("missing-rate-label").textContent = `${Math.round(rate * 100)}%`;
+      document.getElementById("impute-label").textContent = impute ? "on" : "off";
+      const m = mean(base);
+      const missEvery = Math.max(2, Math.round(1 / Math.max(rate, .01)));
+      const observed = base.filter((_, i) => rate === 0 || i % missEvery !== 0);
+      const cleaned = impute ? base.map((x, i) => (rate > 0 && i % missEvery === 0 ? m : x)) : observed;
+      const { ctx, w, h, pad } = setup(document.getElementById("missing-plot"));
+      axes(ctx, w, h, pad, "value", "count");
+      const bins = 18, min = 35, max = 165;
+      const counts = Array(bins).fill(0), imputed = Array(bins).fill(0);
+      cleaned.forEach((x, i) => {
+        const b = Math.max(0, Math.min(bins - 1, Math.floor((x - min) / (max - min) * bins)));
+        counts[b]++;
+        if (impute && Math.abs(x - m) < 1e-9) imputed[b]++;
+      });
+      const maxCount = Math.max(...counts, 1);
+      counts.forEach((c, i) => {
+        const x = pad + i * ((w - 2 * pad) / bins);
+        const bw = (w - 2 * pad) / bins - 2;
+        const bh = c / maxCount * (h - 2 * pad);
+        ctx.fillStyle = blue;
+        ctx.fillRect(x, h - pad - bh, bw, bh);
+        if (imputed[i]) {
+          ctx.fillStyle = yellow;
+          ctx.fillRect(x, h - pad - imputed[i] / maxCount * (h - 2 * pad), bw, imputed[i] / maxCount * (h - 2 * pad));
+        }
+      });
+      const meanX = pad + (m - min) / (max - min) * (w - 2 * pad);
+      ctx.strokeStyle = green;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(meanX, pad);
+      ctx.lineTo(meanX, h - pad);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      metrics("missing-metrics", [["observed n", observed.length], ["mean", mean(cleaned).toFixed(2)], ["sd", sd(cleaned).toFixed(2)]]);
+    }
+
+    function drawBoxplot() {
+      const k = Number(document.getElementById("fence-k").value);
+      const sigma = Number(document.getElementById("normal-sigma").value);
+      document.getElementById("fence-label").textContent = k.toFixed(2);
+      document.getElementById("sigma-label").textContent = sigma.toFixed(1);
+      const q1 = -0.674 * sigma, q3 = 0.674 * sigma, iqr = q3 - q1;
+      const lo = q1 - k * iqr, hi = q3 + k * iqr;
+      const prob = 2 * (1 - normCdf(hi / sigma));
+      const { ctx, w, h, pad } = setup(document.getElementById("boxplot-plot"));
+      axes(ctx, w, h, pad, "x", "density");
+      const xmin = -5 * sigma, xmax = 5 * sigma;
+      const pts = [];
+      for (let i = 0; i < 220; i++) {
+        const x = xmin + (xmax - xmin) * i / 219;
+        const px = pad + (x - xmin) / (xmax - xmin) * (w - 2 * pad);
+        const py = h - pad - normPdf(x, 0, sigma) / normPdf(0,0,sigma) * (h - 2 * pad);
+        pts.push([px, py]);
+      }
+      drawLine(ctx, pts, green);
+      [q1, q3, lo, hi].forEach((x, i) => {
+        const px = pad + (x - xmin) / (xmax - xmin) * (w - 2 * pad);
+        ctx.strokeStyle = i < 2 ? blue : red;
+        ctx.setLineDash(i < 2 ? [] : [5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(px, pad);
+        ctx.lineTo(px, h - pad);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      metrics("boxplot-metrics", [["IQR", iqr.toFixed(2)], ["fence", `±${hi.toFixed(2)}`], ["P(outlier)", `${(prob * 100).toFixed(3)}%`]]);
+    }
+
+    function drawSkew() {
+      const s = Number(document.getElementById("skew-sigma").value);
+      const mu = Number(document.getElementById("skew-mu").value);
+      document.getElementById("skew-sigma-label").textContent = s.toFixed(2);
+      document.getElementById("skew-mu-label").textContent = mu.toFixed(1);
+      const med = Math.exp(mu);
+      const avg = Math.exp(mu + s * s / 2);
+      const ratio = med / avg;
+      const { ctx, w, h, pad } = setup(document.getElementById("skew-plot"));
+      axes(ctx, w, h, pad, "x", "density");
+      const maxX = Math.exp(mu + 3.2 * s);
+      const pts = [];
+      let maxY = 0;
+      for (let i = 1; i < 260; i++) {
+        const x = maxX * i / 260;
+        const y = Math.exp(-((Math.log(x) - mu) ** 2) / (2 * s * s)) / (x * s * Math.sqrt(TAU));
+        maxY = Math.max(maxY, y);
+        pts.push([x, y]);
+      }
+      drawLine(ctx, pts.map(([x,y]) => [pad + x / maxX * (w - 2 * pad), h - pad - y / maxY * (h - 2 * pad)]), yellow);
+      [[med, blue, "median"], [avg, green, "mean"]].forEach(([x, color, label]) => {
+        const px = pad + x / maxX * (w - 2 * pad);
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(px, pad);
+        ctx.lineTo(px, h - pad);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.fillText(label, px + 4, pad + 14);
+      });
+      metrics("skew-metrics", [["median", med.toFixed(2)], ["mean", avg.toFixed(2)], ["median/mean", ratio.toFixed(3)]]);
+    }
+
+    function drawScaling() {
+      const scale = Number(document.getElementById("x-scale").value);
+      const standardized = Number(document.getElementById("standardized-toggle").value) === 1;
+      document.getElementById("xscale-label").textContent = `${scale}x`;
+      document.getElementById("standardized-label").textContent = standardized ? "on" : "off";
+      const raw = [];
+      const ns = normalSamples(100, 11);
+      for (let i = 0; i < 40; i++) raw.push({ x: scale * (1 + .18 * ns[i]), y: 1 + .18 * ns[i+20], c: blue });
+      for (let i = 0; i < 40; i++) raw.push({ x: scale * (2 + .18 * ns[i+40]), y: 2 + .18 * ns[i+60], c: yellow });
+      let pts = raw;
+      if (standardized) {
+        const xs = raw.map(p => p.x), ys = raw.map(p => p.y);
+        const mx = mean(xs), my = mean(ys), sx = sd(xs), sy = sd(ys);
+        pts = raw.map(p => ({ ...p, x: (p.x - mx) / sx, y: (p.y - my) / sy }));
+      }
+      const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+      const xmin = Math.min(...xs), xmax = Math.max(...xs), ymin = Math.min(...ys), ymax = Math.max(...ys);
+      const { ctx, w, h, pad } = setup(document.getElementById("scaling-plot"));
+      axes(ctx, w, h, pad, "x", "y");
+      pts.forEach(p => {
+        const px = pad + (p.x - xmin) / (xmax - xmin || 1) * (w - 2 * pad);
+        const py = h - pad - (p.y - ymin) / (ymax - ymin || 1) * (h - 2 * pad);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, TAU);
+        ctx.fill();
+      });
+      metrics("scaling-metrics", [["sd(x)", sd(xs).toFixed(2)], ["sd(y)", sd(ys).toFixed(2)], ["view", standardized ? "z-score" : "raw"]]);
+    }
+
+    function drawChurnPlan(ctx, w, h, pad) {
+      axes(ctx, w, h, pad, "Intl.Plan", "conditional proportion");
+      const plans = ["no", "yes"];
+      const barW = Math.min(110, (w - 2 * pad) / 4);
+      const areaH = h - 2 * pad;
+      plans.forEach((plan, i) => {
+        const x = pad + (i + 1) * (w - 2 * pad) / 3 - barW / 2;
+        const yTop = pad;
+        const falseH = CHURN_EDA.conditionalChurn[plan].False * areaH;
+        const trueH = CHURN_EDA.conditionalChurn[plan].True * areaH;
+        ctx.fillStyle = blue;
+        ctx.fillRect(x, yTop, barW, falseH);
+        ctx.fillStyle = red;
+        ctx.fillRect(x, yTop + falseH, barW, trueH);
+        ctx.strokeStyle = grid;
+        ctx.strokeRect(x, yTop, barW, areaH);
+        ctx.fillStyle = text;
+        ctx.textAlign = "center";
+        ctx.fillText(`Intl.Plan = ${plan}`, x + barW / 2, h - 12);
+        ctx.fillStyle = "rgba(255,255,255,.9)";
+        ctx.fillText(`${(CHURN_EDA.conditionalChurn[plan].True * 100).toFixed(1)}% churn`, x + barW / 2, yTop + falseH + trueH / 2 + 4);
+      });
+      ctx.textAlign = "left";
+      ctx.fillStyle = red;
+      ctx.fillRect(w - pad - 126, pad + 4, 10, 10);
+      ctx.fillStyle = text;
+      ctx.fillText("Churn=True", w - pad - 110, pad + 13);
+      ctx.fillStyle = blue;
+      ctx.fillRect(w - pad - 126, pad + 24, 10, 10);
+      ctx.fillStyle = text;
+      ctx.fillText("Churn=False", w - pad - 110, pad + 33);
+      const noRate = CHURN_EDA.conditionalChurn.no.True;
+      const yesRate = CHURN_EDA.conditionalChurn.yes.True;
+      metrics("churn-metrics", [["n", CHURN_EDA.n], ["P(churn | no)", `${(noRate * 100).toFixed(1)}%`], ["P(churn | yes)", `${(yesRate * 100).toFixed(1)}%`]]);
+    }
+
+    function drawChurnBox(ctx, w, h, pad) {
+      axes(ctx, w, h, pad, "Eve.Charge", "Churn");
+      const groups = [
+        ["False", CHURN_EDA.eveChargeByChurn.False, blue],
+        ["True", CHURN_EDA.eveChargeByChurn.True, red]
+      ];
+      const xmin = 0, xmax = 32;
+      function sx(x) { return pad + (x - xmin) / (xmax - xmin) * (w - 2 * pad); }
+      groups.forEach(([label, s, color], i) => {
+        const cy = pad + (i + 1) * (h - 2 * pad) / 3;
+        const boxH = 34;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color.replace(".82", ".18").replace(".86", ".18");
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sx(s.min), cy);
+        ctx.lineTo(sx(s.max), cy);
+        ctx.stroke();
+        ctx.fillRect(sx(s.q1), cy - boxH / 2, sx(s.q3) - sx(s.q1), boxH);
+        ctx.strokeRect(sx(s.q1), cy - boxH / 2, sx(s.q3) - sx(s.q1), boxH);
+        ctx.beginPath();
+        ctx.moveTo(sx(s.median), cy - boxH / 2);
+        ctx.lineTo(sx(s.median), cy + boxH / 2);
+        ctx.stroke();
+        ctx.fillStyle = text;
+        ctx.fillText(`Churn=${label}`, pad, cy - boxH / 2 - 8);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(sx(s.mean), cy, 4, 0, TAU);
+        ctx.fill();
+        ctx.fillText("mean", sx(s.mean) + 6, cy + 4);
+      });
+      const f = CHURN_EDA.eveChargeByChurn.False;
+      const t = CHURN_EDA.eveChargeByChurn.True;
+      metrics("churn-metrics", [["False median", f.median.toFixed(2)], ["True median", t.median.toFixed(2)], ["mean gap", (t.mean - f.mean).toFixed(2)]]);
+    }
+
+    function drawChurn() {
+      document.getElementById("churn-source").textContent = CHURN_EDA.source;
+      const view = document.getElementById("churn-view").value;
+      document.getElementById("churn-view-label").textContent = view === "plan" ? "conditional" : "boxplot";
+      const { ctx, w, h, pad } = setup(document.getElementById("churn-plot"));
+      if (view === "plan") drawChurnPlan(ctx, w, h, pad);
+      else drawChurnBox(ctx, w, h, pad);
+    }
+
+    function redrawAll() {
+      drawMissing();
+      drawBoxplot();
+      drawSkew();
+      drawScaling();
+      drawChurn();
+    }
+    ["missing-rate","impute-toggle"].forEach(id => document.getElementById(id).addEventListener("input", drawMissing));
+    ["fence-k","normal-sigma"].forEach(id => document.getElementById(id).addEventListener("input", drawBoxplot));
+    ["skew-sigma","skew-mu"].forEach(id => document.getElementById(id).addEventListener("input", drawSkew));
+    ["x-scale","standardized-toggle"].forEach(id => document.getElementById(id).addEventListener("input", drawScaling));
+    document.getElementById("churn-view").addEventListener("input", drawChurn);
+    window.addEventListener("resize", redrawAll);
+    redrawAll();
+  </script>
+</body>
+</html>

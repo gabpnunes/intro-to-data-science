@@ -1,0 +1,265 @@
+[
+  {
+    "version": "2026.06.04-week1.26",
+    "date": "2026-06-04",
+    "title": "Added guide active recall",
+    "items": [
+      "Added source-linked active-recall checkpoints to every Part 1 study-guide topic.",
+      "Checkpoint answers stay hidden until reveal and can be marked Got it or Revisit.",
+      "Added checkpoint progress to the homepage dashboard, next-study actions, and progress backup export/import."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.25",
+    "date": "2026-06-04",
+    "title": "Added Exam Kit derivations",
+    "items": [
+      "Added a source-linked Derivation Coach for key Part 1 formulas.",
+      "Derivation cards keep proof steps hidden until reveal and can be marked understood once reproducible from memory.",
+      "Added derivation progress to the homepage dashboard, next-study actions, and progress backup export/import."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.24",
+    "date": "2026-06-04",
+    "title": "Added Exam Kit missed recall",
+    "items": [
+      "Added a missed-recall queue to the Exam Kit for formula and R command drill prompts.",
+      "Prompts rated as missed now stay in a focused weak-spots drill until recalled correctly.",
+      "Added missed-recall counts to the homepage progress dashboard, next-study actions, and progress backup export/import."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.23",
+    "date": "2026-06-04",
+    "title": "Added question mistake notes",
+    "items": [
+      "Added per-question mistake notes to the question bank and practice mode.",
+      "Added a notes filter and source-card note counts so saved traps can be isolated for review.",
+      "Included question notes in the homepage progress dashboard, next-study actions, and progress backup export/import."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.22",
+    "date": "2026-06-04",
+    "title": "Added guide search filters",
+    "items": [
+      "Added search across study-guide topic titles, explanations, formulas, traps, R code, and source labels.",
+      "Added guide status filtering for reviewed, revisit, and unreviewed topics.",
+      "Filtered guide topics also update the sidebar and visible-topic count."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.21",
+    "date": "2026-06-04",
+    "title": "Added question source summaries",
+    "items": [
+      "Added source-level summary cards to the question bank showing official/provisional solution coverage.",
+      "Each source card now shows question count, completed count, and revisit count from saved progress.",
+      "Source cards can apply a source filter or launch practice mode directly for that sheet."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.20",
+    "date": "2026-06-04",
+    "title": "Added progress backup controls",
+    "items": [
+      "Added a homepage Progress Backup panel for exporting and importing browser-saved study state.",
+      "Backup files include guide status, question progress, practice history, flashcards, Exam Kit checklist, and drill history.",
+      "Added a guarded clear-progress action for resetting local study state in the current browser."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.19",
+    "date": "2026-06-04",
+    "title": "Added Exam Kit recall drills",
+    "items": [
+      "Added Formula, R command, and Mixed recall drills to the Exam Kit.",
+      "Drill answers stay hidden until reveal and rating buttons save recent session summaries locally.",
+      "Keyboard support includes Space to reveal/hide and Escape to exit."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.18",
+    "date": "2026-06-04",
+    "title": "Added R command clinic",
+    "items": [
+      "Added source-linked R command cards to the Exam Kit for missing values, outliers, summaries, transformations, and churn EDA.",
+      "Each command card now pairs syntax with an exam-use explanation and a common trap.",
+      "Updated the Exam Kit snapshot to include R command coverage."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.17",
+    "date": "2026-06-04",
+    "title": "Added next-study recommendations",
+    "items": [
+      "Added a homepage Next Study Actions panel driven by guide topic status, question revisit flags, flashcard due state, and Exam Kit checklist progress.",
+      "Recommendations link directly into the relevant guide topic, question, flashcard deck, or Exam Kit page.",
+      "Kept the panel localStorage-only so it remains GitHub Pages friendly."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.16",
+    "date": "2026-06-04",
+    "title": "Added Part 1 exam kit",
+    "items": [
+      "Added a new Exam Kit page with formula triggers, answer frames, source-linked traps, and a mastery checklist.",
+      "Linked the Exam Kit from the homepage and global navigation.",
+      "Kept all exam-kit content tied to current Part 1 local sources and provisional-solution status."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.15",
+    "date": "2026-06-04",
+    "title": "Added guide topic progress",
+    "items": [
+      "Added Reviewed and Revisit controls to every study-guide topic.",
+      "Saved guide topic status in localStorage under ids_guide_topic_status.",
+      "Added guide-topic review and revisit counts to the homepage progress dashboard."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.14",
+    "date": "2026-06-04",
+    "title": "Added question source filtering",
+    "items": [
+      "Added a dedicated source dropdown to the question bank for Tutorial 0, Tutorial 1, Tutorial 2 exercises, and Tutorial 2 exam questions.",
+      "Practice mode now inherits the selected source filter because it starts from the same filtered question set.",
+      "Added source-group badges to each question so the origin remains visible while studying."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.13",
+    "date": "2026-06-04",
+    "title": "Added source verification matrix",
+    "items": [
+      "Added a homepage Source Verification panel showing which course files are incorporated, official, provisional, linked, or pending.",
+      "Moved the source inventory into reusable data so future sessions can update verification status alongside content.",
+      "Made the pending Tutorial 1/2 official-solution reconciliation visible to the student."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.12",
+    "date": "2026-06-04",
+    "title": "Added homepage progress dashboard",
+    "items": [
+      "Homepage now summarizes completed questions, revisit flags, reviewed flashcards, due flashcards, and official-solution coverage.",
+      "Progress reads from the existing localStorage keys used by the question bank and flashcards.",
+      "The dashboard refreshes periodically and listens for storage updates from other tabs."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.11",
+    "date": "2026-06-04",
+    "title": "Expanded flashcard deck",
+    "items": [
+      "Added high-yield Part 1 cards for CRISP-DM, missing values, outliers, summaries, transformations, and churn EDA.",
+      "Appended new cards after the existing deck so saved SRS card IDs are not shifted.",
+      "Covered tutorial formula triggers such as missing-value probability, variance ratio, normal IQR, and lognormal mean/median."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.10",
+    "date": "2026-06-04",
+    "title": "Improved Tutorial 1/2 source fidelity",
+    "items": [
+      "Rendered and checked Tutorial 1 and Tutorial 2 question PDFs.",
+      "Added source-style R code blocks for Tutorial 1 Questions 3, 4, and 5.",
+      "Expanded Tutorial 2 Question 5 to include every source subpart and displayed formulas."
+    ]
+  },
+  {
+    "version": "2026.06.04-week1.9",
+    "date": "2026-06-04",
+    "title": "Made homepage changelog live",
+    "items": [
+      "Homepage changelog now polls changelog.json while the page is open.",
+      "The homepage redraws the visible changelog entries only when the latest entries change.",
+      "Kept the existing version polling refresh alert for deployed file updates."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.8",
+    "date": "2026-06-03",
+    "title": "Added course-data churn visuals",
+    "items": [
+      "Added a Visual Lab panel backed by summary statistics extracted from Part1/churn.txt.",
+      "Recreated the R script's Intl.Plan vs Churn conditional-probability view.",
+      "Added Eve.Charge boxplot summaries by Churn group for the course EDA example.",
+      "Fixed the scaling lab sample generator so the raw y-standard-deviation metric renders correctly."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.7",
+    "date": "2026-06-03",
+    "title": "Improved official solution fidelity",
+    "items": [
+      "Rendered Tutorial 0 Question 5's official CRISP-DM answer as a source-style table.",
+      "Added official-solution HTML support so future PDF tables can stay visually faithful.",
+      "Visually checked the Tutorial 0 official solution PDF pages during the source audit."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.6",
+    "date": "2026-06-03",
+    "title": "Added question practice mode",
+    "items": [
+      "Added an exam-style practice overlay to the question bank.",
+      "Practice mode uses the current filters, shuffles the selected questions, and keeps solutions hidden until revealed.",
+      "Added timer, session progress, done/revisit marking, and recent session history storage."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.5",
+    "date": "2026-06-03",
+    "title": "Improved question source fidelity",
+    "items": [
+      "Added source-style table rendering in the question bank.",
+      "Restored table layout for Tutorial 0 Question 4.",
+      "Restored table layout for Tutorial 2 Exercise 1 and Exercise 2 while keeping search/filter text available."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.4",
+    "date": "2026-06-03",
+    "title": "Added interactive visual lab",
+    "items": [
+      "Added a Visuals page with deterministic canvas graphs for Part 1 concepts.",
+      "Added interactive controls for missing-value imputation, boxplot fences, lognormal skew, and scaling before distance models.",
+      "Added the Visuals page to the shared navigation and homepage cards."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.3",
+    "date": "2026-06-03",
+    "title": "Added source audit notes",
+    "items": [
+      "Added visible source-audit notes on the homepage and study guide.",
+      "Flagged the Tutorial 2 Exercise 1 table-count mismatch: caption says 6 observations, table lists 7.",
+      "Flagged Tutorial 0 Question 3 official-solution formatting ambiguity while preserving the official wording."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.2",
+    "date": "2026-06-03",
+    "title": "Added full-course roadmap",
+    "items": [
+      "Added homepage roadmap cards for Part 1, Part 2, and Part 3.",
+      "Marked Part 2 PCA and Part 3 machine learning materials as coming soon until source files are available.",
+      "Updated the handoff rules so future sessions keep deferred parts visible and source-gated."
+    ]
+  },
+  {
+    "version": "2026.06.03-week1.1",
+    "date": "2026-06-03",
+    "title": "Initial Part 1 build",
+    "items": [
+      "Built GitHub Pages-ready static site in docs/.",
+      "Added detailed Part 1 study guide from slides, tutorials, R code, and datasets.",
+      "Added Tutorial 0 official solutions exactly as sourced, plus separate explanations.",
+      "Added provisional Tutorial 1 and 2 solutions marked unofficial until official PDFs are released.",
+      "Added MathJax math rendering, diagrams, flashcards, progress tracking, and live update polling."
+    ]
+  }
+]
