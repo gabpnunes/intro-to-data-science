@@ -62,7 +62,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - It also reads `ids_guide_topic_status`, which is set by Reviewed/Revisit controls on each guide topic.
   - It summarizes reviewed guide topics, guide revisit flags, guide checkpoint progress, completed questions, question revisit flags, mistake-note count, derivation progress, missed recall count, reviewed cards, due cards, and official/provisional solution coverage.
   - The homepage now uses a plain Current Coverage bullet list plus the live changelog, rather than source verification, source audit, or next-study-action panels.
-  - The Progress Backup panel exports/imports `ids_question_status`, `ids_question_notes`, `ids_flashcards`, `ids_guide_topic_status`, `ids_guide_checks`, `ids_exam_checklist`, `ids_exam_derivations`, `ids_exam_drill_history`, and `ids_exam_drill_misses` using schema `uva-ids-progress-v1`.
+  - The Progress Backup panel exports/imports `ids_question_status`, `ids_question_notes`, `ids_flashcards`, `ids_flashcard_custom_decks`, `ids_flashcard_flags`, `ids_guide_topic_status`, `ids_guide_checks`, `ids_exam_checklist`, `ids_exam_derivations`, `ids_exam_drill_history`, and `ids_exam_drill_misses` using schema `uva-ids-progress-v1`.
   - It refreshes periodically and on browser `storage` events so progress made in another tab can appear without a page reload.
 - Study-guide progress:
   - `guide.html` adds Reviewed and Revisit controls to every topic section.
@@ -77,6 +77,8 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Update this matrix whenever new files are added, official solutions arrive, or linked media is fully inspected.
 - Flashcards:
   - The Part 1 SRS-style deck contains high-yield cards across all current topics.
+  - `flashcards.html` is now an Anki-style workspace with built-in topic decks, custom sets, search/source/status filters, card selection, marked cards, suspended cards, reset controls, selected-card review, and Again/Hard/Good/Easy scheduling.
+  - SRS progress is persisted in `ids_flashcards`; custom sets are persisted in `ids_flashcard_custom_decks`; marked/suspended flags are persisted in `ids_flashcard_flags`.
   - When adding cards, append to the end of `CARDS` where possible because `flashcards.html` derives card IDs from topic, array index, and front text. Inserting cards before existing cards can shift saved localStorage review schedules.
 - Interactive visual lab coverage:
   - Missing values and mean imputation
@@ -85,7 +87,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Scaling before distance-based models
   - Churn EDA from `Part1/churn.txt`: `Intl.Plan` vs `Churn` conditional probabilities and `Eve.Charge` boxplot summaries by churn group
 - Exam kit:
-  - `exam.html` contains Part 1 formula triggers, R command cards, answer frames, and a mastery checklist.
+  - `exam.html` contains Part 1 formula triggers, R command cards, recall drills, derivations, and a mastery checklist. The Answer Frames section was removed on 2026-06-04 at the user's request.
   - Exam-kit content is stored in `EXAM_KIT` in `docs/data.js`.
   - `EXAM_KIT.derivations` stores source-linked step-by-step derivations for key formulas; `exam.html` renders them in the Derivation Coach with hidden proof steps.
   - `EXAM_KIT.rCommands` is source-linked to `Part1/RCode_Part_1.R` and covers missing values, outliers, summaries, transformations, and churn EDA syntax/traps.
@@ -95,7 +97,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Formula/R prompts rated as missed are persisted in `ids_exam_drill_misses` and shown in a missed-recall queue on `exam.html`.
   - The missed-recall queue can start a focused drill over only missed prompts; rating a prompt as Got it clears it from the queue.
   - Drill mode keeps answers hidden until reveal, then records Got it/Missed ratings in recent session summaries.
-  - Keep Tutorial 1/2-dependent formula and answer-frame wording provisional until official solution PDFs are available.
+  - Keep Tutorial 1/2-dependent formula and recall wording provisional until official solution PDFs are available.
 - Homepage roadmap status:
   - Part 1 is live.
   - Part 2 PCA is coming soon until Week 2 files are supplied and verified.

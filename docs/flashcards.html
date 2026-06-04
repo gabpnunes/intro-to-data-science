@@ -6,143 +6,945 @@
   <title>IDS Flashcards</title>
   <link rel="stylesheet" href="shared.css">
   <style>
-    .tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-    .tab { padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
-    .tab.active { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-line); }
-    .stats { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; margin-bottom: 18px; }
-    .stat { padding: 8px 12px; border-right: 1px solid var(--line); }
-    .stat:last-child { border-right: 0; }
-    .stat span { display: block; color: var(--faint); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
-    .stat strong { font-size: 22px; font-weight: 300; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 12px; }
-    .fc { min-height: 158px; perspective: 1000px; cursor: pointer; }
-    .fc-inner { position: relative; width: 100%; height: 158px; transform-style: preserve-3d; transition: transform .45s ease; }
-    .fc.flipped .fc-inner { transform: rotateY(180deg); }
-    .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-    .back { transform: rotateY(180deg); background: var(--panel-strong); }
-    .term { font-size: 15px; font-weight: 500; }
-    .hint, .def, .src { color: var(--muted); font-size: 11px; line-height: 1.55; }
-    .src { margin-top: 10px; color: var(--faint); }
-    .study { position: fixed; inset: 0; z-index: 700; display: none; background: var(--bg); padding: 80px 20px 30px; }
-    .study.visible { display: grid; place-items: center; }
-    .study-box { width: min(620px, 100%); text-align: center; }
-    .study-card { min-height: 300px; display: grid; place-items: center; padding: 32px; margin-bottom: 18px; }
-    .study-card h2 { margin: 0 0 12px; font-weight: 400; }
-    .rating { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; }
-    .rating .text-btn { min-width: 92px; justify-content: center; }
+    .flash-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, .72fr) minmax(0, 1.6fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .flash-layout > * { min-width: 0; }
+    .deck-panel, .study-panel, .browser-panel { padding: 18px; }
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .panel-title h2 { margin: 0; font-size: 18px; font-weight: 400; }
+    .deck-list { display: grid; gap: 8px; }
+    .deck-group-label {
+      margin: 16px 0 8px;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .deck-btn {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      color: var(--muted);
+      cursor: pointer;
+      text-align: left;
+    }
+    .deck-btn.active { color: var(--text); border-color: var(--accent-line); background: var(--accent-soft); }
+    .deck-btn strong {
+      display: block;
+      overflow: hidden;
+      color: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .deck-btn span {
+      display: block;
+      margin-top: 3px;
+      color: var(--faint);
+      font-size: 10px;
+      line-height: 1.35;
+    }
+    .deck-count {
+      min-width: 34px;
+      padding: 6px 7px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--accent);
+      font-size: 12px;
+      text-align: center;
+      background: rgba(0,0,0,.12);
+    }
+    .deck-tools {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .deck-tools-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mini-note { margin: 0; color: var(--faint); font-size: 11px; line-height: 1.5; }
+    .study-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 14px;
+    }
+    .study-header h2 { margin: 0 0 5px; font-size: 24px; font-weight: 300; }
+    .study-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .stat-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .stat-card span {
+      display: block;
+      color: var(--faint);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .stat-card strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 24px;
+      font-weight: 300;
+    }
+    .session-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .session-controls .text-btn { justify-content: center; }
+    .check-inline {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 12px;
+      background: var(--panel);
+    }
+    .check-inline input { accent-color: var(--accent); }
+    .browser-panel { margin-top: 14px; }
+    .browser-tools {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(120px, auto));
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .browser-tools > *, .session-controls > *, .deck-tools > * {
+      min-width: 0;
+      width: 100%;
+    }
+    .card-list { display: grid; gap: 9px; }
+    .card-row {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+    }
+    .card-row.suspended { opacity: .55; }
+    .card-row input[type="checkbox"] { width: 16px; height: 16px; margin-top: 3px; accent-color: var(--accent); }
+    .card-main h3 {
+      margin: 0 0 6px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .card-main p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+      min-width: 0;
+    }
+    .card-meta .badge {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+    .browser-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .study-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 700;
+      display: none;
+      overflow-y: auto;
+      padding: 86px 24px 38px;
+      background: var(--bg);
+    }
+    .study-overlay.visible { display: block; }
+    .study-shell { width: min(820px, 100%); margin: 0 auto; }
+    .study-bar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .study-bar strong { display: block; font-size: 14px; font-weight: 500; }
+    .study-bar span { color: var(--faint); font-size: 11px; }
+    .study-stats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+    .study-stat {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 11px;
+      background: var(--panel-soft);
+    }
+    .study-card {
+      min-height: 360px;
+      display: grid;
+      gap: 16px;
+      align-content: center;
+      padding: 28px;
+      text-align: center;
+    }
+    .study-card h2 {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 42px);
+      font-weight: 300;
+      line-height: 1.12;
+    }
+    .study-card p {
+      max-width: 620px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+    .study-answer {
+      margin-top: 4px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+    .study-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .rating-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+    .rating-btn {
+      min-height: 56px;
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .rating-btn strong { color: var(--text); font-size: 13px; font-weight: 500; }
+    .rating-btn span { color: var(--faint); font-size: 10px; }
+    .rating-btn.again { border-color: rgba(248,113,113,.24); color: var(--bad); background: var(--bad-soft); }
+    .rating-btn.good { border-color: var(--accent-line); color: var(--accent); background: var(--accent-soft); }
+    .empty { padding: 34px; text-align: center; color: var(--faint); font-size: 13px; }
+    @media (max-width: 940px) {
+      .flash-layout, .study-header, .study-bar, .browser-tools, .session-controls { grid-template-columns: minmax(0, 1fr); }
+      .study-stats, .card-actions { justify-content: flex-start; }
+      .card-row { grid-template-columns: auto minmax(0, 1fr); }
+      .card-actions { grid-column: 2; }
+      .rating-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .study-overlay { padding-left: 14px; padding-right: 14px; }
+    }
+    @media (max-width: 520px) {
+      .card-row { grid-template-columns: 1fr; }
+      .card-actions { grid-column: auto; }
+      .rating-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <main class="page">
     <p class="eyebrow">03 · Flashcards</p>
-    <h1 class="page-title">Key concepts</h1>
-    <p class="page-sub">Definitions and formula triggers from Part 1. Review ratings are saved locally in your browser.</p>
-    <div class="tabs" id="tabs"></div>
-    <div class="glass stats" id="stats"></div>
-    <div class="grid" id="grid"></div>
+    <h1 class="page-title">Flashcard Decks</h1>
+    <p class="page-sub">Anki-style review for Part 1: choose a deck, filter cards, make your own sets, suspend noisy cards, and rate reviews with spaced repetition. Progress is saved locally in this browser.</p>
+
+    <div class="flash-layout">
+      <aside class="glass deck-panel">
+        <div class="panel-title">
+          <h2>Decks</h2>
+          <span class="badge b-source" id="deck-total"></span>
+        </div>
+        <div class="deck-list" id="deck-list"></div>
+        <div class="deck-tools">
+          <p class="mini-note">Create a custom set from selected cards or from the current filtered browser view.</p>
+          <input class="input" id="deck-name" placeholder="New set name">
+          <div class="deck-tools-row">
+            <button class="text-btn primary" id="save-selected"></button>
+            <button class="text-btn" id="save-filtered"></button>
+            <button class="text-btn" id="update-deck"></button>
+            <button class="text-btn" id="delete-deck"></button>
+          </div>
+          <div class="mini-note" id="deck-message"></div>
+        </div>
+      </aside>
+
+      <section>
+        <section class="glass study-panel">
+          <div class="study-header">
+            <div>
+              <h2 id="active-deck-title">All Cards</h2>
+              <p id="active-deck-desc">Every card in the current Part 1 deck.</p>
+            </div>
+            <button class="text-btn" id="select-visible"></button>
+          </div>
+          <div class="stat-grid" id="stat-grid"></div>
+          <div class="session-controls">
+            <select class="select" id="session-mode">
+              <option value="due">Due cards</option>
+              <option value="new">New cards</option>
+              <option value="weak">Weak cards</option>
+              <option value="marked">Marked cards</option>
+              <option value="all">All unsuspended</option>
+            </select>
+            <input class="input" id="session-limit" type="number" min="1" max="100" value="20" aria-label="Session card limit">
+            <label class="check-inline"><input type="checkbox" id="session-shuffle" checked> Shuffle</label>
+            <button class="text-btn primary" id="start-review"></button>
+            <button class="text-btn" id="start-selected"></button>
+          </div>
+          <p class="mini-note" id="session-message"></p>
+        </section>
+
+        <section class="glass browser-panel">
+          <div class="panel-title">
+            <h2>Card Browser</h2>
+            <span class="badge b-topic" id="browser-count"></span>
+          </div>
+          <div class="browser-tools">
+            <input class="input" id="search" placeholder="Search front, answer, source, or topic">
+            <select class="select" id="state-filter">
+              <option value="">All states</option>
+              <option value="due">Due</option>
+              <option value="new">New</option>
+              <option value="learning">Learning</option>
+              <option value="review">Review</option>
+              <option value="weak">Weak</option>
+              <option value="marked">Marked</option>
+              <option value="suspended">Suspended</option>
+            </select>
+            <select class="select" id="source-filter"><option value="">All sources</option></select>
+            <select class="select" id="sort-filter">
+              <option value="due">Sort by due</option>
+              <option value="topic">Sort by topic</option>
+              <option value="front">Sort by front</option>
+              <option value="reviews">Sort by reviews</option>
+            </select>
+          </div>
+          <div class="card-list" id="card-list"></div>
+          <div class="browser-footer">
+            <span id="selected-count">0 selected</span>
+            <div class="deck-tools-row">
+              <button class="text-btn" id="clear-selection"></button>
+              <button class="text-btn" id="reset-visible"></button>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
   </main>
-  <section class="study" id="study">
-    <div class="study-box">
-      <button class="text-btn" id="exit-study" style="margin-bottom:16px">Exit</button>
-      <div class="glass study-card" id="study-card"></div>
-      <div class="rating" id="rating"></div>
+
+  <section class="study-overlay" id="study-overlay" aria-hidden="true">
+    <div class="study-shell">
+      <div class="glass study-bar">
+        <div>
+          <strong id="study-title">Review session</strong>
+          <span id="study-subtitle"></span>
+        </div>
+        <div class="study-stats">
+          <span class="study-stat" id="study-progress"></span>
+          <span class="study-stat" id="study-answered"></span>
+          <button class="text-btn" id="exit-study"></button>
+        </div>
+      </div>
+      <article class="glass study-card" id="study-card"></article>
+      <div class="study-nav" id="study-actions"></div>
     </div>
   </section>
+
   <script src="data.js"></script>
   <script src="site.js"></script>
   <script>
     mountShell("flashcards");
-    document.getElementById("exit-study").innerHTML = `${icon("close")} Exit`;
-    const key = "ids_flashcards";
+    const srsKey = "ids_flashcards";
+    const deckKey = "ids_flashcard_custom_decks";
+    const flagKey = "ids_flashcard_flags";
     const DAY = 86400000;
-    let topic = "all";
-    let srs = getStore(key, {});
-    let queue = [];
-    let current = 0;
-    let revealed = false;
-    const topics = [{ id: "all", title: "All" }, ...TOPICS.map(t => ({ id: t.id, title: t.title }))];
+    const TEN_MIN = 10 * 60000;
+    let srs = getStore(srsKey, {});
+    let flags = getStore(flagKey, {});
+    let customDecks = normalizeDecks(getStore(deckKey, []));
+    let activeDeck = "all";
+    let selected = new Set();
+    let study = { active: false, queue: [], index: 0, revealed: false, answered: 0, startedAt: 0, mode: "due", deckTitle: "" };
 
-    function cardId(card, i) { return `${card.topic}_${i}_${card.front.replace(/\\W/g,"").slice(0,12)}`; }
-    function dueCards() {
-      const now = Date.now();
-      return CARDS.map((card, i) => ({ ...card, index: i, id: cardId(card, i), meta: srs[cardId(card, i)] || { due: 0, interval: 0, reps: 0 } }))
-        .filter(c => topic === "all" || c.topic === topic)
-        .filter(c => !c.meta.due || c.meta.due <= now);
+    const builtDecks = [
+      { id: "all", title: "All Cards", description: "Every card in the current Part 1 deck.", type: "built" },
+      ...TOPICS.map(t => ({ id: `topic:${t.id}`, topic: t.id, title: t.title, description: t.week, type: "topic" }))
+    ];
+    const topicNames = Object.fromEntries(TOPICS.map(t => [t.id, t.title]));
+    const sourceSelect = document.getElementById("source-filter");
+    [...new Set(CARDS.map(card => card.source))].sort().forEach(src => {
+      sourceSelect.insertAdjacentHTML("beforeend", `<option value="${escapeHtml(src)}">${escapeHtml(src)}</option>`);
+    });
+
+    function cardId(card, i) {
+      return `${card.topic}_${i}_${card.front.replace(/\W/g,"").slice(0,12)}`;
     }
-    function visibleCards() { return CARDS.map((card, i) => ({ ...card, index: i, id: cardId(card, i) })).filter(c => topic === "all" || c.topic === topic); }
-    function setTopic(id) { topic = id; render(); }
-    window.setTopic = setTopic;
-
-    function rate(label) {
-      const card = queue[current];
-      if (!card) return;
-      const prior = srs[card.id] || { interval: 0, reps: 0, ease: 2.5 };
+    function allCards() {
+      return CARDS.map((card, i) => {
+        const id = cardId(card, i);
+        return {
+          ...card,
+          id,
+          index: i,
+          topicName: topicNames[card.topic] || card.topic,
+          meta: srs[id] || { due: 0, interval: 0, reps: 0, ease: 2.5, lapses: 0 },
+          flags: flags[id] || {}
+        };
+      });
+    }
+    function normalizeDecks(value) {
+      if (!Array.isArray(value)) return [];
+      const valid = new Set(CARDS.map(cardId));
+      return value
+        .filter(deck => deck && deck.id && deck.title && Array.isArray(deck.cardIds))
+        .map(deck => ({ ...deck, cardIds: [...new Set(deck.cardIds.filter(id => valid.has(id)))] }))
+        .filter(deck => deck.cardIds.length);
+    }
+    function saveDecks() {
+      setStore(deckKey, customDecks);
+    }
+    function deckInfo(id = activeDeck) {
+      return builtDecks.find(deck => deck.id === id) || customDecks.find(deck => deck.id === id) || builtDecks[0];
+    }
+    function deckCards(id = activeDeck) {
+      const cards = allCards();
+      const deck = deckInfo(id);
+      if (deck.id === "all") return cards;
+      if (deck.type === "topic") return cards.filter(card => card.topic === deck.topic);
+      const allowed = new Set(deck.cardIds || []);
+      return cards.filter(card => allowed.has(card.id));
+    }
+    function isSuspended(card) {
+      return !!card.flags.suspended;
+    }
+    function isNew(card) {
+      return !(card.meta.reps > 0);
+    }
+    function isDue(card) {
+      return !isSuspended(card) && (!card.meta.due || card.meta.due <= Date.now());
+    }
+    function isLearning(card) {
+      return !isNew(card) && (card.meta.interval || 0) < 1;
+    }
+    function isWeak(card) {
+      return !isSuspended(card) && ((card.meta.lapses || 0) > 0 || (card.meta.ease || 2.5) <= 2.05);
+    }
+    function cardState(card) {
+      if (isSuspended(card)) return "suspended";
+      if (isNew(card)) return "new";
+      if (isLearning(card)) return "learning";
+      return isDue(card) ? "due" : "review";
+    }
+    function stateBadge(card) {
+      const state = cardState(card);
+      const cls = {
+        new: "b-source",
+        learning: "b-unofficial",
+        due: "b-official",
+        review: "b-topic",
+        suspended: "b-pending"
+      }[state] || "b-topic";
+      return `<span class="badge ${cls}">${escapeHtml(state)}</span>`;
+    }
+    function formatDue(card) {
+      if (isSuspended(card)) return "Suspended";
+      if (isNew(card)) return "New";
+      const diff = (card.meta.due || 0) - Date.now();
+      if (diff <= 0) return "Due now";
+      if (diff < DAY) return `Due in ${Math.max(1, Math.round(diff / 3600000))}h`;
+      return `Due in ${Math.round(diff / DAY)}d`;
+    }
+    function intervalLabel(days) {
+      if (!days) return "10m";
+      if (days < 1) return `${Math.round(days * 24)}h`;
+      if (days < 21) return `${Math.round(days)}d`;
+      return `${Math.round(days / 7)}w`;
+    }
+    function nextIntervals(card) {
+      const interval = card.meta.interval || 0;
+      const ease = card.meta.ease || 2.5;
+      return {
+        again: "10m",
+        hard: intervalLabel(isNew(card) ? .5 : Math.max(1, interval * 1.2)),
+        good: intervalLabel(isNew(card) ? 1 : Math.max(1, interval * ease)),
+        easy: intervalLabel(isNew(card) ? 4 : Math.max(4, interval * ease * 1.35))
+      };
+    }
+    function statusMatches(card, state) {
+      if (!state) return true;
+      if (state === "due") return isDue(card);
+      if (state === "new") return isNew(card) && !isSuspended(card);
+      if (state === "learning") return isLearning(card) && !isSuspended(card);
+      if (state === "review") return !isNew(card) && !isLearning(card) && !isSuspended(card);
+      if (state === "weak") return isWeak(card);
+      if (state === "marked") return !!card.flags.marked;
+      if (state === "suspended") return isSuspended(card);
+      return true;
+    }
+    function visibleCards() {
+      const search = document.getElementById("search").value.trim().toLowerCase();
+      const state = document.getElementById("state-filter").value;
+      const source = sourceSelect.value;
+      const sort = document.getElementById("sort-filter").value;
+      let rows = deckCards().filter(card => {
+        const hay = `${card.front} ${card.back} ${card.source} ${card.topicName}`.toLowerCase();
+        if (search && !hay.includes(search)) return false;
+        if (source && card.source !== source) return false;
+        return statusMatches(card, state);
+      });
+      rows.sort((a, b) => {
+        if (sort === "topic") return a.topicName.localeCompare(b.topicName) || a.front.localeCompare(b.front);
+        if (sort === "front") return a.front.localeCompare(b.front);
+        if (sort === "reviews") return (b.meta.reps || 0) - (a.meta.reps || 0) || a.front.localeCompare(b.front);
+        return (a.meta.due || 0) - (b.meta.due || 0) || a.front.localeCompare(b.front);
+      });
+      return rows;
+    }
+    function setMessage(text, tone = "") {
+      const el = document.getElementById("deck-message");
+      el.textContent = text;
+      el.style.color = tone === "warn" ? "var(--warn)" : tone === "good" ? "var(--accent)" : "var(--faint)";
+    }
+    function renderDecks() {
+      document.getElementById("deck-total").textContent = `${CARDS.length} cards`;
+      const custom = customDecks.map(deck => ({ ...deck, type: "custom", description: `${deck.cardIds.length} saved cards` }));
+      const groups = [
+        ["Course decks", builtDecks],
+        ["Your sets", custom.length ? custom : []]
+      ];
+      document.getElementById("deck-list").innerHTML = groups.map(([label, decks]) => `
+        <div class="deck-group-label">${label}</div>
+        ${decks.length ? decks.map(deck => deckButton(deck)).join("") : `<p class="mini-note">No custom sets yet.</p>`}
+      `).join("");
+      document.querySelectorAll("[data-deck]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeDeck = btn.dataset.deck;
+          selected.clear();
+          setMessage("");
+          render();
+        });
+      });
+    }
+    function deckButton(deck) {
+      const cards = deckCards(deck.id);
+      const due = cards.filter(isDue).length;
+      const newCount = cards.filter(card => isNew(card) && !isSuspended(card)).length;
+      return `
+        <button class="deck-btn ${activeDeck === deck.id ? "active" : ""}" data-deck="${escapeHtml(deck.id)}">
+          <div>
+            <strong>${escapeHtml(deck.title)}</strong>
+            <span>${due} due · ${newCount} new · ${cards.length} total</span>
+          </div>
+          <span class="deck-count">${due}</span>
+        </button>`;
+    }
+    function renderStats() {
+      const deck = deckInfo();
+      const cards = deckCards();
+      const due = cards.filter(isDue).length;
+      const newCount = cards.filter(card => isNew(card) && !isSuspended(card)).length;
+      const learning = cards.filter(card => isLearning(card) && !isSuspended(card)).length;
+      const mature = cards.filter(card => (card.meta.interval || 0) >= 21 && !isSuspended(card)).length;
+      const suspended = cards.filter(isSuspended).length;
+      document.getElementById("active-deck-title").textContent = deck.title;
+      document.getElementById("active-deck-desc").textContent = deck.description || `${cards.length} saved cards`;
+      document.getElementById("stat-grid").innerHTML = [
+        ["Total", cards.length],
+        ["Due", due],
+        ["New", newCount],
+        ["Learning", learning],
+        ["Mature", mature],
+        ["Suspended", suspended]
+      ].map(([label, value]) => `<article class="stat-card"><span>${label}</span><strong>${value}</strong></article>`).join("");
+      document.getElementById("delete-deck").disabled = !activeDeck.startsWith("custom:");
+      document.getElementById("update-deck").disabled = !activeDeck.startsWith("custom:") || selected.size === 0;
+    }
+    function renderBrowser() {
+      const rows = visibleCards();
+      document.getElementById("browser-count").textContent = `${rows.length} shown`;
+      document.getElementById("selected-count").textContent = `${selected.size} selected`;
+      document.getElementById("save-selected").disabled = selected.size === 0;
+      document.getElementById("start-review").disabled = buildSessionQueue().length === 0;
+      document.getElementById("start-selected").disabled = selected.size === 0 || buildSessionQueue(true).length === 0;
+      if (!rows.length) {
+        document.getElementById("card-list").innerHTML = `<div class="empty">No cards match this deck/filter setup.</div>`;
+        return;
+      }
+      document.getElementById("card-list").innerHTML = rows.map(card => `
+        <article class="card-row ${isSuspended(card) ? "suspended" : ""}">
+          <input type="checkbox" data-select-card="${escapeHtml(card.id)}" ${selected.has(card.id) ? "checked" : ""} aria-label="Select ${escapeHtml(card.front)}">
+          <div class="card-main">
+            <h3>${escapeHtml(card.front)}</h3>
+            <p>${escapeHtml(card.back)}</p>
+            <div class="card-meta">
+              ${stateBadge(card)}
+              ${card.flags.marked ? `<span class="badge b-unofficial">marked</span>` : ""}
+              <span class="badge b-topic">${escapeHtml(card.topicName)}</span>
+              <span class="badge b-source">${escapeHtml(card.source)}</span>
+              <span class="badge b-type">${escapeHtml(formatDue(card))}</span>
+              <span class="badge b-type">${escapeHtml(card.meta.reps || 0)} reps</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="text-btn" data-mark="${escapeHtml(card.id)}">${icon("bookmark")} ${card.flags.marked ? "Unmark" : "Mark"}</button>
+            <button class="text-btn" data-suspend="${escapeHtml(card.id)}">${isSuspended(card) ? "Unsuspend" : "Suspend"}</button>
+            <button class="text-btn" data-reset="${escapeHtml(card.id)}">${icon("refresh")} Reset</button>
+            ${activeDeck.startsWith("custom:") ? `<button class="text-btn" data-remove-card="${escapeHtml(card.id)}">${icon("trash")} Remove</button>` : ""}
+          </div>
+        </article>`).join("");
+      bindBrowserActions();
+    }
+    function bindBrowserActions() {
+      document.querySelectorAll("[data-select-card]").forEach(input => {
+        input.addEventListener("change", () => {
+          input.checked ? selected.add(input.dataset.selectCard) : selected.delete(input.dataset.selectCard);
+          render();
+        });
+      });
+      document.querySelectorAll("[data-mark]").forEach(btn => {
+        btn.addEventListener("click", () => toggleFlag(btn.dataset.mark, "marked"));
+      });
+      document.querySelectorAll("[data-suspend]").forEach(btn => {
+        btn.addEventListener("click", () => toggleFlag(btn.dataset.suspend, "suspended"));
+      });
+      document.querySelectorAll("[data-reset]").forEach(btn => {
+        btn.addEventListener("click", () => resetCards([btn.dataset.reset]));
+      });
+      document.querySelectorAll("[data-remove-card]").forEach(btn => {
+        btn.addEventListener("click", () => removeFromActiveDeck(btn.dataset.removeCard));
+      });
+    }
+    function toggleFlag(id, flag) {
+      flags[id] = flags[id] || {};
+      flags[id][flag] = !flags[id][flag];
+      if (!flags[id].marked && !flags[id].suspended) delete flags[id];
+      setStore(flagKey, flags);
+      render();
+    }
+    function resetCards(ids) {
+      ids.forEach(id => delete srs[id]);
+      setStore(srsKey, srs);
+      render();
+    }
+    function removeFromActiveDeck(id) {
+      const deck = customDecks.find(item => item.id === activeDeck);
+      if (!deck) return;
+      deck.cardIds = deck.cardIds.filter(cardId => cardId !== id);
+      if (!deck.cardIds.length) {
+        customDecks = customDecks.filter(item => item.id !== activeDeck);
+        activeDeck = "all";
+      }
+      selected.delete(id);
+      saveDecks();
+      render();
+    }
+    function makeDeck(ids, preferredTitle) {
+      const title = (preferredTitle || document.getElementById("deck-name").value || "").trim();
+      if (!title) {
+        setMessage("Name the set first.", "warn");
+        return;
+      }
+      const cardIds = [...new Set(ids)];
+      if (!cardIds.length) {
+        setMessage("No cards available for that set.", "warn");
+        return;
+      }
+      const deck = {
+        id: `custom:${Date.now().toString(36)}`,
+        title,
+        description: `${cardIds.length} selected cards`,
+        cardIds,
+        createdAt: new Date().toISOString()
+      };
+      customDecks.unshift(deck);
+      activeDeck = deck.id;
+      selected.clear();
+      document.getElementById("deck-name").value = "";
+      saveDecks();
+      setMessage(`Created ${title}.`, "good");
+      render();
+    }
+    function updateActiveDeck() {
+      const deck = customDecks.find(item => item.id === activeDeck);
+      if (!deck || !selected.size) return;
+      deck.cardIds = [...selected];
+      deck.description = `${deck.cardIds.length} selected cards`;
+      saveDecks();
+      setMessage(`Updated ${deck.title}.`, "good");
+      render();
+    }
+    function deleteActiveDeck() {
+      const deck = customDecks.find(item => item.id === activeDeck);
+      if (!deck) return;
+      if (!confirm(`Delete custom set "${deck.title}"? Card review history will stay saved.`)) return;
+      customDecks = customDecks.filter(item => item.id !== activeDeck);
+      activeDeck = "all";
+      selected.clear();
+      saveDecks();
+      setMessage("Custom set deleted.", "warn");
+      render();
+    }
+    function buildSessionQueue(forceSelected = false) {
+      let rows = forceSelected && selected.size ? allCards().filter(card => selected.has(card.id)) : deckCards();
+      const mode = document.getElementById("session-mode").value;
+      rows = rows.filter(card => {
+        if (isSuspended(card)) return false;
+        if (mode === "due") return isDue(card);
+        if (mode === "new") return isNew(card);
+        if (mode === "weak") return isWeak(card);
+        if (mode === "marked") return !!card.flags.marked;
+        return true;
+      });
+      if (document.getElementById("session-shuffle").checked) rows = shuffle(rows);
+      const limit = Math.max(1, Math.min(100, Number(document.getElementById("session-limit").value) || 20));
+      return rows.slice(0, limit);
+    }
+    function shuffle(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+    function startStudy(forceSelected = false) {
+      const queue = buildSessionQueue(forceSelected);
+      if (!queue.length) {
+        document.getElementById("session-message").textContent = "No cards match that review mode.";
+        return;
+      }
+      study = {
+        active: true,
+        queue,
+        originalLength: queue.length,
+        index: 0,
+        revealed: false,
+        answered: 0,
+        startedAt: Date.now(),
+        mode: document.getElementById("session-mode").value,
+        deckTitle: deckInfo().title
+      };
+      document.getElementById("study-overlay").classList.add("visible");
+      document.getElementById("study-overlay").setAttribute("aria-hidden", "false");
+      renderStudy();
+    }
+    function exitStudy() {
+      study.active = false;
+      document.getElementById("study-overlay").classList.remove("visible");
+      document.getElementById("study-overlay").setAttribute("aria-hidden", "true");
+      render();
+    }
+    function revealStudy() {
+      if (!study.active) return;
+      study.revealed = true;
+      renderStudy();
+    }
+    function rate(card, label) {
+      const prior = srs[card.id] || { interval: 0, reps: 0, ease: 2.5, lapses: 0 };
       let interval = prior.interval || 0;
       let ease = prior.ease || 2.5;
-      if (label === "again") { interval = 0; ease = Math.max(1.3, ease - .2); }
-      if (label === "hard") interval = Math.max(1, Math.round((interval || 1) * 1.2));
-      if (label === "good") interval = Math.max(1, Math.round((interval || 1) * ease));
-      if (label === "easy") { ease += .15; interval = Math.max(4, Math.round((interval || 1) * ease * 1.3)); }
-      srs[card.id] = { interval, ease, reps: (prior.reps || 0) + 1, due: Date.now() + (label === "again" ? 10 * 60000 : interval * DAY) };
-      setStore(key, srs);
-      current++;
-      revealed = false;
+      let lapses = prior.lapses || 0;
+      if (label === "again") {
+        interval = 0;
+        ease = Math.max(1.3, ease - .2);
+        lapses += 1;
+      } else if (label === "hard") {
+        interval = isNew(card) ? .5 : Math.max(1, interval * 1.2);
+        ease = Math.max(1.3, ease - .05);
+      } else if (label === "good") {
+        interval = isNew(card) ? 1 : Math.max(1, interval * ease);
+      } else if (label === "easy") {
+        ease += .15;
+        interval = isNew(card) ? 4 : Math.max(4, interval * ease * 1.35);
+      }
+      srs[card.id] = {
+        interval,
+        ease,
+        lapses,
+        reps: (prior.reps || 0) + 1,
+        due: Date.now() + (label === "again" ? TEN_MIN : interval * DAY),
+        last: new Date().toISOString(),
+        lastRating: label
+      };
+      setStore(srsKey, srs);
+      study.answered += 1;
+      if (label === "again" && study.queue.length < study.originalLength + 12) {
+        study.queue.push({ ...card, meta: srs[card.id] });
+      }
+      study.index += 1;
+      study.revealed = false;
       renderStudy();
       render();
     }
-    window.rate = rate;
-    function startStudy() {
-      queue = dueCards();
-      current = 0;
-      revealed = false;
-      document.getElementById("study").classList.add("visible");
-      renderStudy();
-    }
-    window.startStudy = startStudy;
     function renderStudy() {
-      const card = queue[current];
+      const card = study.queue[study.index];
+      document.getElementById("study-title").textContent = `${study.deckTitle} review`;
+      document.getElementById("study-subtitle").textContent = `${study.mode} mode`;
+      document.getElementById("study-progress").textContent = `${Math.min(study.index + 1, study.queue.length)} / ${study.queue.length}`;
+      document.getElementById("study-answered").textContent = `${study.answered} rated`;
       const box = document.getElementById("study-card");
-      const rating = document.getElementById("rating");
+      const actions = document.getElementById("study-actions");
       if (!card) {
-        box.innerHTML = `<div><h2>Session complete</h2><p class="def">No due cards left for this topic.</p></div>`;
-        rating.innerHTML = `<button class="text-btn primary" onclick="document.getElementById('study').classList.remove('visible')">Back</button>`;
+        box.innerHTML = `
+          <div>
+            <h2>Session complete</h2>
+            <p>You rated ${study.answered} cards. Any cards marked Again are scheduled soon and may also have been recycled into this session.</p>
+          </div>`;
+        actions.innerHTML = `
+          <button class="text-btn primary" id="finish-study">${icon("check")} Back to decks</button>
+          <button class="text-btn" id="repeat-study">${icon("refresh")} Repeat mode</button>`;
+        document.getElementById("finish-study").addEventListener("click", exitStudy);
+        document.getElementById("repeat-study").addEventListener("click", () => startStudy(false));
+        document.getElementById("study-progress").textContent = `${study.queue.length} / ${study.queue.length}`;
         return;
       }
-      box.innerHTML = revealed
-        ? `<div><h2>${escapeHtml(card.front)}</h2><p class="def">${escapeHtml(card.back)}</p><p class="src">${escapeHtml(card.source)}</p></div>`
-        : `<div><h2>${escapeHtml(card.front)}</h2><p class="hint">Click card or press Space to reveal</p></div>`;
-      rating.innerHTML = revealed ? `
-        <button class="text-btn" onclick="rate('again')">Again</button>
-        <button class="text-btn" onclick="rate('hard')">Hard</button>
-        <button class="text-btn primary" onclick="rate('good')">Good</button>
-        <button class="text-btn" onclick="rate('easy')">Easy</button>` : "";
-    }
-    document.getElementById("study-card").addEventListener("click", () => { revealed = true; renderStudy(); });
-    document.getElementById("exit-study").addEventListener("click", () => document.getElementById("study").classList.remove("visible"));
-    window.addEventListener("keydown", e => {
-      if (!document.getElementById("study").classList.contains("visible")) return;
-      if (e.key === " ") { e.preventDefault(); revealed = true; renderStudy(); }
-      if (revealed && ["1","2","3","4"].includes(e.key)) rate(["again","hard","good","easy"][Number(e.key)-1]);
-      if (e.key === "Escape") document.getElementById("study").classList.remove("visible");
-    });
-    function render() {
-      document.getElementById("tabs").innerHTML = topics.map(t => `<button class="tab ${topic === t.id ? "active" : ""}" onclick="setTopic('${t.id}')">${escapeHtml(t.title)}</button>`).join("");
-      const cards = visibleCards();
-      const due = dueCards();
-      const learned = cards.filter(c => srs[c.id]?.reps).length;
-      document.getElementById("stats").innerHTML = `
-        <div class="stat"><span>Visible</span><strong>${cards.length}</strong></div>
-        <div class="stat"><span>Due</span><strong>${due.length}</strong></div>
-        <div class="stat"><span>Reviewed</span><strong>${learned}</strong></div>
-        <button class="text-btn primary" onclick="startStudy()" ${due.length ? "" : "disabled"}>${icon("cards")} Study Due</button>`;
-      document.getElementById("grid").innerHTML = cards.map(c => `
-        <div class="fc" onclick="this.classList.toggle('flipped')">
-          <div class="fc-inner">
-            <div class="glass face"><div class="term">${escapeHtml(c.front)}</div><div class="hint">tap to reveal</div></div>
-            <div class="glass face back"><div class="def">${escapeHtml(c.back)}</div><div class="src">${escapeHtml(c.source)}</div></div>
+      const intervals = nextIntervals(card);
+      box.innerHTML = `
+        <div>
+          <div class="card-meta" style="justify-content:center;margin-bottom:14px">
+            <span class="badge b-topic">${escapeHtml(card.topicName)}</span>
+            <span class="badge b-source">${escapeHtml(card.source)}</span>
+            ${stateBadge(card)}
           </div>
-        </div>`).join("");
+          <h2>${escapeHtml(card.front)}</h2>
+          ${study.revealed ? `<div class="study-answer"><p>${escapeHtml(card.back)}</p></div>` : `<p>Press Space or click Reveal when you have recalled the answer.</p>`}
+        </div>`;
+      actions.innerHTML = study.revealed ? `
+        <div class="rating-row">
+          <button class="rating-btn again" data-rate="again"><strong>Again</strong><span>${intervals.again} · key 1</span></button>
+          <button class="rating-btn" data-rate="hard"><strong>Hard</strong><span>${intervals.hard} · key 2</span></button>
+          <button class="rating-btn good" data-rate="good"><strong>Good</strong><span>${intervals.good} · key 3</span></button>
+          <button class="rating-btn" data-rate="easy"><strong>Easy</strong><span>${intervals.easy} · key 4</span></button>
+        </div>` : `
+        <button class="text-btn primary" id="reveal-study">${icon("eye")} Reveal answer</button>
+        <button class="text-btn" id="skip-study">Skip</button>`;
+      document.querySelectorAll("[data-rate]").forEach(btn => {
+        btn.addEventListener("click", () => rate(card, btn.dataset.rate));
+      });
+      document.getElementById("reveal-study")?.addEventListener("click", revealStudy);
+      document.getElementById("skip-study")?.addEventListener("click", () => {
+        study.index += 1;
+        study.revealed = false;
+        renderStudy();
+      });
     }
+    function render() {
+      customDecks = normalizeDecks(customDecks);
+      if (!deckInfo(activeDeck)) activeDeck = "all";
+      renderDecks();
+      renderStats();
+      renderBrowser();
+    }
+    document.getElementById("save-selected").innerHTML = `${icon("bookmark")} Save selected`;
+    document.getElementById("save-filtered").innerHTML = `${icon("list")} Save filtered`;
+    document.getElementById("update-deck").innerHTML = `${icon("check")} Update set`;
+    document.getElementById("delete-deck").innerHTML = `${icon("trash")} Delete set`;
+    document.getElementById("select-visible").innerHTML = `${icon("check")} Select shown`;
+    document.getElementById("start-review").innerHTML = `${icon("cards")} Start review`;
+    document.getElementById("start-selected").innerHTML = `${icon("bookmark")} Study selected`;
+    document.getElementById("clear-selection").innerHTML = `${icon("close")} Clear selection`;
+    document.getElementById("reset-visible").innerHTML = `${icon("refresh")} Reset shown`;
+    document.getElementById("exit-study").innerHTML = `${icon("close")} Exit`;
+    document.getElementById("save-selected").addEventListener("click", () => makeDeck([...selected]));
+    document.getElementById("save-filtered").addEventListener("click", () => makeDeck(visibleCards().map(card => card.id)));
+    document.getElementById("update-deck").addEventListener("click", updateActiveDeck);
+    document.getElementById("delete-deck").addEventListener("click", deleteActiveDeck);
+    document.getElementById("select-visible").addEventListener("click", () => {
+      visibleCards().forEach(card => selected.add(card.id));
+      render();
+    });
+    document.getElementById("clear-selection").addEventListener("click", () => {
+      selected.clear();
+      render();
+    });
+    document.getElementById("reset-visible").addEventListener("click", () => {
+      const ids = visibleCards().map(card => card.id);
+      if (ids.length && confirm(`Reset SRS history for ${ids.length} visible cards?`)) resetCards(ids);
+    });
+    document.getElementById("start-review").addEventListener("click", () => startStudy(false));
+    document.getElementById("start-selected").addEventListener("click", () => startStudy(true));
+    document.getElementById("exit-study").addEventListener("click", exitStudy);
+    ["search", "state-filter", "source-filter", "sort-filter", "session-mode", "session-limit", "session-shuffle"].forEach(id => {
+      document.getElementById(id).addEventListener("input", render);
+    });
+    window.addEventListener("keydown", e => {
+      if (!study.active) return;
+      if (e.key === "Escape") exitStudy();
+      if (e.key === " ") {
+        e.preventDefault();
+        if (!study.revealed) revealStudy();
+      }
+      if (study.revealed && ["1", "2", "3", "4"].includes(e.key)) {
+        const card = study.queue[study.index];
+        if (card) rate(card, ["again", "hard", "good", "easy"][Number(e.key) - 1]);
+      }
+    });
     render();
   </script>
 </body>

@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.04-week1.27";
+const SITE_VERSION = "2026.06.04-week1.28";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -257,38 +257,6 @@ const EXAM_KIT = {
         "Therefore \\(\\frac{\\operatorname{Median}(X)}{E[X]}=\\frac{e^\\mu}{e^{\\mu+\\sigma^2/2}}=e^{-\\sigma^2/2}\\)."
       ],
       check: "The right tail pulls the mean above the median; larger \\(\\sigma\\) makes the gap bigger."
-    }
-  ],
-  answerFrames: [
-    {
-      title: "CRISP-DM phase classification",
-      source: SOURCES.tut0s,
-      cues: ["Goals, data availability, success criterion", "Inspect raw data, missingness, summaries", "Clean, transform, encode, impute", "Fit or choose a model", "Test quality against metrics/business needs", "Put the solution into use"],
-      answer: "Business Understanding, Data Understanding, Data Preparation, Modeling, Evaluation, Deployment."
-    },
-    {
-      title: "Ethics of predictive decisions",
-      source: SOURCES.tut0s,
-      cues: ["Does the model optimize prediction while ignoring fairness?", "Do variables directly or indirectly encode protected traits?", "Can humans audit or restrict the model inputs?"],
-      answer: "Name the fairness risk, explain why historical patterns can discriminate, then propose variable restrictions/audits without abandoning the model."
-    },
-    {
-      title: "Missing-value method comparison",
-      source: SOURCES.slides,
-      cues: ["Is missingness random?", "How much data would deletion remove?", "Will imputation distort variance or relationships?", "Is the method appropriate for the downstream model?"],
-      answer: "State the method, state the assumption, and state the tradeoff: bias, variance, distribution shape, or relationship preservation."
-    },
-    {
-      title: "Outlier explanation",
-      source: SOURCES.rcode,
-      cues: ["One-dimensional extreme?", "Multivariate unusual combination?", "High leverage in x-direction?", "Large residual in y-direction?"],
-      answer: "Describe what is unusual, which plot/statistic reveals it, and whether the point should be investigated, transformed, or kept."
-    },
-    {
-      title: "EDA interpretation",
-      source: SOURCES.rcode,
-      cues: ["Which variable is conditioned on?", "Are proportions row-wise or column-wise?", "Does a plot show distribution, relationship, or group difference?"],
-      answer: "Say exactly what is being conditioned on, compare relevant rates/summaries, and avoid causal claims unless the design supports them."
     }
   ],
   rCommands: [

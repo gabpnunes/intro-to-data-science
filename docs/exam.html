@@ -116,22 +116,22 @@
       margin-top: 14px;
     }
     .drill-nav-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .formula-list, .frame-list, .check-list, .r-list, .derivation-list { display: grid; gap: 10px; }
-    .formula-card, .frame-card, .r-card, .derivation-card, .check-item {
+    .formula-list, .check-list, .r-list, .derivation-list { display: grid; gap: 10px; }
+    .formula-card, .r-card, .derivation-card, .check-item {
       min-width: 0;
       padding: 14px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: var(--panel-soft);
     }
-    .formula-top, .frame-top, .r-top, .derivation-top {
+    .formula-top, .r-top, .derivation-top {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 7px;
       margin-bottom: 9px;
     }
-    .formula-card h3, .frame-card h3, .r-card h3, .derivation-card h3 {
+    .formula-card h3, .r-card h3, .derivation-card h3 {
       width: 100%;
       margin: 0;
       font-size: 15px;
@@ -153,12 +153,12 @@
       letter-spacing: .12em;
       text-transform: uppercase;
     }
-    .formula-card p, .frame-card p, .r-card p, .derivation-card p, .check-item {
+    .formula-card p, .r-card p, .derivation-card p, .check-item {
       color: var(--muted);
       font-size: 12px;
       line-height: 1.6;
     }
-    .formula-card p, .frame-card p, .r-card p, .derivation-card p { margin: 0; }
+    .formula-card p, .r-card p, .derivation-card p { margin: 0; }
     .derivation-card details {
       margin-top: 12px;
       padding: 12px;
@@ -251,7 +251,7 @@
   <main class="page">
     <p class="eyebrow">05 · Exam Kit</p>
     <h1 class="page-title">Part 1 exam kit</h1>
-    <p class="page-sub">A compact source-linked layer for recall, derivations, and answer structure. Tutorial 1 and 2 solution-dependent items remain provisional until official solution files are supplied.</p>
+    <p class="page-sub">A compact source-linked layer for recall, derivations, formulas, and R command patterns. Tutorial 1 and 2 solution-dependent items remain provisional until official solution files are supplied.</p>
     <section class="glass drill-panel">
       <div>
         <h2>Recall drill</h2>
@@ -294,10 +294,6 @@
         <h2>R Command Clinic</h2>
         <div class="r-list" id="r-list"></div>
       </section>
-      <section class="glass kit-section" style="grid-column:1 / -1">
-        <h2>Answer Frames</h2>
-        <div class="frame-list" id="frame-list"></div>
-      </section>
     </div>
   </main>
   <section class="drill-overlay" id="drill-overlay" aria-hidden="true">
@@ -339,15 +335,6 @@
         <p>${escapeHtml(item.use)}</p>
         <p class="kit-label">Trap</p>
         <p>${escapeHtml(item.trap)}</p>
-      </article>`).join("");
-    document.getElementById("frame-list").innerHTML = EXAM_KIT.answerFrames.map(frame => `
-      <article class="frame-card">
-        <div class="frame-top">
-          <h3>${escapeHtml(frame.title)}</h3>
-          <span class="badge b-source">${escapeHtml(frame.source)}</span>
-        </div>
-        <div class="cue-row">${frame.cues.map(cue => `<span class="source-pill">${escapeHtml(cue)}</span>`).join("")}</div>
-        <p>${escapeHtml(frame.answer)}</p>
       </article>`).join("");
     document.getElementById("r-list").innerHTML = EXAM_KIT.rCommands.map(item => `
       <article class="r-card">
@@ -404,7 +391,6 @@
         <div class="kit-stat"><span>Formulas</span><strong>${EXAM_KIT.formulas.length}</strong></div>
         <div class="kit-stat"><span>Derivations</span><strong>${derivationDone}/${EXAM_KIT.derivations.length}</strong></div>
         <div class="kit-stat"><span>R commands</span><strong>${EXAM_KIT.rCommands.length}</strong></div>
-        <div class="kit-stat"><span>Frames</span><strong>${EXAM_KIT.answerFrames.length}</strong></div>
         <div class="kit-stat"><span>Checklist</span><strong>${done}/${EXAM_KIT.checklist.length}</strong></div>`;
       document.getElementById("check-list").innerHTML = EXAM_KIT.checklist.map((item, i) => `
         <label class="check-item">

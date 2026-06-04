@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.06.04-week1.28",
+    "date": "2026-06-04",
+    "title": "Upgraded flashcards",
+    "items": [
+      "Removed the Exam Kit Answer Frames section and answer-frame data from the Exam Kit model.",
+      "Rebuilt Flashcards into an Anki-style deck workspace with deck selection, custom sets, search, filters, marking, suspending, resetting, and selected-card review.",
+      "Added custom flashcard sets and card flags to homepage progress backup export/import."
+    ]
+  },
+  {
     "version": "2026.06.04-week1.27",
     "date": "2026-06-04",
     "title": "Cleaned homepage and question bank",
