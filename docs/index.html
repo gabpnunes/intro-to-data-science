@@ -242,7 +242,7 @@
         <li><strong>All Week 1 / Part 1 slides</strong> incorporated into the study guide, diagrams, visual labs, flashcards, and Exam Kit.</li>
         <li><strong>Tutorial 0 questions and official solutions</strong> included, with official solution wording kept separate from explanations.</li>
         <li><strong>Tutorial 1 questions and official solutions</strong> included, with explanations kept separate from official wording.</li>
-        <li><strong>Tutorial 2 exercises and exam-style questions</strong> included, but no official solutions yet; current solutions are provisional.</li>
+        <li><strong>Tutorial 2 exercises and official solutions</strong> included; Tutorial 2 exam-style questions are included with provisional solutions.</li>
         <li><strong>Part 1 R code and datasets</strong> incorporated for missing values, outliers, transformations, and churn EDA examples.</li>
         <li><strong>Linked Week 1 media</strong> listed as supplementary unless verified directly from local course files.</li>
       </ul>
@@ -343,7 +343,7 @@
         progressTile("Derivations", derivationDone, EXAM_KIT.derivations.length, "Proof-style formula explanations marked reproducible from memory."),
         progressTile("Missed recall", missedRecall, EXAM_KIT.formulas.length + EXAM_KIT.rCommands.length, "Formula/R prompts saved from missed Exam Kit drill ratings."),
         progressTile("Cards reviewed", reviewed, CARDS.length, `${due} cards due now.`),
-        progressTile("Official solutions", official, QUESTIONS.length, `${provisional} Tutorial 2 provisional solutions pending the official PDF.`)
+        progressTile("Official solutions", official, QUESTIONS.length, `${provisional} Tutorial 2 exam-style provisional solutions pending an official source.`)
       ].join("");
     }
     window.renderProgressSummary = renderProgressSummary;

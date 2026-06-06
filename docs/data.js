@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.04-week1.29";
+const SITE_VERSION = "2026.06.07-week1.30";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -9,6 +9,7 @@ const SOURCES = {
   tut1q: "Part1/Tutorial 1 Questions.pdf",
   tut1s: "Part1/Tutorial 1 Solutions.pdf",
   tut2q: "Part1/Tutorial 2 Questions.pdf",
+  tut2s: "Part1/Tutorial 2 Solutions.pdf",
   datasets: "Part1 datasets: telecom.txt, Outlier.txt, dtData1.RDS, churn.txt",
   media: "Linked Week 1 videos/articles from Introduction_Data_Science.md"
 };
@@ -53,8 +54,14 @@ const SOURCE_INVENTORY = [
   {
     label: "Tutorial 2 questions",
     source: SOURCES.tut2q,
-    status: "provisional",
-    detail: "Exercises and exam questions are source-checked; solutions remain unofficial until official solutions arrive."
+    status: "incorporated",
+    detail: "Exercises and exam questions are source-checked; exercise solutions are reconciled with the official Tutorial 2 solution PDF."
+  },
+  {
+    label: "Tutorial 2 solutions",
+    source: SOURCES.tut2s,
+    status: "official",
+    detail: "Official wording for Tutorial 2 Exercises 1-5 is preserved separately from explanations; reconciled on 2026-06-07."
   },
   {
     label: "R examples",
@@ -76,9 +83,9 @@ const SOURCE_INVENTORY = [
   },
   {
     label: "Future official solutions",
-    source: "Tutorial 2 official solution PDF",
+    source: "Tutorial 2 exam-style question official solutions",
     status: "pending",
-    detail: "When supplied, provisional Tutorial 2 solutions must be reconciled against official wording."
+    detail: "Tutorial 2 Exam Questions Q1-Q2 remain provisional unless an official solution source is supplied."
   }
 ];
 
@@ -136,6 +143,24 @@ const ERRATA_NOTES = [
     title: "Question sheet asks mean(Data.New), solution sheet says mean(Data)",
     note: "Tutorial 1 Question 4 asks for the result of mean(Data.New), while the official solution PDF phrases part b as mean(Data). The result remains NA because the replacement value mean(Data) is computed before imputation and Data still contains missing values.",
     action: "The site preserves the official solution wording and adds a separate explanation for the question-sheet version."
+  },
+  {
+    id: "err-t2-q4-lower-ineq",
+    severity: "likely typo",
+    source: "Part1/Tutorial 2 Solutions.pdf, Exercise 4",
+    relatedQuestionId: "t2q4",
+    title: "Lower boxplot-tail line uses the wrong inequality sign",
+    note: "The official solution text says the lower outlier condition is X < Q1 - 1.5 IQR, but a later displayed line writes P[X > Q1 - 1.5 IQR] while simplifying to P[Z < -2.697959].",
+    action: "The site preserves the official wording and explains that the intended lower-tail event is X < Q1 - 1.5 IQR."
+  },
+  {
+    id: "err-t2-q5-simulation-size",
+    severity: "wording mismatch",
+    source: "Part1/Tutorial 2 Questions.pdf and Part1/Tutorial 2 Solutions.pdf, Exercise 5",
+    relatedQuestionId: "t2q5",
+    title: "Question asks 10,000 simulations but official code uses 1,000",
+    note: "Tutorial 2 Exercise 5 asks for 10 000 lognormal realizations, while the official solution code uses rnorm(1000, 2, 1). The official solution also labels the final ratio part as Question d although it corresponds to part e.",
+    action: "The site preserves the official code and adds a separate explanation noting the mismatch."
   }
 ];
 
@@ -367,7 +392,7 @@ const EXAM_KIT = {
     "Can you explain why lognormal mean exceeds lognormal median?",
     "Can you choose between raw scale, z-score standardization, min-max scaling, and log transformation?",
     "Can you interpret `prop.table(mytable, 2)` as column-wise conditional proportions?",
-    "Can you name which Tutorial 2 solutions are still provisional and must be reconciled later?"
+    "Can you name which Tutorial 2 exam-style solutions are still provisional and must be reconciled later?"
   ]
 };
 
@@ -968,7 +993,7 @@ col="red", lwd=2, add=TRUE)</pre>`,
     source: "Tutorial 2 Exercises, Q1",
     difficulty: "medium",
     type: "short",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider observations for variables X1, X2, X3: X1 = {80,75,91,110,58,40,66}, X2 = {80,75,91,670,58,40,66}, X3 = {50,43,56,90,210,75,450}. (a) Determine for each variable the mean and median. What do you observe? (b) Indicate and explain which measure (mean, median, or both) is preferred for each variable.",
     questionHtml: `<p>Consider the following observations for different data variables.</p>
       <div class="source-table-wrap">
@@ -988,8 +1013,15 @@ col="red", lwd=2, add=TRUE)</pre>`,
       </div>
       <p>(a) Determine for each variable the mean and the median. What do you observe?</p>
       <p>(b) Indicate and explain which measure (the mean, the median or both), is preferred for each variable.</p>`,
-    sourceNote: "Source audit: Tutorial 2 labels Table 1 as having 6 observations, but the table lists observations 1 through 7. This solution uses all 7 rows.",
-    explanation: "Unofficial solution: X1 mean = 68.0, median = 75. X2 mean = 151.43, median = 75; the 670 outlier pulls the mean upward. X3 mean = 146.29, median = 75; 210 and 450 pull the mean upward. Prefer both/mean for roughly regular X1, but median for X2 and X3 because outliers/skew make the mean less representative."
+    sourceNote: "Source audit: Tutorial 2 labels Table 1 as having 6 observations, but the table lists observations 1 through 7. The official solution uses all 7 listed rows.",
+    officialSolution: "Question a: You should find the following results for the mean.\nMean[X1] = 74.2857\nMean[X2] = 154.2857\nMean[X3] = 139.1428\nFor the median, we find:\nMedian[Xi] = 75, for i = 1, 2, 3.\nThe median is the same for each variable, whereas the mean differs substantially.\nQuestion b: For the first variable X1, both the mean and the median are close to each other. The data is also close to symmetric. The variable X2 is the same as X1, except for observation 4, which seems to be an outlier. Since the mean is sensitive to the outliers, the median is a better representation for the center of the data. The third data set is skewed. The observations which are smaller than the median are closer to the median than the observations which are larger than the median. In this case, the median is not an adequate measure, since it does not take into account the heavier right tail.",
+    officialSolutionHtml: `<p><strong>Question a:</strong> You should find the following results for the mean.</p>
+      <div class="math-block">\\[\\begin{aligned}\\operatorname{Mean}[X_1] &= 74.2857\\\\ \\operatorname{Mean}[X_2] &= 154.2857\\\\ \\operatorname{Mean}[X_3] &= 139.1428\\end{aligned}\\]</div>
+      <p>For the median, we find:</p>
+      <div class="math-block">\\[\\operatorname{Median}[X_i]=75,\\quad \\text{for } i=1,2,3.\\]</div>
+      <p>The median is the same for each variable, whereas the mean differs substantially.</p>
+      <p><strong>Question b:</strong> For the first variable \\(X_1\\), both the mean and the median are close to each other. The data is also close to symmetric. The variable \\(X_2\\) is the same as \\(X_1\\), except for observation 4, which seems to be an outlier. Since the mean is sensitive to the outliers, the median is a better representation for the center of the data. The third data set is skewed. The observations which are smaller than the median are closer to the median than the observations which are larger than the median. In this case, the median is not an adequate measure, since it does not take into account the heavier right tail.</p>`,
+    explanation: "The official means use all seven listed rows. X2 shows the classic outlier problem: one huge value makes the mean jump while the median stays at 75. X3 is different: the whole right tail is heavy, so the median alone can hide important large values."
   },
   {
     id: "t2q2",
@@ -998,7 +1030,7 @@ col="red", lwd=2, add=TRUE)</pre>`,
     source: "Tutorial 2 Exercises, Q2",
     difficulty: "medium",
     type: "short",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "For data {130, 89, 4, 234, 9, 143, 78, 22, 24, 100}: (a) Determine the IQR using the empirical distribution function. (b) Explore Excel percentile/quartile functions and determine the IQR. (c) Determine the formula Excel uses.",
     questionHtml: `<p>Consider the following data set.</p>
       <div class="source-table-wrap">
@@ -1022,7 +1054,26 @@ col="red", lwd=2, add=TRUE)</pre>`,
       <p>(a) Determine the inter quartile range (IQR) of this data set using the empirical distribution function.</p>
       <p>(b) Explore the functions percentile and quartile in Excel. Determine the IQR of the data set using these Excel functions.</p>
       <p>(c) Determine the formula that Excel uses to determine the IQR.</p>`,
-    explanation: "Unofficial solution: Ordered data: 4, 9, 22, 24, 78, 89, 100, 130, 143, 234. With the course empirical quantile rule, Q1 = x3 = 22 and Q3 = x8 = 130, so IQR = 108. Excel may differ because it interpolates between order statistics depending on the chosen function."
+    officialSolution: "Question a: Using the empirical distribution function F-hat for these 10 observations, we find:\nF-hat(9) = 0.2 and F-hat(22) = 0.3.\nSince 0.25 is in between 0.2 and 0.3, we find that the 25% quantile is given by x0.25 = 22. Similarly, we have that F-hat(100) = 0.7 and F-hat(130) = 0.8, and therefore the 75% quantile is x0.75 = 130. The IQR is then given by IQR = 130 - 22 = 108.\nQuestion b: In Excel, the function percentile can be used to determine quantiles for a given probability level p. The quartile function can be used to determine a certain quart of the data. Note that, for example, the percentile function with p = 0.25 is the same as using the quartile function for the first quart (k = 1). Below, you find an overview of an Excel sheet where we used the percentile and the quartile functions. The IQR using Excel is then given by: IQR = 122.5 - 22.5 = 100.\nQuestion c: We find that the percentile function in Excel (denote this by f) of an ordered array x1 < x2 < ... < xn can be expressed as follows: f((i - 1)/(n - 1)) = xi, for i = 1, 2, ..., n. For values p which cannot be expressed as (i - 1)/(n - 1) for some i in {1, 2, ..., n}, we linear interpolate to obtain: f(p) = (1 - alpha)x_i + alpha x_{i+1} if (i - 1)/(n - 1) <= p <= i/(n - 1), where alpha = (n - 1)p - (i - 1). For example, we find that the first quartile (Q1) (which is the same as the 25% percentile) can be determined using Excel as follows: quartile(C4:C13, 1) = percentile(C4:C13, 0.25) = f(0.25) = 22.5.",
+    officialSolutionHtml: `<p><strong>Question a:</strong> Using the empirical distribution function \\(\\hat F\\) for these 10 observations, we find:</p>
+      <div class="math-block">\\[\\hat F(9)=0.2 \\quad \\text{and} \\quad \\hat F(22)=0.3.\\]</div>
+      <p>Since 0.25 is in between 0.2 and 0.3, we find that the 25% quantile is given by</p>
+      <div class="math-block">\\[x_{0.25}=22.\\]</div>
+      <p>Similarly, we have that</p>
+      <div class="math-block">\\[\\hat F(100)=0.7 \\quad \\text{and} \\quad \\hat F(130)=0.8,\\]</div>
+      <p>and therefore the 75% quantile is</p>
+      <div class="math-block">\\[x_{0.75}=130.\\]</div>
+      <p>The IQR is then given by</p>
+      <div class="math-block">\\[IQR=130-22=108.\\]</div>
+      <p><strong>Question b:</strong> In Excel, the function <code>percentile</code> can be used to determine quantiles for a given probability level \\(p\\). The <code>quartile</code> function can be used to determine a certain quart of the data. Note that, for example, the percentile function with \\(p=0.25\\) is the same as using the quartile function for the first quart (\\(k=1\\)). Below, you find an overview of an Excel sheet where we used the <code>percentile</code> and the <code>quartile</code> functions. The IQR using Excel is then given by:</p>
+      <div class="math-block">\\[IQR=122.5-22.5=100.\\]</div>
+      <p><strong>Question c:</strong> We find that the percentile function in Excel (denote this by \\(f\\)) of an ordered array \\(x_1&lt;x_2&lt;\\cdots&lt;x_n\\) can be expressed as follows:</p>
+      <div class="math-block">\\[f\\left(\\frac{i-1}{n-1}\\right)=x_i,\\quad \\text{for } i=1,2,\\ldots,n.\\]</div>
+      <p>For values \\(p\\) which cannot be expressed as \\(\\frac{i-1}{n-1}\\) for some \\(i\\in\\{1,2,\\ldots,n\\}\\), we linear interpolate to obtain:</p>
+      <div class="math-block">\\[f(p)=(1-\\alpha)x_i+\\alpha x_{i+1}\\quad \\text{if }\\frac{i-1}{n-1}\\le p\\le\\frac{i}{n-1},\\]</div>
+      <p>where \\(\\alpha=(n-1)p-(i-1)\\). For example, we find that the first quartile (Q1) (which is the same as the 25% percentile) can be determined using Excel as follows:</p>
+      <div class="math-block">\\[\\operatorname{quartile}(C4:C13,1)=\\operatorname{percentile}(C4:C13,0.25)=f(0.25)=22.5.\\]</div>`,
+    explanation: "The course empirical-CDF rule picks observed values where the CDF first passes the target probability, giving IQR 108. Excel interpolates between ordered observations, so its percentile/quartile result is different: 100."
   },
   {
     id: "t2q3",
@@ -1031,9 +1082,14 @@ col="red", lwd=2, add=TRUE)</pre>`,
     source: "Tutorial 2 Exercises, Q3",
     difficulty: "medium",
     type: "proof",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider X ~ N(mu, sigma^2). Show the relation between IQR and standard deviation sigma: IQR ≈ 1.35 × sigma. You can use Phi^{-1}(0.75)=0.674.",
-    explanation: "Unofficial solution: For a normal distribution, Q3=mu+0.674 sigma and Q1=mu-0.674 sigma by symmetry. Therefore IQR=Q3-Q1=1.348 sigma, approximately 1.35 sigma."
+    officialSolution: "We can write the following\nIQR = F_X^{-1}(0.75) - F_X^{-1}(0.25) = (mu + sigma Phi^{-1}(0.75)) - (mu + sigma Phi^{-1}(0.25)) = sigma(Phi^{-1}(0.75) - Phi^{-1}(0.25)) approx 1.35 x sigma,\nwhere we used that Phi^{-1}(0.75) = 0.674 and therefore Phi^{-1}(0.25) = -Phi^{-1}(1 - 0.25) = -0.674.",
+    officialSolutionHtml: `<p>We can write the following</p>
+      <div class="math-block">\\[\\begin{aligned}IQR &= F_X^{-1}(0.75)-F_X^{-1}(0.25)\\\\ &= \\left(\\mu+\\sigma\\Phi^{-1}(0.75)\\right)-\\left(\\mu+\\sigma\\Phi^{-1}(0.25)\\right)\\\\ &= \\sigma\\left(\\Phi^{-1}(0.75)-\\Phi^{-1}(0.25)\\right)\\\\ &\\approx 1.35\\times\\sigma,\\end{aligned}\\]</div>
+      <p>where we used that \\(\\Phi^{-1}(0.75)=0.674\\) and therefore</p>
+      <div class="math-block">\\[\\Phi^{-1}(0.25)=-\\Phi^{-1}(1-0.25)=-0.674.\\]</div>`,
+    explanation: "For a normal distribution, the middle 50% lies symmetrically between about -0.674 sigma and +0.674 sigma from the mean. The distance between those two quantiles is about 1.348 sigma."
   },
   {
     id: "t2q4",
@@ -1042,9 +1098,19 @@ col="red", lwd=2, add=TRUE)</pre>`,
     source: "Tutorial 2 Exercises, Q4",
     difficulty: "hard",
     type: "proof",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "Consider X ~ N(mu, sigma^2). What is the probability to observe an outlier if the boxplot definition is used?",
-    explanation: "Unofficial solution: For a normal distribution, Q1=mu-0.674sigma, Q3=mu+0.674sigma, and IQR=1.348sigma. The fences are mu ± (0.674 + 1.5×1.348)sigma = mu ± 2.696sigma. Thus P(outlier)=P(|Z|>2.696)=2(1-Phi(2.696))≈0.007, about 0.7%."
+    sourceNote: "Source audit: the official solution's lower-tail display writes P[X > Q1 - 1.5 x IQR], but the surrounding text and standard boxplot rule imply P[X < Q1 - 1.5 x IQR]. The official wording is preserved.",
+    officialSolution: "We find an outlier if either X > Q3 + 1.5 x IQR or if X < Q1 - 1.5 x IQR. The probability that X > Q3 + 1.5 x IQR can be determined as follows:\nP[X > Q3 + 1.5 x IQR] = P[X > mu + sigma Phi^{-1}(0.75) + 1.5 sigma(Phi^{-1}(0.75) - Phi^{-1}(0.25))] = P[(X - mu)/sigma > 2.5 x Phi^{-1}(0.75) - 1.5 x Phi^{-1}(0.25)] = P[Z > 2.697959], where Z is a standard normal random variables. Hence:\nP[X > Q3 + 1.5 x IQR] = 1 - Phi(2.697959) = 0.003488302.\nWe can use the same steps to show that P[X > Q1 - 1.5 x IQR] = P[Z < -2.697959] = 0.003488302, from which we find:\nP[X is an outlier] = 2 x 0.003488302 approx 0.6976603%.",
+    officialSolutionHtml: `<p>We find an outlier if either \\(X&gt;Q3+1.5\\times IQR\\) or if \\(X&lt;Q1-1.5\\times IQR\\). The probability that \\(X&gt;Q3+1.5\\times IQR\\) can be determined as follows:</p>
+      <div class="math-block">\\[\\begin{aligned}P[X&gt;Q3+1.5\\times IQR] &= P\\left[X&gt;\\mu+\\sigma\\Phi^{-1}(0.75)+1.5\\sigma\\left(\\Phi^{-1}(0.75)-\\Phi^{-1}(0.25)\\right)\\right]\\\\ &= P\\left[\\frac{X-\\mu}{\\sigma}&gt;2.5\\times\\Phi^{-1}(0.75)-1.5\\times\\Phi^{-1}(0.25)\\right]\\\\ &= P[Z&gt;2.697959],\\end{aligned}\\]</div>
+      <p>where \\(Z\\) is a standard normal random variables. Hence:</p>
+      <div class="math-block">\\[P[X&gt;Q3+1.5\\times IQR]=1-\\Phi(2.697959)=0.003488302.\\]</div>
+      <p>We can use the same steps to show that</p>
+      <div class="math-block">\\[P[X&gt;Q1-1.5\\times IQR]=P[Z&lt;-2.697959]=0.003488302,\\]</div>
+      <p>from which we find:</p>
+      <div class="math-block">\\[P[X\\text{ is an outlier}]=2\\times0.003488302\\approx0.6976603\\%.\\]</div>`,
+    explanation: "Using the normal quartiles, the boxplot fences are about 2.698 standard deviations from the mean. A normal observation lands outside those fences with probability about 0.007, so around 0.7% of perfectly normal data will still be flagged."
   },
   {
     id: "t2q5",
@@ -1053,7 +1119,7 @@ col="red", lwd=2, add=TRUE)</pre>`,
     source: "Tutorial 2 Exercises, Q5",
     difficulty: "hard",
     type: "long",
-    solutionStatus: "unofficial",
+    solutionStatus: "official",
     text: "A random variable X has a lognormal distribution, notation X ~ LN(mu, sigma), if log X has a normal distribution with mean mu and standard deviation sigma. For a lognormal distribution we have the following information: E[X]=e^(mu+1/2 sigma^2) and F_X^{-1}(p)=e^(mu+sigma Phi^{-1}(p)), where Phi is the cumulative distribution function of a normal distribution with mean 0 and variance 1. (a) Simulate 10 000 realizations from a lognormal distribution with mu = 2 and sigma = 1. (b) Make a histogram using ggplot of the data. If you use geom_histogram, the histogram will plot the counts on the y axis. In order to make a density histogram, you add aes(y=after_stat(density)) in your geom_histogram layer. (c) Compare the theoretical mean with the empirical mean. (d) Show theoretically that Median=e^mu. Test if the theoretical median and the empirical median are close to each other. (e) Show that Median/Mean=e^(-1/2 sigma^2). Explain the intuition of this result.",
     questionHtml: `<p>A random variable \\(X\\) has a lognormal distribution, notation \\(X \\sim LN(\\mu,\\sigma)\\), if \\(\\log X\\) has a normal distribution with mean \\(\\mu\\) and standard deviation \\(\\sigma\\). For a lognormal distribution we have the following information:</p>
       <div class="math-block">\\[E[X]=e^{\\mu+\\frac{1}{2}\\sigma^2}\\]</div>
@@ -1069,7 +1135,31 @@ col="red", lwd=2, add=TRUE)</pre>`,
       <p>(e) Show that</p>
       <div class="math-block">\\[\\frac{Median}{Mean}=e^{-\\frac{1}{2}\\sigma^2}.\\]</div>
       <p>Explain the intuition of this result.</p>`,
-    explanation: "Unofficial solution: In R use set.seed(...); x=rlnorm(10000, meanlog=2, sdlog=1). Plot a density histogram with ggplot and compare mean(x) to exp(2+1/2). Since the median is F^{-1}(0.5)=exp(mu+sigma Phi^{-1}(0.5))=exp(mu), and Phi^{-1}(0.5)=0. The ratio is exp(mu)/exp(mu+sigma^2/2)=exp(-sigma^2/2). The right tail pulls the mean above the median."
+    sourceNote: "Source audit: the question asks for 10 000 realizations, but the official solution code uses rnorm(1000, 2, 1). The official solution also labels the final ratio part as Question d although it corresponds to part e.",
+    officialSolution: "Question a:\nZ= rnorm(1000, 2, 1)\nX=exp(Z)\nQuestion b:\nlibrary(ggplot2)\nggplot(data= data.frame(X), aes(x=X))\n+ geom_histogram(bins=100, aes(y=after_stat(density)))\nQuestion c:\nmean(X)\n[1] 12.13459\nexp(2+0.5)\n[1]12.18249\nQuestion d: We can write\nMedian = F_X^{-1}(0.5) = e^{mu + sigma Phi^{-1}(0.5)} = e^mu,\nwhere we used that Phi^{-1}(0.5) = 0.\n> median(X)\n[1] 7.407882\n> exp(2)\n[1] 7.389056\nQuestion d: We directly find\nMedian/Mean = e^mu / e^{mu + 1/2 sigma^2} = e^{-1/2 sigma^2}.\nThe median is not affected by larger swings in the data (i.e. larger variance), but the mean is. With a large variance, the two will diverge.",
+    officialSolutionHtml: `<p><strong>Question a:</strong></p>
+      <pre class="code">Z= rnorm(1000, 2, 1)
+X=exp(Z)</pre>
+      <p><strong>Question b:</strong></p>
+      <pre class="code">library(ggplot2)
+ggplot(data= data.frame(X), aes(x=X))
++ geom_histogram(bins=100, aes(y=after_stat(density)))</pre>
+      <p><strong>Question c:</strong></p>
+      <pre class="code">mean(X)
+[1] 12.13459
+exp(2+0.5)
+[1]12.18249</pre>
+      <p><strong>Question d:</strong> We can write</p>
+      <div class="math-block">\\[\\operatorname{Median}=F_X^{-1}(0.5)=e^{\\mu+\\sigma\\Phi^{-1}(0.5)}=e^\\mu,\\]</div>
+      <p>where we used that \\(\\Phi^{-1}(0.5)=0\\).</p>
+      <pre class="code">&gt; median(X)
+[1] 7.407882
+&gt; exp(2)
+[1] 7.389056</pre>
+      <p><strong>Question d:</strong> We directly find</p>
+      <div class="math-block">\\[\\frac{Median}{Mean}=\\frac{e^\\mu}{e^{\\mu+\\frac{1}{2}\\sigma^2}}=e^{-\\frac{1}{2}\\sigma^2}.\\]</div>
+      <p>The median is not affected by larger swings in the data (i.e. larger variance), but the mean is. With a large variance, the two will diverge.</p>`,
+    explanation: "The lognormal mean is pulled up by the right tail, while the median is just the exponentiated normal median. That is why Median/Mean equals exp(-sigma^2/2), and the ratio gets smaller as sigma grows."
   },
   {
     id: "t2exam1",

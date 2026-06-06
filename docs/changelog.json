@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.06.07-week1.30",
+    "date": "2026-06-07",
+    "title": "Reconciled Tutorial 2 exercise solutions",
+    "items": [
+      "Added Part1/Tutorial 2 Solutions.pdf as an official source for Tutorial 2 Exercises 1-5.",
+      "Updated Tutorial 2 exercise solutions from unofficial to official while keeping explanations separate.",
+      "Added source-audit notes for the table-count mismatch, the lower-tail inequality typo, and the lognormal simulation-size mismatch."
+    ]
+  },
+  {
     "version": "2026.06.04-week1.29",
     "date": "2026-06-04",
     "title": "Reconciled Tutorial 1 official solutions",
