@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026.06.11-part2.32",
+    "date": "2026-06-11",
+    "title": "Audited Part 2 source fidelity",
+    "items": [
+      "Changed official question solutions to show the source transcription first, with formatted math and tables as a secondary view.",
+      "Flagged the Tutorial 4 exam mismatch between the printed variance of X2 and the variance calculated from its data table.",
+      "Clarified that the interactive photo-compression variants use a downscaled browser copy while following the course's full-resolution PCA method.",
+      "Reworked the houses loading chart so all variable labels remain distinct and readable.",
+      "Added source notes for the row-versus-column matrix rotation mismatch and the ordinary-versus-partial correlation terminology."
+    ]
+  },
+  {
     "version": "2026.06.11-part2.31",
     "date": "2026-06-11",
     "title": "Added complete Part 2 PCA coverage",

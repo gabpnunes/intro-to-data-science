@@ -291,8 +291,8 @@
     function officialSolutionBlock(q) {
       if (!q.officialSolution && !q.officialSolutionHtml) return "";
       return `<h3>Official solution text</h3>
-        ${q.officialSolutionHtml || `<p>${formatText(q.officialSolution)}</p>`}
-        ${q.officialSolutionHtml && q.officialSolution ? `<details class="note-box"><summary>${icon("list")} Exact source transcription</summary><p>${formatText(q.officialSolution)}</p></details>` : ""}`;
+        ${q.officialSolution ? `<p>${formatText(q.officialSolution)}</p>` : q.officialSolutionHtml}
+        ${q.officialSolutionHtml && q.officialSolution ? `<details class="note-box"><summary>${icon("list")} Formatted math and table view</summary>${q.officialSolutionHtml}</details>` : ""}`;
     }
     function groupBadge(rows) {
       const official = rows.filter(q => q.solutionStatus === "official").length;

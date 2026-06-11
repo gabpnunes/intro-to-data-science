@@ -85,6 +85,14 @@ ERRATA_NOTES.push(
     action: "Use rnorm(length(w)) so x1 and x2 both contain 10,000 observations."
   },
   {
+    id: "err-p2-matrix-orientation",
+    severity: "notation mismatch",
+    source: "Part 2 slides 31 and early course-text reconstruction discussion",
+    title: "The displayed matrix rotation conflicts with the row-wise data layout",
+    note: "The material displays the observations as an n by p matrix with observations in rows, but one passage writes Z=AX and X=A^T Z. Those products are not dimensionally compatible with that layout. A later course-text section and the supplied R code use the row-wise convention correctly.",
+    action: "With observations in rows and loading vectors in the columns of A, use Z=XA and X=ZA^T. With observations as columns, the left-multiplication convention would instead be valid."
+  },
+  {
     id: "err-t3-outlier-file",
     severity: "source mismatch",
     source: "Part2/Tutorial_3_Exercise_1_Solution.R and DataOutliers.csv",
@@ -127,6 +135,23 @@ ERRATA_NOTES.push(
     title: "header=TRUE consumes the first observation",
     note: "houses.csv has no header row, but the script imports it with header=TRUE and then renames the columns. This treats the first data row as column names and leaves 20,639 instead of 20,640 observations.",
     action: "Use header=FALSE when reproducing the dataset exactly. The resulting PCA proportions still match the slides to rounding."
+  },
+  {
+    id: "err-houses-partial-correlation",
+    severity: "terminology error",
+    source: "Part2/RCode_Part2_PCA.R, lines 171-174",
+    title: "The code labels ordinary correlations as partial correlations",
+    note: "The code combines PC1 with several original variables and runs cor(Cor.Z1). This produces ordinary Pearson correlations; it does not control for the remaining variables and therefore is not a partial-correlation calculation.",
+    action: "Interpret the printed matrix as ordinary correlations between PC1 and the selected original variables."
+  },
+  {
+    id: "err-t4-exam-variance",
+    severity: "numerical mismatch",
+    source: "Tutorial 4 Exam Question 1",
+    relatedQuestionId: "t4exam1",
+    title: "The printed variance of X2 does not match the four listed observations",
+    note: "Using the four observations and the sample-variance denominator n-1 gives Var(X2)=125.67, while the prompt states 126.67. The other printed values, including Var(X1+X2)=714, use the sample-variance convention.",
+    action: "The provisional solution follows the explicitly supplied summary value 126.67, giving covariance 155.83 and 92.93% explained variance. Recalculation from the table gives covariance 156.33 and about 93.20%."
   }
 );
 
@@ -544,6 +569,7 @@ as desired.`,
     difficulty: "hard", type: "exam", solutionStatus: "unofficial",
     text: "For observations (160,70), (180,81), (200,90), (174,65), E[X1]=178.5, E[X2]=76.5, Var[X1]=275.67, Var[X2]=126.67, and Var[X1+X2]=714. (a) Determine the first principal component without standardizing. (b) Determine its proportion of total variance. (c) Determine the variance of the second principal component.",
     questionHtml: `<p>Consider a data set with two variables, denoted by \\(X_1\\) and \\(X_2\\). You are also given the following information</p><div class="math-block">\\[E[X_1]=178.5,\\quad E[X_2]=76.5,\\quad \\operatorname{Var}[X_1]=275.67,\\quad \\operatorname{Var}[X_2]=126.67.\\]</div><p>Moreover, you are also given that</p><div class="math-block">\\[\\operatorname{Var}[X_1+X_2]=714.\\]</div><div class="source-table-wrap"><div class="source-caption">Table 1: Data set with four observations.</div><table class="source-table compact"><thead><tr><th>Observation</th><th>X1</th><th>X2</th></tr></thead><tbody><tr><td>1</td><td>160</td><td>70</td></tr><tr><td>2</td><td>180</td><td>81</td></tr><tr><td>3</td><td>200</td><td>90</td></tr><tr><td>4</td><td>174</td><td>65</td></tr></tbody></table></div><p>(a) (4 points) Determine the first principal component. You do not need to standardize or scale the data.</p><p>(b) (1 point) Determine the proportion of the total variance explained by the first principal component.</p><p>(c) (2 points) Denote by \\((\\beta_1,\\beta_2)\\) the second principal component. Determine the variance of the second principal component.</p>`,
+    sourceNote: "The listed observations give sample Var(X2)=125.67, but the prompt states 126.67. The provisional solution follows the explicitly supplied summary values; the source-audit panel records the table-based alternative.",
     explanation: "Provisional solution: Cov(X1,X2)=[714-275.67-126.67]/2=155.83, so Sigma=[[275.67,155.83],[155.83,126.67]]. Its eigenvalues are approximately 373.893 and 28.447. A normalized first eigenvector may be (0.84597,0.53323) (the simultaneous negative is equivalent), so Z1=0.84597 X1+0.53323 X2. It explains 373.893/(275.67+126.67)=0.92930, about 92.93%. The second-component variance is lambda2 approximately 28.447."
   }
 );

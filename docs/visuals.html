@@ -294,7 +294,7 @@
         <div class="lab-head">
           <div>
             <h2>Photo compression with truncated PCA</h2>
-            <p>The displayed variants were reconstructed from the supplied course image after applying PCA separately to all RGB channels.</p>
+            <p>The displayed variants use a 416 x 480 browser copy of the supplied course image, with uncentered PCA applied separately to all RGB channels. The course's full-resolution method is identical.</p>
           </div>
           <span class="badge b-topic">compression</span>
         </div>
@@ -667,13 +667,18 @@
 
     function drawLoadings() {
       const {ctx,w,h,pad}=setup(document.getElementById("loadings-plot"));
-      const cx=w/2, cy=h/2, scale=Math.min(w,h)*.43;
+      const cx=w/2, cy=h/2+12, scale=Math.min(w-2*pad,h-2*pad)*.72;
+      const colors=["#93c5fd","#fbbf24","#4ade80","#f87171","#67e8f9","#f0abfc","#e2e8f0","#fb923c"];
       ctx.strokeStyle=grid;ctx.beginPath();ctx.moveTo(pad,cy);ctx.lineTo(w-pad,cy);ctx.moveTo(cx,pad);ctx.lineTo(cx,h-pad);ctx.stroke();
       HOUSE_PCA.variables.forEach((name,i)=>{
         const x=cx+HOUSE_PCA.loadings.pc1[i]*scale, y=cy-HOUSE_PCA.loadings.pc2[i]*scale;
-        ctx.strokeStyle=i>=6?yellow:green;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
-        ctx.fillStyle=i>=6?yellow:text;ctx.fillText(name,x+(x>=cx?5:-38),y+(y>=cy?14:-5));
+        ctx.strokeStyle=colors[i];ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+        ctx.fillStyle=colors[i];ctx.beginPath();ctx.arc(x,y,3,0,TAU);ctx.fill();
+        const col=i<4?0:1, row=i%4, lx=pad+col*118, ly=pad+13+row*17;
+        ctx.fillStyle=colors[i];ctx.fillRect(lx,ly-7,8,8);
+        ctx.fillStyle=text;ctx.fillText(name,lx+13,ly);
       });
+      ctx.fillStyle="rgba(255,255,255,.44)";ctx.fillText("PC1",w-pad-22,cy-8);ctx.fillText("PC2",cx+8,pad+4);
       metrics("loadings-metrics",[["PC1","block size"],["PC2","location"],["first 2",`${((HOUSE_PCA.proportions[0]+HOUSE_PCA.proportions[1])*100).toFixed(2)}%`]]);
     }
 

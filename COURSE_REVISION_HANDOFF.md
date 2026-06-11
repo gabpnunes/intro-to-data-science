@@ -131,11 +131,14 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Tutorial 2 Exercise 5: the question asks for 10,000 simulations, but the official solution code uses `rnorm(1000, 2, 1)` and labels the final ratio part as Question d instead of part e. Official wording/code is preserved.
   - Part 2 slides/course text: zero covariance is described as independence in places; this is guaranteed only under joint normality.
   - Part 2 R code: the dependent-normal simulation mixes vectors of length 10,000 and 100,000.
+  - Part 2 slides/course text: one reconstruction passage uses `Z=AX` despite displaying observations in rows; the row-wise convention used by R is `Z=XA` and `X=ZA^T`.
   - Tutorial 3 exercise R file: references `DataQuizOutliers.csv` and reports 19 z-score outliers, while supplied `DataOutliers.csv` has 15.
   - Tutorial 3 Question 2: the transformation has a positive-real domain, but `Inflation.csv` contains values down to -1.0.
   - Tutorial 3 official Question 3(d): printed dot-product signs are inconsistent with the official vectors; the corrected product is `1/2 - 1/2 = 0`.
   - Tutorial 3 exam question: introduces `p` variables but uses `n` as the summation limit.
   - Houses import: `houses.csv` has no header, while the R script uses `header=TRUE`, consuming the first observation as column names.
+  - Houses R code: the section labeled partial correlations calls `cor(...)`, which computes ordinary Pearson correlations rather than partial correlations.
+  - Tutorial 4 exam question: the four listed observations imply sample `Var(X2)=125.67`, while the prompt states `126.67`. The provisional solution follows the printed summary value and records the table-based alternative.
 
 ## Verification Workflow
 

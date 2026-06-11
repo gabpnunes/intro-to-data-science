@@ -1,5 +1,5 @@
 {
-  "version": "2026.06.11-part2.31",
-  "updatedAt": "2026-06-11T18:00:00+02:00",
-  "message": "Added complete Part 2 PCA revision coverage."
+  "version": "2026.06.11-part2.32",
+  "updatedAt": "2026-06-11T19:00:00+02:00",
+  "message": "Audited and corrected Part 2 source fidelity."
 }
