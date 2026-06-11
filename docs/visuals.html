@@ -91,6 +91,17 @@
       color: var(--faint);
       font-size: 11px;
     }
+    .photo-stage {
+      display: grid;
+      place-items: center;
+      min-height: 320px;
+      margin: 14px 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.14);
+      overflow: hidden;
+    }
+    .photo-stage img { display: block; width: auto; max-width: 100%; max-height: 480px; object-fit: contain; }
     @media (max-width: 920px) {
       .lab-grid { grid-template-columns: 1fr; }
       .lab-head { flex-direction: column; }
@@ -102,8 +113,8 @@
 <body>
   <main class="page">
     <p class="eyebrow">04 · Visual Lab</p>
-    <h1 class="page-title">Interactive Part 1 graphs</h1>
-    <p class="page-sub">Canvas-based visual checks for the main Part 1 ideas. Synthetic examples are deterministic; the churn EDA panel uses summary statistics extracted from the actual course dataset.</p>
+    <h1 class="page-title">Interactive course graphs</h1>
+    <p class="page-sub">Deterministic visual checks for preprocessing and PCA. Dataset panels use verified summaries from the supplied course files.</p>
     <div class="lab-grid">
       <section class="glass lab-card">
         <div class="lab-head">
@@ -220,9 +231,92 @@
           </div>
         </div>
       </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>PCA rotation of correlated variables</h2>
+            <p>Change correlation and watch the principal axes retain the same symmetric directions while their variances separate.</p>
+          </div>
+          <span class="badge b-topic">PCA</span>
+        </div>
+        <div class="plot-wrap"><canvas id="pca-rotation-plot"></canvas></div>
+        <div class="metric-row" id="pca-rotation-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Correlation r</strong><span id="pca-r-label"></span></label>
+            <input id="pca-r" type="range" min="-0.9" max="0.9" value="0.8" step="0.05">
+          </div>
+          <div class="control">
+            <label><strong>Coordinate view</strong><span id="pca-view-label"></span></label>
+            <select class="select" id="pca-view"><option value="x">Original X</option><option value="z">Rotated Z</option></select>
+          </div>
+        </div>
+        <div class="formula-strip">lambda1 = 1 + |r|, lambda2 = 1 - |r|</div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Houses scree and retention threshold</h2>
+            <p>Use the verified eigenvalue proportions from the supplied houses data to choose the smallest retained dimension.</p>
+          </div>
+          <span class="badge b-topic">variance</span>
+        </div>
+        <div class="plot-wrap"><canvas id="scree-plot"></canvas></div>
+        <div class="metric-row" id="scree-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Target retained variance</strong><span id="threshold-label"></span></label>
+            <input id="variance-threshold" type="range" min="50" max="100" value="95" step="1">
+          </div>
+          <div class="control">
+            <label><strong>Dataset</strong><span>20,640 rows</span></label>
+            <div class="formula-strip">8 standardized predictors</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Houses loading map</h2>
+            <p>Compare the first two loading vectors: block size on PC1 and geographic location on PC2.</p>
+          </div>
+          <span class="badge b-topic">loadings</span>
+        </div>
+        <div class="plot-wrap"><canvas id="loadings-plot"></canvas></div>
+        <div class="metric-row" id="loadings-metrics"></div>
+        <div class="formula-strip">arrow endpoint = (PC1 loading, PC2 loading)</div>
+      </section>
+
+      <section class="glass lab-card">
+        <div class="lab-head">
+          <div>
+            <h2>Photo compression with truncated PCA</h2>
+            <p>The displayed variants were reconstructed from the supplied course image after applying PCA separately to all RGB channels.</p>
+          </div>
+          <span class="badge b-topic">compression</span>
+        </div>
+        <div class="photo-stage"><img id="pca-photo" src="assets/part2/quinten-juno-pca-10.jpg" alt="Course photo reconstructed with PCA"></div>
+        <div class="metric-row" id="photo-metrics"></div>
+        <div class="controls">
+          <div class="control">
+            <label><strong>Retained components</strong><span id="photo-k-label"></span></label>
+            <select class="select" id="photo-k">
+              <option value="5">5 PCs</option><option value="10" selected>10 PCs</option><option value="30">30 PCs</option><option value="100">100 PCs</option><option value="web">Web original</option>
+            </select>
+          </div>
+          <div class="control">
+            <label><strong>Reconstruction</strong><span>each RGB channel</span></label>
+            <div class="formula-strip">Z_k A_k^T</div>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
   <script src="data.js"></script>
+  <script src="part2-data.js"></script>
   <script src="site.js"></script>
   <script>
     mountShell("visuals");
@@ -523,18 +617,95 @@
       else drawChurnBox(ctx, w, h, pad);
     }
 
+    const pcaNoise = normalSamples(320, 73);
+    function drawPcaRotation() {
+      const r = Number(document.getElementById("pca-r").value);
+      const view = document.getElementById("pca-view").value;
+      document.getElementById("pca-r-label").textContent = r.toFixed(2);
+      document.getElementById("pca-view-label").textContent = view === "x" ? "original" : "principal";
+      const pts = [];
+      for (let i = 0; i < 150; i++) {
+        const x = pcaNoise[i];
+        const y = r * x + Math.sqrt(1-r*r) * pcaNoise[i+150];
+        if (view === "x") pts.push([x,y]);
+        else {
+          const sign = r >= 0 ? 1 : -1;
+          pts.push([(x + sign*y)/Math.sqrt(2), (x - sign*y)/Math.sqrt(2)]);
+        }
+      }
+      const { ctx, w, h, pad } = setup(document.getElementById("pca-rotation-plot"));
+      axes(ctx,w,h,pad,view === "x" ? "X1" : "Z1",view === "x" ? "X2" : "Z2");
+      const sx = x => pad + (x+3.5)/7*(w-2*pad);
+      const sy = y => h-pad-(y+3.5)/7*(h-2*pad);
+      pts.forEach(([x,y]) => { ctx.fillStyle=blue; ctx.beginPath(); ctx.arc(sx(x),sy(y),3,0,TAU); ctx.fill(); });
+      ctx.lineWidth=2.5;
+      if (view === "x") {
+        const sign = r >= 0 ? 1 : -1;
+        ctx.strokeStyle=green; ctx.beginPath(); ctx.moveTo(sx(-3),sy(-3*sign)); ctx.lineTo(sx(3),sy(3*sign)); ctx.stroke();
+        ctx.strokeStyle=yellow; ctx.beginPath(); ctx.moveTo(sx(-3),sy(3*sign)); ctx.lineTo(sx(3),sy(-3*sign)); ctx.stroke();
+      } else {
+        ctx.strokeStyle=green; ctx.beginPath(); ctx.moveTo(sx(-3),sy(0)); ctx.lineTo(sx(3),sy(0)); ctx.stroke();
+        ctx.strokeStyle=yellow; ctx.beginPath(); ctx.moveTo(sx(0),sy(-3)); ctx.lineTo(sx(0),sy(3)); ctx.stroke();
+      }
+      const l1=1+Math.abs(r), l2=1-Math.abs(r);
+      metrics("pca-rotation-metrics", [["lambda 1",l1.toFixed(2)],["lambda 2",l2.toFixed(2)],["PC1 share",`${(l1/2*100).toFixed(1)}%`]]);
+    }
+
+    function drawScree() {
+      const target=Number(document.getElementById("variance-threshold").value)/100;
+      document.getElementById("threshold-label").textContent=`${Math.round(target*100)}%`;
+      const props=HOUSE_PCA.proportions;
+      let cumulative=0, retained=props.length;
+      for (let i=0;i<props.length;i++){ cumulative+=props[i]; if(cumulative>=target){retained=i+1;break;} }
+      const {ctx,w,h,pad}=setup(document.getElementById("scree-plot"));
+      axes(ctx,w,h,pad,"principal component","proportion");
+      const bw=(w-2*pad)/props.length-7;
+      props.forEach((p,i)=>{const x=pad+i*(w-2*pad)/props.length+3;const bh=p/.52*(h-2*pad);ctx.fillStyle=i<retained?green:"rgba(255,255,255,.16)";ctx.fillRect(x,h-pad-bh,bw,bh);ctx.fillStyle=text;ctx.fillText(`${i+1}`,x+bw/2-3,h-12);});
+      const kept=props.slice(0,retained).reduce((a,b)=>a+b,0);
+      metrics("scree-metrics",[["components",retained],["retained",`${(kept*100).toFixed(2)}%`],["reduction",`${props.length} to ${retained}`]]);
+    }
+
+    function drawLoadings() {
+      const {ctx,w,h,pad}=setup(document.getElementById("loadings-plot"));
+      const cx=w/2, cy=h/2, scale=Math.min(w,h)*.43;
+      ctx.strokeStyle=grid;ctx.beginPath();ctx.moveTo(pad,cy);ctx.lineTo(w-pad,cy);ctx.moveTo(cx,pad);ctx.lineTo(cx,h-pad);ctx.stroke();
+      HOUSE_PCA.variables.forEach((name,i)=>{
+        const x=cx+HOUSE_PCA.loadings.pc1[i]*scale, y=cy-HOUSE_PCA.loadings.pc2[i]*scale;
+        ctx.strokeStyle=i>=6?yellow:green;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);ctx.stroke();
+        ctx.fillStyle=i>=6?yellow:text;ctx.fillText(name,x+(x>=cx?5:-38),y+(y>=cy?14:-5));
+      });
+      metrics("loadings-metrics",[["PC1","block size"],["PC2","location"],["first 2",`${((HOUSE_PCA.proportions[0]+HOUSE_PCA.proportions[1])*100).toFixed(2)}%`]]);
+    }
+
+    function drawPhoto() {
+      const k=document.getElementById("photo-k").value;
+      const img=document.getElementById("pca-photo");
+      img.src=k==="web"?"assets/part2/quinten-juno-web.jpg":`assets/part2/quinten-juno-pca-${k}.jpg`;
+      document.getElementById("photo-k-label").textContent=k==="web"?"original":`${k} PCs`;
+      const numeric=k==="web"?416:Number(k);
+      const ratio=k==="web"?100:Math.min(100,numeric*(416+480)/(416*480)*100);
+      metrics("photo-metrics",[["components",k==="web"?"all":k],["display size","416 x 480"],["factor values",k==="web"?"full":`~${ratio.toFixed(1)}%`]]);
+    }
+
     function redrawAll() {
       drawMissing();
       drawBoxplot();
       drawSkew();
       drawScaling();
       drawChurn();
+      drawPcaRotation();
+      drawScree();
+      drawLoadings();
+      drawPhoto();
     }
     ["missing-rate","impute-toggle"].forEach(id => document.getElementById(id).addEventListener("input", drawMissing));
     ["fence-k","normal-sigma"].forEach(id => document.getElementById(id).addEventListener("input", drawBoxplot));
     ["skew-sigma","skew-mu"].forEach(id => document.getElementById(id).addEventListener("input", drawSkew));
     ["x-scale","standardized-toggle"].forEach(id => document.getElementById(id).addEventListener("input", drawScaling));
     document.getElementById("churn-view").addEventListener("input", drawChurn);
+    ["pca-r","pca-view"].forEach(id => document.getElementById(id).addEventListener("input", drawPcaRotation));
+    document.getElementById("variance-threshold").addEventListener("input", drawScree);
+    document.getElementById("photo-k").addEventListener("input", drawPhoto);
     window.addEventListener("resize", redrawAll);
     redrawAll();
   </script>

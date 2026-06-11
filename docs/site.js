@@ -253,6 +253,51 @@ function drawDiagram(id, target) {
         <text x="130" y="235" fill="rgba(255,255,255,.72)" font-size="13">raw positive skew</text>
         <text x="485" y="235" fill="rgba(255,255,255,.72)" font-size="13">log values</text>
       </svg>`,
+    "pca-rotation": `
+      <svg viewBox="0 0 760 300" role="img" aria-label="PCA rotates coordinates to align with variation">
+        ${axis(70,250,700,250)}
+        <line x1="85" y1="242" x2="670" y2="62" stroke="rgba(74,222,128,.8)" stroke-width="3"/>
+        <line x1="245" y1="45" x2="445" y2="270" stroke="rgba(251,191,36,.75)" stroke-width="3"/>
+        ${Array.from({length:26},(_,i)=>`<circle cx="${145+i*18}" cy="${222-i*5+((i*17)%19)-9}" r="4" fill="rgba(147,197,253,.66)"/>`).join("")}
+        <text x="620" y="50" fill="rgba(74,222,128,.95)" font-size="14">PC1: most variation</text>
+        <text x="430" y="278" fill="rgba(251,191,36,.95)" font-size="14">PC2: remaining variation</text>
+      </svg>`,
+    "pca-covariance": `
+      <svg viewBox="0 0 760 290" role="img" aria-label="Correlated variables before and after PCA rotation">
+        ${scatterPanel(35,45,"Original X coordinates",true)}
+        <g transform="translate(360 0)">${scatterPanel(35,45,"Principal Z coordinates",false)}</g>
+        <line x1="80" y1="220" x2="300" y2="82" stroke="rgba(74,222,128,.8)" stroke-width="3"/>
+        <line x1="440" y1="160" x2="650" y2="160" stroke="rgba(74,222,128,.8)" stroke-width="3"/>
+        <line x1="545" y1="70" x2="545" y2="245" stroke="rgba(251,191,36,.75)" stroke-width="3"/>
+      </svg>`,
+    "pca-scree": `
+      <svg viewBox="0 0 760 280" role="img" aria-label="Scree plot and cumulative explained variance">
+        ${axis(75,230,700,230)}
+        <polyline points="130,70 220,120 310,160 400,190 490,207 580,216 660,221" fill="none" stroke="rgba(74,222,128,.82)" stroke-width="4"/>
+        ${[[130,70],[220,120],[310,160],[400,190],[490,207],[580,216],[660,221]].map(([x,y],i)=>`<circle cx="${x}" cy="${y}" r="5" fill="rgba(74,222,128,.95)"/><text x="${x-4}" y="250" fill="rgba(255,255,255,.55)" font-size="12">${i+1}</text>`).join("")}
+        <line x1="400" y1="45" x2="400" y2="230" stroke="rgba(251,191,36,.7)" stroke-dasharray="6 5"/>
+        <text x="410" y="58" fill="rgba(251,191,36,.9)" font-size="13">possible elbow</text>
+      </svg>`,
+    "pca-loadings": `
+      <svg viewBox="0 0 760 340" role="img" aria-label="Houses PCA first two loading directions">
+        ${axis(70,285,700,285)}
+        <line x1="385" y1="45" x2="385" y2="310" stroke="rgba(255,255,255,.16)"/>
+        <line x1="70" y1="175" x2="700" y2="175" stroke="rgba(255,255,255,.16)"/>
+        ${arrow(385,175,190,165)}${arrow(385,175,188,154)}${arrow(385,175,195,168)}${arrow(385,175,190,150)}
+        ${arrow(385,175,410,65)}${arrow(385,175,360,285)}
+        <text x="112" y="140" fill="rgba(74,222,128,.92)" font-size="13">rooms / bedrooms /</text>
+        <text x="112" y="158" fill="rgba(74,222,128,.92)" font-size="13">population / households</text>
+        <text x="420" y="65" fill="rgba(251,191,36,.92)" font-size="13">latitude</text>
+        <text x="278" y="305" fill="rgba(251,191,36,.92)" font-size="13">longitude</text>
+        <text x="675" y="196" fill="rgba(255,255,255,.55)" font-size="12">PC1</text>
+        <text x="395" y="48" fill="rgba(255,255,255,.55)" font-size="12">PC2</text>
+      </svg>`,
+    "pca-compression": `
+      <svg viewBox="0 0 820 250" role="img" aria-label="PCA image compression workflow">
+        ${node(35,90,"RGB image",125)}${node(215,60,"Red matrix",125)}${node(215,145,"Green / Blue",125)}
+        ${node(410,90,"PCA each\\nchannel",140)}${node(610,90,"Keep k PCs\\nand rebuild",155)}
+        ${arrow(160,122,207,92)}${arrow(160,122,207,177)}${arrow(340,92,402,115)}${arrow(340,177,402,130)}${arrow(550,122,602,122)}
+      </svg>`,
     "eda-flow": `
       <svg viewBox="0 0 820 220" role="img" aria-label="EDA flow">
         ${node(40,70,"One variable",135)}${node(235,70,"Two variables",135)}${node(430,70,"Conditional\\nprobabilities",145)}${node(635,70,"Model-ready\\nquestions",145)}

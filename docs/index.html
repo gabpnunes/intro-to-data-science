@@ -225,11 +225,11 @@
           <div class="card-footer"><span id="card-count">0 cards</span><span>${""}</span></div>
         </a>
         <a class="glass home-card" href="visuals.html">
-          <p class="card-num">04</p><h2>Visual Lab</h2><p>Interactive graphs for missing values, outliers, scaling, and skew.</p>
-          <div class="card-footer"><span>5 labs</span><span>${""}</span></div>
+          <p class="card-num">04</p><h2>Visual Lab</h2><p>Interactive preprocessing, PCA rotation, scree, loadings, and image-compression labs.</p>
+          <div class="card-footer"><span>9 labs</span><span>${""}</span></div>
         </a>
         <a class="glass home-card" href="exam.html">
-          <p class="card-num">05</p><h2>Exam Kit</h2><p>Formula triggers, recall drills, derivations, traps, and a Part 1 mastery checklist.</p>
+          <p class="card-num">05</p><h2>Exam Kit</h2><p>Formula triggers, recall drills, derivations, traps, and Part 1-2 mastery checks.</p>
           <div class="card-footer"><span id="exam-count">current</span><span>${""}</span></div>
         </a>
       </div>
@@ -245,6 +245,11 @@
         <li><strong>Tutorial 2 exercises and official solutions</strong> included; Tutorial 2 exam-style questions are included with provisional solutions.</li>
         <li><strong>Part 1 R code and datasets</strong> incorporated for missing values, outliers, transformations, and churn EDA examples.</li>
         <li><strong>Linked Week 1 media</strong> listed as supplementary unless verified directly from local course files.</li>
+        <li><strong>All Part 2 slides and course-text chapters</strong> incorporated into the PCA guide, proofs, diagrams, visuals, flashcards, and Exam Kit.</li>
+        <li><strong>Tutorial 3 questions</strong> included; Question 3 and the exam question use official solutions, while Questions 1-2 are clearly provisional because the solution PDF omits them.</li>
+        <li><strong>Tutorial 4 questions</strong> included with provisional solutions pending an official solution file.</li>
+        <li><strong>Part 2 R code, datasets, houses PCA, and photo compression</strong> incorporated and numerically checked.</li>
+        <li><strong>All five supplied Part 2 videos</strong> linked as supplementary resources.</li>
       </ul>
     </div>
     <div class="glass panel" id="live-changelog">
@@ -270,10 +275,11 @@
   <section class="roadmap">
     <p class="eyebrow">Course Roadmap</p>
     <h2 class="page-title">Three-part revision build</h2>
-    <p class="page-sub">The site is structured for the full course. Part 1 is live now; later parts stay visibly marked as coming soon until their source files are available and verified.</p>
+    <p class="page-sub">Parts 1 and 2 are live and source-checked. Part 3 stays marked as coming soon until its files are available and verified.</p>
     <div class="roadmap-grid" id="roadmap-grid"></div>
   </section>
   <script src="data.js"></script>
+  <script src="part2-data.js"></script>
   <script src="site.js"></script>
   <script>
     mountShell("home");
@@ -343,7 +349,7 @@
         progressTile("Derivations", derivationDone, EXAM_KIT.derivations.length, "Proof-style formula explanations marked reproducible from memory."),
         progressTile("Missed recall", missedRecall, EXAM_KIT.formulas.length + EXAM_KIT.rCommands.length, "Formula/R prompts saved from missed Exam Kit drill ratings."),
         progressTile("Cards reviewed", reviewed, CARDS.length, `${due} cards due now.`),
-        progressTile("Official solutions", official, QUESTIONS.length, `${provisional} Tutorial 2 exam-style provisional solutions pending an official source.`)
+        progressTile("Official solutions", official, QUESTIONS.length, `${provisional} provisional solutions are waiting for an official source.`)
       ].join("");
     }
     window.renderProgressSummary = renderProgressSummary;

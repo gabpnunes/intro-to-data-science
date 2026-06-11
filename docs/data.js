@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.07-week1.30";
+const SITE_VERSION = "2026.06.11-part2.31";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -83,9 +83,9 @@ const SOURCE_INVENTORY = [
   },
   {
     label: "Future official solutions",
-    source: "Tutorial 2 exam-style question official solutions",
+    source: "Tutorial 2 exam questions, Tutorial 3 Questions 1-2, and Tutorial 4 official solutions",
     status: "pending",
-    detail: "Tutorial 2 Exam Questions Q1-Q2 remain provisional unless an official solution source is supplied."
+    detail: "These question-bank explanations remain provisional unless an official solution source is supplied."
   }
 ];
 
@@ -95,7 +95,7 @@ const COURSE_PARTS = [
     label: "Part 1",
     title: "Data preprocessing and exploratory data analysis",
     status: "live",
-    coverage: "Slides, Tutorial 0-2 questions, Tutorial 0-1 official solutions, R examples, and datasets are incorporated.",
+    coverage: "Slides, Tutorial 0-2 questions, Tutorial 0-2 exercise official solutions, R examples, and datasets are incorporated.",
     topics: ["CRISP-DM", "Missing values", "Outliers", "Summaries", "Transformations", "EDA"]
   },
   {

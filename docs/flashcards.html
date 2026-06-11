@@ -312,7 +312,7 @@
   <main class="page">
     <p class="eyebrow">03 · Flashcards</p>
     <h1 class="page-title">Flashcard Decks</h1>
-    <p class="page-sub">Anki-style review for Part 1: choose a deck, filter cards, make your own sets, suspend noisy cards, and rate reviews with spaced repetition. Progress is saved locally in this browser.</p>
+    <p class="page-sub">Anki-style review for Parts 1-2: choose a topic deck, filter cards, make custom sets, suspend cards, and rate reviews with spaced repetition. Progress is saved locally in this browser.</p>
 
     <div class="flash-layout">
       <aside class="glass deck-panel">
@@ -339,7 +339,7 @@
           <div class="study-header">
             <div>
               <h2 id="active-deck-title">All Cards</h2>
-              <p id="active-deck-desc">Every card in the current Part 1 deck.</p>
+              <p id="active-deck-desc">Every card in the current course deck.</p>
             </div>
             <button class="text-btn" id="select-visible"></button>
           </div>
@@ -417,6 +417,7 @@
   </section>
 
   <script src="data.js"></script>
+  <script src="part2-data.js"></script>
   <script src="site.js"></script>
   <script>
     mountShell("flashcards");
@@ -433,7 +434,7 @@
     let study = { active: false, queue: [], index: 0, revealed: false, answered: 0, startedAt: 0, mode: "due", deckTitle: "" };
 
     const builtDecks = [
-      { id: "all", title: "All Cards", description: "Every card in the current Part 1 deck.", type: "built" },
+      { id: "all", title: "All Cards", description: "Every card across the current Part 1-2 course deck.", type: "built" },
       ...TOPICS.map(t => ({ id: `topic:${t.id}`, topic: t.id, title: t.title, description: t.week, type: "topic" }))
     ];
     const topicNames = Object.fromEntries(TOPICS.map(t => [t.id, t.title]));

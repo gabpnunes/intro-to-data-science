@@ -1,5 +1,15 @@
 [
   {
+    "version": "2026.06.11-part2.31",
+    "date": "2026-06-11",
+    "title": "Added complete Part 2 PCA coverage",
+    "items": [
+      "Added detailed PCA guide chapters covering geometry, covariance, eigenvector optimization, explained variance, houses, and photo compression.",
+      "Added every Tutorial 3 and Tutorial 4 question, preserving Tutorial 3 official solutions where supplied and marking all unreleased solutions provisional.",
+      "Added Part 2 flashcards, Exam Kit formulas and derivations, interactive PCA labs, verified houses results, photo reconstructions, source audits, and all five supplied videos."
+    ]
+  },
+  {
     "version": "2026.06.07-week1.30",
     "date": "2026-06-07",
     "title": "Reconciled Tutorial 2 exercise solutions",

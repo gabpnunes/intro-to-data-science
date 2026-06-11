@@ -28,6 +28,13 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 - `Part1/Tutorial 2 Solutions.pdf`: official solutions for Tutorial 2 Exercises 1-5 available and incorporated on 2026-06-07.
 - `Part1/RCode_Part_1.R`: R examples for missing values, outliers, summaries, transformations, and churn EDA.
 - `Part1/telecom.txt`, `Outlier.txt`, `dtData1.RDS`, `churn.txt`: datasets used by the R script.
+- `Part2/IntroductionDataScience_Part_2.pdf`: 79-slide Part 2 PCA deck, fully incorporated.
+- `Part2/CourseText_Part 2.pdf`: 38-page PCA course text, fully incorporated.
+- `Part2/IntroductionDataScience_Tutorial 3_Questions.pdf`: all Tutorial 3 questions incorporated.
+- `Part2/IntroductionDataScience_Tutorial 3_Solutions.pdf`: official solutions for Question 3 and the exam question incorporated; the PDF does not solve Questions 1-2.
+- `Part2/IntroductionDataScience_Tutorial 4_Questions.pdf`: all seven tutorial questions and the exam question incorporated.
+- `Part2/RCode_Part2_PCA.R`, `Tutorial_3_Exercise_1_Solution.R`, `Photo_R.R`: PCA, diagnostic, and image-compression code incorporated.
+- `Part2/DataOutliers.csv`, `Inflation.csv`, `houses.csv`, `QuintenJuno.jpg`: verified and incorporated into explanations/visuals.
 
 ## Current Website Coverage
 
@@ -41,6 +48,18 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Summarizing a Data Set
   - Data Transformation
   - Exploratory Data Analysis
+- Implemented Part 2 topics:
+  - PCA Geometry and Coordinate Rotation
+  - Dependence, Covariance, and Principal Axes
+  - PCA Optimization and Eigenvectors
+  - Explained Variance and Dimension Reduction
+  - PCA on the California Houses Data
+  - PCA for Photo Compression
+- Part 2 content is isolated in `docs/part2-data.js`, loaded after `docs/data.js`, so future course parts can be extended without destabilizing Part 1.
+- Tutorial 3 official solutions are included only where the supplied PDF actually gives them: Question 3 and the exam question.
+- Tutorial 3 Questions 1-2 and all Tutorial 4 solutions are marked `unofficial` pending official files.
+- Four Part 2 Visual Lab panels cover correlated-variable rotation, houses scree/retention, houses loading interpretation, and PCA photo compression.
+- Generated web image assets and PCA reconstructions are stored in `docs/assets/part2/`.
 - Tutorial 0, Tutorial 1, and Tutorial 2 exercise official solutions are included in `docs/data.js`.
 - Tutorial 0 official solution PDF pages were visually rendered and checked on 2026-06-03; Q5 uses `officialSolutionHtml` so the CRISP-DM mapping remains table-shaped like the PDF source.
 - Tutorial 1 official solutions are included in `docs/data.js`; Tutorial 2 exercise official solutions are included in `docs/data.js`; Tutorial 2 exam-style question solutions remain provisional and marked `unofficial`.
@@ -102,7 +121,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Keep Tutorial 2 exam-style-dependent formula and recall wording provisional until an official solution source is available.
 - Homepage roadmap status:
   - Part 1 is live.
-  - Part 2 PCA is coming soon until Week 2 files are supplied and verified.
+  - Part 2 PCA is live.
   - Part 3 machine learning is coming soon until Week 3 files are supplied and verified.
 - Current visible source-audit notes:
   - Tutorial 2 Exercise 1: table caption says 6 observations but the table lists observations 1 through 7. Current calculations use all 7 listed rows.
@@ -110,6 +129,13 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Tutorial 1 Question 4: question sheet asks about `mean(Data.New)`, while the official solution PDF states `mean(Data)`. Official wording is preserved and the source note explains that the result is `NA` either way because `mean(Data)` is computed from a vector containing missing values.
   - Tutorial 2 Exercise 4: the official solution's lower-tail display writes `P[X > Q1 - 1.5 x IQR]`, but the surrounding text and simplification imply the intended event is `P[X < Q1 - 1.5 x IQR]`.
   - Tutorial 2 Exercise 5: the question asks for 10,000 simulations, but the official solution code uses `rnorm(1000, 2, 1)` and labels the final ratio part as Question d instead of part e. Official wording/code is preserved.
+  - Part 2 slides/course text: zero covariance is described as independence in places; this is guaranteed only under joint normality.
+  - Part 2 R code: the dependent-normal simulation mixes vectors of length 10,000 and 100,000.
+  - Tutorial 3 exercise R file: references `DataQuizOutliers.csv` and reports 19 z-score outliers, while supplied `DataOutliers.csv` has 15.
+  - Tutorial 3 Question 2: the transformation has a positive-real domain, but `Inflation.csv` contains values down to -1.0.
+  - Tutorial 3 official Question 3(d): printed dot-product signs are inconsistent with the official vectors; the corrected product is `1/2 - 1/2 = 0`.
+  - Tutorial 3 exam question: introduces `p` variables but uses `n` as the summation limit.
+  - Houses import: `houses.csv` has no header, while the R script uses `header=TRUE`, consuming the first observation as column names.
 
 ## Verification Workflow
 
@@ -133,8 +159,9 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 ## Pending Future Work
 
 - Replace Tutorial 2 exam-style provisional solutions with official wording if an official solution source is supplied.
-- Add Part 2 and Part 3 materials as soon as the user provides the files.
-- When adding Part 2 or Part 3, change the corresponding `COURSE_PARTS` entry in `docs/data.js` from `coming soon` to `live` only after study guide content, question-bank entries, flashcards, source notes, and verification have been completed.
+- Add Part 3 materials as soon as the user provides the files.
+- Reconcile Tutorial 3 Questions 1-2 and every Tutorial 4 solution when an official solution source is supplied.
+- When adding Part 3, change its `COURSE_PARTS` entry from `coming soon` to `live` only after study guide content, question-bank entries, flashcards, source notes, and verification have been completed.
 - Expand question bank with quizzes/past exam questions if provided.
 - Add more precise dataset-driven charts by running the remaining R examples and exporting values/plots if needed; churn EDA summaries are already embedded as `CHURN_EDA` in `docs/data.js`.
 - Add errata entries whenever a professor/source mistake is confirmed.
