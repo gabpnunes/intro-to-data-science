@@ -182,7 +182,7 @@ TOPICS.push(
           "A has new coordinates (-1/sqrt(2),3/sqrt(2)); B has (1/sqrt(2),3/sqrt(2)). The observations have identical Z2 coordinates, so every difference between them is represented by Z1."
         ],
         math: "\\[z=A^Tx,\\quad A=[\\alpha_1\\ \\alpha_2],\\qquad x=Az\\ \\text{when }A^TA=I.\\]",
-        proof: "An orthonormal matrix satisfies A^{-1}=A^T. Therefore z=A^Tx can be inverted as x=Az=AA^Tx=x."
+        proof: "An orthonormal matrix satisfies \\(A^{-1}=A^T\\). Therefore \\(z=A^Tx\\) can be inverted as \\(x=Az=AA^Tx=x\\)."
       },
       {
         heading: "Projection and lossy reconstruction",
@@ -215,11 +215,12 @@ TOPICS.push(
       {
         heading: "The correlated normal example",
         body: [
-          "The R example builds X2=rX1+sqrt(1-r^2)epsilon. Both variables have variance one and their covariance is r. For positive r, the long axis of the point cloud follows the same-direction line and the short axis follows the counter-movement line.",
-          "After rotating into the principal axes, Cov(Z1,Z2)=0 and total variance is unchanged. In the jointly normal example, zero covariance also implies independence."
+          "Start with independent standard normal variables \\(X_1\\) and \\(\\varepsilon\\). The R example constructs \\(X_2\\) by combining a shared part, \\(rX_1\\), with fresh noise, \\(\\sqrt{1-r^2}\\,\\varepsilon\\). This makes the correlation exactly \\(r\\), rather than merely choosing two variables that happen to look correlated.",
+          "Both variables have variance one: \\(\\operatorname{Var}(X_2)=r^2+(1-r^2)=1\\). Their covariance is \\(\\operatorname{Cov}(X_1,X_2)=r\\). For \\(r>0\\), the point cloud therefore stretches along the same-direction line \\(X_2=X_1\\) and compresses along the counter-movement line \\(X_2=-X_1\\).",
+          "PCA rotates to those two axes. The resulting scores \\(Z_1\\) and \\(Z_2\\) have zero covariance, while their variances still add to the original total variance of two. Because this particular vector is jointly normal, zero covariance also implies independence; that last implication is not true for arbitrary data."
         ],
-        math: "\\[\\Sigma=\\begin{pmatrix}1&r\\\\r&1\\end{pmatrix},\\quad \\lambda_1=1+r,\\quad \\lambda_2=1-r.\\]",
-        proof: "Multiplying Sigma by (1,1)^T gives (1+r)(1,1)^T; multiplying it by (1,-1)^T gives (1-r)(1,-1)^T."
+        math: "\\[\\begin{aligned}X_2&=rX_1+\\sqrt{1-r^2}\\,\\varepsilon,\\\\[4pt]\\Sigma&=\\begin{pmatrix}1&r\\\\r&1\\end{pmatrix},\\\\[4pt]\\lambda_1&=1+r,\\qquad \\lambda_2=1-r.\\end{aligned}\\]",
+        proof: "The normalized eigenvectors are \\(\\alpha_1=(1,1)^T/\\sqrt{2}\\) and \\(\\alpha_2=(1,-1)^T/\\sqrt{2}\\). Multiplying gives \\(\\Sigma\\alpha_1=(1+r)\\alpha_1\\) and \\(\\Sigma\\alpha_2=(1-r)\\alpha_2\\), so the same-direction axis has the larger variance when \\(r>0\\)."
       },
       {
         heading: "Why uncorrelated does not always mean independent",
@@ -251,7 +252,7 @@ TOPICS.push(
         heading: "Variance of a projected score",
         body: ["For centered X and a direction alpha, the score is Z=alpha^T X. Its variance is a quadratic form in the covariance matrix."],
         math: "\\[\\operatorname{Var}(Z)=\\operatorname{Var}(\\alpha^TX)=\\alpha^T\\Sigma\\alpha.\\]",
-        proof: "Var(BX)=B Var(X) B^T. With B=alpha^T, this becomes alpha^T Sigma alpha."
+        proof: "\\(\\operatorname{Var}(BX)=B\\operatorname{Var}(X)B^T\\). With \\(B=\\alpha^T\\), this becomes \\(\\alpha^T\\Sigma\\alpha\\)."
       },
       {
         heading: "The constrained maximization",
@@ -260,7 +261,7 @@ TOPICS.push(
           "The stationary condition of the Lagrangian is Sigma alpha=lambda alpha. Thus every candidate direction is an eigenvector. The first component chooses the eigenvector with the largest eigenvalue."
         ],
         math: "\\[\\max_{\\alpha}\\ \\alpha^T\\Sigma\\alpha\\quad\\text{s.t.}\\quad\\alpha^T\\alpha=1,\\qquad L=\\alpha^T\\Sigma\\alpha-\\lambda(\\alpha^T\\alpha-1).\\]",
-        proof: "Because Sigma is symmetric, the derivative is 2 Sigma alpha-2 lambda alpha. Setting it to zero gives Sigma alpha=lambda alpha. Premultiplying by alpha^T gives Var(Z)=alpha^T Sigma alpha=lambda."
+        proof: "Because \\(\\Sigma\\) is symmetric, the derivative is \\(2\\Sigma\\alpha-2\\lambda\\alpha\\). Setting it to zero gives \\(\\Sigma\\alpha=\\lambda\\alpha\\). Premultiplying by \\(\\alpha^T\\) gives \\(\\operatorname{Var}(Z)=\\alpha^T\\Sigma\\alpha=\\lambda\\)."
       },
       {
         heading: "Later components",

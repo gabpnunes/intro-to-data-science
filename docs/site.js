@@ -143,7 +143,7 @@ function texReadable(tex) {
 }
 
 function renderMathFallback() {
-  if (window.MathJax || document.querySelector("mjx-container")) return;
+  if (window.MathJax?.typesetPromise || document.querySelector("mjx-container")) return;
   document.querySelectorAll(".math-block").forEach(block => {
     if (block.dataset.mathFallback === "1") return;
     const raw = block.textContent.replace(/\\\[/g, "").replace(/\\\]/g, "");

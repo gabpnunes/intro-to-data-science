@@ -1,5 +1,5 @@
 {
-  "version": "2026.06.11-part2.32",
-  "updatedAt": "2026-06-11T19:00:00+02:00",
-  "message": "Audited and corrected Part 2 source fidelity."
+  "version": "2026.06.12-math-churn.33",
+  "updatedAt": "2026-06-12T13:15:00+02:00",
+  "message": "Improved mobile math rendering and rebuilt the churn EDA explanation."
 }

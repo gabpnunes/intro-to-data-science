@@ -217,6 +217,7 @@
         </div>
         <div class="plot-wrap"><canvas id="churn-plot"></canvas></div>
         <div class="metric-row" id="churn-metrics"></div>
+        <div class="callout" id="churn-reading"></div>
         <div class="controls">
           <div class="control">
             <label><strong>View</strong><span id="churn-view-label"></span></label>
@@ -568,7 +569,12 @@
       ctx.fillText("Churn=False", w - pad - 110, pad + 33);
       const noRate = CHURN_EDA.conditionalChurn.no.True;
       const yesRate = CHURN_EDA.conditionalChurn.yes.True;
-      metrics("churn-metrics", [["n", CHURN_EDA.n], ["P(churn | no)", `${(noRate * 100).toFixed(1)}%`], ["P(churn | yes)", `${(yesRate * 100).toFixed(1)}%`]]);
+      metrics("churn-metrics", [
+        ["no-plan n", CHURN_EDA.intlPlanCounts.no],
+        ["plan n", CHURN_EDA.intlPlanCounts.yes],
+        ["P(churn | no)", `${(noRate * 100).toFixed(1)}%`],
+        ["P(churn | yes)", `${(yesRate * 100).toFixed(1)}%`]
+      ]);
     }
 
     function drawChurnBox(ctx, w, h, pad) {
@@ -612,6 +618,9 @@
       document.getElementById("churn-source").textContent = CHURN_EDA.source;
       const view = document.getElementById("churn-view").value;
       document.getElementById("churn-view-label").textContent = view === "plan" ? "conditional" : "boxplot";
+      document.getElementById("churn-reading").innerHTML = view === "plan"
+        ? "<strong>How to read this:</strong> each bar is one plan group and totals 100%. The red segment is the churn rate within that group. The higher rate for plan holders is an association; this plot cannot show that the plan caused churn."
+        : "<strong>How to read this:</strong> churners have a slightly higher centre for evening charge, but the boxes and ranges overlap heavily. Evening charge alone does not cleanly separate the two groups.";
       const { ctx, w, h, pad } = setup(document.getElementById("churn-plot"));
       if (view === "plan") drawChurnPlan(ctx, w, h, pad);
       else drawChurnBox(ctx, w, h, pad);

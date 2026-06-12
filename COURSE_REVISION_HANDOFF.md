@@ -107,6 +107,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Normal vs lognormal summaries
   - Scaling before distance-based models
   - Churn EDA from `Part1/churn.txt`: `Intl.Plan` vs `Churn` conditional probabilities and `Eve.Charge` boxplot summaries by churn group
+  - Churn teaching now explicitly covers unequal group sizes, the 2x2 count table, column-wise denominators, risk difference/risk ratio interpretation, conditional-probability reversal, overlap in `Eve.Charge`, and the association-versus-causation limit.
 - Exam kit:
   - `exam.html` contains Part 1 formula triggers, R command cards, recall drills, derivations, and a mastery checklist. The Answer Frames section was removed on 2026-06-04 at the user's request.
   - Exam-kit content is stored in `EXAM_KIT` in `docs/data.js`.

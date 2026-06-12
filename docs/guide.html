@@ -118,6 +118,55 @@
     .guide-card h3 { margin: 0 0 12px; font-size: 18px; font-weight: 400; }
     .guide-card p { color: var(--muted); font-size: 13px; line-height: 1.75; }
     .guide-card p:last-child { margin-bottom: 0; }
+    .inline-code {
+      padding: 2px 5px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: rgba(0,0,0,.16);
+      color: rgba(255,255,255,.78);
+      font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+    .guide-table-wrap {
+      max-width: 100%;
+      margin: 14px 0;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .guide-table {
+      width: 100%;
+      min-width: 430px;
+      border-collapse: collapse;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .guide-table th,
+    .guide-table td {
+      padding: 10px 12px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+    }
+    .guide-table th:first-child,
+    .guide-table td:first-child { text-align: left; }
+    .guide-table th:last-child,
+    .guide-table td:last-child { border-right: 0; }
+    .guide-table tr:last-child td { border-bottom: 0; }
+    .guide-table th {
+      color: var(--text);
+      background: var(--panel-soft);
+      font-weight: 500;
+    }
+    .interpretation-list { display: grid; gap: 8px; margin: 14px 0 0; }
+    .interpretation-item {
+      padding: 11px 12px;
+      border-left: 2px solid var(--accent-line);
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
     .trap-list { display: grid; gap: 8px; margin: 12px 0 0; }
     .trap-item { padding: 10px 12px; border: 1px solid rgba(251,191,36,.2); border-radius: var(--radius); background: var(--warn-soft); color: var(--muted); font-size: 12px; line-height: 1.55; }
     .checkpoint-card { border-color: rgba(147,197,253,.18); }
@@ -195,7 +244,10 @@
     }
   </style>
   <script>
-    window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] }, svg: { fontCache: 'global' } };
+    window.MathJax = {
+      tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']], processEscapes: true },
+      svg: { fontCache: 'global' }
+    };
   </script>
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 </head>
@@ -262,6 +314,10 @@
     function checksForTopic(topicId) {
       return GUIDE_CHECKS.filter(check => check.topic === topicId);
     }
+    function renderGuideBody(value) {
+      const html = String(value).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+      return /^\s*<(div|table|ul|ol)\b/i.test(html) ? html : `<p>${html}</p>`;
+    }
     function checkpointBlock(topic) {
       const checks = checksForTopic(topic.id);
       if (!checks.length) return "";
@@ -279,10 +335,10 @@
                   <span class="badge b-source">${escapeHtml(check.source)}</span>
                   <span class="badge b-type" data-guide-check-state="${check.id}">unmarked</span>
                 </div>
-                <p>${escapeHtml(check.prompt)}</p>
+                <p>${escapeHtml(check.prompt).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')}</p>
                 <details>
                   <summary>${icon("eye")} Reveal answer</summary>
-                  <p>${escapeHtml(check.answer)}</p>
+                  <p>${escapeHtml(check.answer).replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')}</p>
                 </details>
                 <div class="checkpoint-actions">
                   <button class="text-btn" data-guide-check-action="revisit" data-guide-check-id="${check.id}">${icon("bookmark")} Revisit</button>
@@ -311,7 +367,7 @@
         ${t.sections.map(section => `
           <article class="glass guide-card">
             <h3>${escapeHtml(section.heading)}</h3>
-            ${(section.body || []).map(p => `<p>${p}</p>`).join("")}
+            ${(section.body || []).map(renderGuideBody).join("")}
             ${section.math ? `<div class="math-block">${section.math}</div>` : ""}
             ${section.proof ? `<div class="callout good"><strong>Reasoning:</strong> ${section.proof}</div>` : ""}
             ${section.code ? `<pre class="code">${escapeHtml(section.code)}</pre>` : ""}

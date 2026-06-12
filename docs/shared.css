@@ -260,13 +260,35 @@ button { color: inherit; }
 .callout.good { border-color: var(--accent-line); background: var(--accent-soft); }
 
 .math-block {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
   padding: 14px 16px;
   margin: 12px 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(0, 0, 0, 0.12);
   color: var(--text);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.math-block mjx-container[display="true"] {
+  width: max-content;
+  min-width: 100%;
+  margin: .35em 0 !important;
+  text-align: center;
+}
+.math-block mjx-container svg {
+  max-width: none;
+}
+.guide-card p mjx-container,
+.callout mjx-container,
+.q-text mjx-container,
+.solution p mjx-container {
+  max-width: 100%;
 }
 .lite-math {
   display: inline-block;
@@ -316,6 +338,15 @@ button { color: inherit; }
   border-radius: 999px;
   color: var(--faint);
   font-size: 10px;
+}
+
+@media (max-width: 560px) {
+  .math-block {
+    padding: 12px 10px;
+  }
+  .math-block mjx-container {
+    font-size: 88% !important;
+  }
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }

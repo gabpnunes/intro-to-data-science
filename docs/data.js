@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.11-part2.32";
+const SITE_VERSION = "2026.06.12-math-churn.33";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -626,24 +626,56 @@ const TOPICS = [
     part: "Part 1",
     week: "W1",
     title: "Exploratory Data Analysis",
-    short: "How the churn example studies one variable, two variables, and conditional relationships.",
+    short: "A careful walkthrough of the churn example: counts, conditional rates, numerical comparisons, and the limits of EDA.",
     tags: ["churn", "ggplot", "conditional probability", "categorical data"],
     sources: [SOURCES.rcode, SOURCES.datasets, SOURCES.slides],
     sections: [
       {
-        heading: "EDA is structured curiosity",
+        heading: "Start with the question and the variables",
         body: [
-          "The churn example starts with one-variable summaries, then compares churn with the international plan, and then studies numerical variables such as evening charge. This is the CRISP-DM Data Understanding phase in action.",
-          "Good EDA asks: what is the distribution, what are the categories, are there missing values, and do relationships change conditional on another variable?"
+          "The data contain 3,333 telecom customers. `Churn` records whether a customer left the company, while `Intl.Plan` records whether the customer had an international plan. The example asks whether churn is associated with plan status; it does not yet ask whether the plan causes churn.",
+          "The R script deliberately moves from one-variable summaries to two-variable and three-variable views. First understand each variable's distribution and group size. Only then compare variables, because percentages can be misleading when the groups have very different numbers of observations."
         ],
         diagram: "eda-flow"
       },
       {
-        heading: "Conditional probability tables",
+        heading: "Read the raw counts before the percentages",
         body: [
-          "The R script uses `table(churn$Churn, churn$Intl.Plan)` and `prop.table(mytable, 2)` to compare churn rates within each international-plan group. Column-wise conditioning matters: it answers 'given the plan status, what fraction churned?'"
+          "There are 3,010 customers without an international plan but only 323 with one. Raw churn counts cannot be compared directly across those unequal group sizes. The contingency table below is the output represented by `table(churn$Churn, churn$Intl.Plan)`.",
+          "<div class=\"guide-table-wrap\"><table class=\"guide-table\"><thead><tr><th>Churn status</th><th>Intl.Plan = no</th><th>Intl.Plan = yes</th><th>Row total</th></tr></thead><tbody><tr><td>False</td><td>2,664</td><td>186</td><td>2,850</td></tr><tr><td>True</td><td>346</td><td>137</td><td>483</td></tr><tr><td><strong>Column total</strong></td><td><strong>3,010</strong></td><td><strong>323</strong></td><td><strong>3,333</strong></td></tr></tbody></table></div>"
         ],
-        code: "mytable = table(churn$Churn, churn$Intl.Plan)\nprop.table(mytable, 2)"
+        code: "table(churn$Churn)\ntable(churn$Intl.Plan)\nmytable = table(churn$Churn, churn$Intl.Plan)\nmytable"
+      },
+      {
+        heading: "Choose the denominator that matches the question",
+        body: [
+          "`prop.table(mytable, 2)` divides every cell by its column total. The columns are the international-plan groups, so the output estimates the probability of each churn outcome conditional on plan status.",
+          "Among customers without an international plan, 346 out of 3,010 churned. Among customers with a plan, 137 out of 323 churned. The observed churn rate is therefore about 31 percentage points higher in the plan group, or about 3.69 times as large.",
+          "<div class=\"interpretation-list\"><div class=\"interpretation-item\"><strong>Correct reading:</strong> among customers in this dataset with an international plan, 42.4% churned.</div><div class=\"interpretation-item\"><strong>Wrong reversal:</strong> 42.4% of churners had an international plan. That would condition on churn and requires row-wise proportions instead.</div></div>"
+        ],
+        math: "\\[\\begin{aligned}P(\\text{churn}\\mid\\text{no plan})&=\\frac{346}{3010}\\approx 0.115,\\\\[4pt]P(\\text{churn}\\mid\\text{plan})&=\\frac{137}{323}\\approx 0.424.\\end{aligned}\\]",
+        code: "prop.table(mytable, 2)"
+      },
+      {
+        heading: "Interpret association without inventing causation",
+        body: [
+          "The plan group has a much higher observed churn rate, so `Intl.Plan` is associated with `Churn` in this dataset. This is a useful pattern for further investigation or prediction.",
+          "It does not prove that buying the international plan causes customers to leave. Plan holders may differ in travel, usage, prices, service calls, or other variables. Establishing a causal effect would require a causal design or defensible assumptions that this EDA does not provide."
+        ],
+        traps: [
+          "Do not compare 137 with 346 and conclude that the no-plan group churns more; the group sizes are radically different.",
+          "Do not reverse P(churn | plan) into P(plan | churn). Conditional probability is directional.",
+          "Do not turn an association discovered by EDA into a causal claim."
+        ]
+      },
+      {
+        heading: "What the evening-charge plots add",
+        body: [
+          "The script next examines `Eve.Charge`, first by itself and then conditional on churn. Non-churners have median evening charge 16.97; churners have median 17.96. The distributions overlap heavily, so this is a modest group shift rather than a clean rule separating churners from non-churners.",
+          "The filled histogram asks how the churn composition changes across evening-charge bins. The boxplot asks how the distribution of evening charge differs between churn groups. Those are related but different conditional views.",
+          "Finally, the scatterplot of `Day.Mins` against `Eve.Mins`, coloured by churn, is a three-variable EDA view. It can reveal clusters, overlap, or unusual cases, but it still does not establish causality or measure predictive performance."
+        ],
+        code: "ggplot(churn) + geom_histogram(aes(Eve.Charge, fill=Churn), position=\"fill\", binwidth=1)\nggplot(churn) + geom_boxplot(aes(x=Churn, y=Eve.Charge))\nggplot(churn) + geom_point(aes(x=Day.Mins, y=Eve.Mins, color=Churn, shape=Churn))"
       }
     ]
   }
@@ -726,6 +758,13 @@ const GUIDE_CHECKS = [
     source: SOURCES.rcode,
     prompt: "What does `prop.table(mytable, 2)` mean in the churn example?",
     answer: "It computes column-wise proportions. For `table(churn$Churn, churn$Intl.Plan)`, it answers: within each international-plan group, what fraction did or did not churn?"
+  },
+  {
+    id: "gc-eda-denominator",
+    topic: "eda",
+    source: SOURCES.datasets,
+    prompt: "Why is comparing the raw churn counts 346 and 137 misleading, and what comparison should replace it?",
+    answer: "The plan groups have very different sizes: 3,010 customers have no plan and 323 have a plan. Compare within-group rates instead: 346/3010 is about 11.5%, while 137/323 is about 42.4%."
   },
   {
     id: "gc-eda-causality",
@@ -1221,8 +1260,10 @@ const CARDS = [
   { topic: "transforms", front: "Z-score sensitivity", back: "Z-scores depend on the mean and standard deviation, so outliers can affect the standardization itself.", source: SOURCES.slides },
   { topic: "transforms", front: "Log transform domain", back: "A basic log transform requires positive values; zeros or negatives need an explicit adjustment and careful interpretation.", source: SOURCES.rcode },
   { topic: "transforms", front: "Distance dominance", back: "In distance-based models, a large-scale variable can dominate before standardization or scaling.", source: SOURCES.rcode },
-  { topic: "eda", front: "Churn given international plan", back: "In the course churn data, P(churn | Intl.Plan=no) is about 11.5%, while P(churn | Intl.Plan=yes) is about 42.4%.", source: SOURCES.datasets },
-  { topic: "eda", front: "Eve.Charge by churn", back: "The churn EDA compares Eve.Charge distributions by Churn using histograms/boxplots before drawing modeling conclusions.", source: SOURCES.rcode }
+  { topic: "eda", front: "Churn given international plan", back: "In the course data: 346/3010 = 11.5% churn without a plan, versus 137/323 = 42.4% with a plan. Compare rates because the group sizes differ.", source: SOURCES.datasets },
+  { topic: "eda", front: "Risk difference in the churn example", back: "42.4% - 11.5% = about 30.9 percentage points. This describes an observed association, not a causal effect.", source: SOURCES.datasets },
+  { topic: "eda", front: "Do not reverse the condition", back: "P(churn | plan) asks for churn within a plan group. It is not P(plan | churn), which uses churn status as the denominator.", source: SOURCES.rcode },
+  { topic: "eda", front: "Eve.Charge by churn", back: "Median Eve.Charge is 16.97 for non-churners and 17.96 for churners, with substantial overlap. It is a modest distribution shift, not a clean classifier.", source: SOURCES.datasets }
 ];
 
 const MEDIA_LINKS = [

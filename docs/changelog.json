@@ -1,5 +1,16 @@
 [
   {
+    "version": "2026.06.12-math-churn.33",
+    "date": "2026-06-12",
+    "title": "Improved math and clarified churn EDA",
+    "items": [
+      "Reformatted long equations for narrow screens and converted raw PCA notation into MathJax.",
+      "Expanded the correlated-normal example with its construction, variance, covariance, eigenvectors, and independence caveat.",
+      "Rebuilt the churn lesson from raw counts through conditional rates, effect-size interpretation, and causal limitations.",
+      "Added denominator traps, new active-recall prompts and flashcards, and clearer interpretation text in the churn Visual Lab."
+    ]
+  },
+  {
     "version": "2026.06.11-part2.32",
     "date": "2026-06-11",
     "title": "Audited Part 2 source fidelity",
