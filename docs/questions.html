@@ -67,6 +67,7 @@
     .solution.visible { display: block; }
     .solution h3 { margin: 0 0 8px; font-size: 13px; font-weight: 500; }
     .solution p { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.65; white-space: pre-line; }
+    .solution .solution-source { margin-top: -3px; color: var(--faint); font-size: 10px; }
     .source-note {
       margin-top: 12px;
       padding: 11px 12px;
@@ -291,6 +292,7 @@
     function officialSolutionBlock(q) {
       if (!q.officialSolution && !q.officialSolutionHtml) return "";
       return `<h3>Official solution text</h3>
+        ${q.solutionSource ? `<p class="solution-source">${escapeHtml(q.solutionSource)}</p>` : ""}
         ${q.officialSolution ? `<p>${formatText(q.officialSolution)}</p>` : q.officialSolutionHtml}
         ${q.officialSolutionHtml && q.officialSolution ? `<details class="note-box"><summary>${icon("list")} Formatted math and table view</summary>${q.officialSolutionHtml}</details>` : ""}`;
     }

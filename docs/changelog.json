@@ -1,5 +1,17 @@
 [
   {
+    "version": "2026.06.14-tutorial4.34",
+    "date": "2026-06-14",
+    "title": "Added official Tutorial 4 solutions",
+    "items": [
+      "Reconciled Tutorial 4 Questions 1-7 against the official eight-page solution PDF.",
+      "Preserved official solution transcriptions and added separate MathJax-formatted explanations.",
+      "Corrected the Question 2 explanation to use the official sample-variance denominator n-1.",
+      "Flagged the incomplete Question 1 orthogonality sentence and the reversed MPG interpretation in Question 5.",
+      "Kept the Tutorial 4 exam answer provisional because the official file repeats the question but provides no solution."
+    ]
+  },
+  {
     "version": "2026.06.12-math-churn.33",
     "date": "2026-06-12",
     "title": "Improved math and clarified churn EDA",

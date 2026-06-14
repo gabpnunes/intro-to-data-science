@@ -5,6 +5,7 @@ Object.assign(SOURCES, {
   tut3q: "Part2/IntroductionDataScience_Tutorial 3_Questions.pdf",
   tut3s: "Part2/IntroductionDataScience_Tutorial 3_Solutions.pdf",
   tut4q: "Part2/IntroductionDataScience_Tutorial 4_Questions.pdf",
+  tut4s: "Part2/IntroductionDataScience_Tutorial 4_Solutions.pdf",
   part2Data: "Part2 datasets: DataOutliers.csv, Inflation.csv, houses.csv, QuintenJuno.jpg",
   part2Media: "Five Part 2 PCA videos supplied with the Canvas files"
 });
@@ -38,13 +39,13 @@ SOURCE_INVENTORY.push(
     label: "Tutorial 4 questions",
     source: SOURCES.tut4q,
     status: "incorporated",
-    detail: "All seven tutorial questions and the exam question are included with provisional solutions."
+    detail: "All seven tutorial questions and the exam question are included exactly as sourced."
   },
   {
     label: "Tutorial 4 solutions",
-    source: "Official Tutorial 4 solution file",
-    status: "pending",
-    detail: "No official solution file was supplied. Every Tutorial 4 solution is visibly marked unofficial."
+    source: SOURCES.tut4s,
+    status: "official",
+    detail: "Official wording is preserved for Questions 1-7. The PDF repeats the exam question on pages 7-8 but does not provide an exam solution, so that answer remains provisional."
   },
   {
     label: "Part 2 R code and datasets",
@@ -63,7 +64,7 @@ SOURCE_INVENTORY.push(
 const part2Roadmap = COURSE_PARTS.find(part => part.id === "part2");
 if (part2Roadmap) {
   part2Roadmap.status = "live";
-  part2Roadmap.coverage = "Slides, course text, Tutorial 3-4 questions, Tutorial 3 official solutions, R code, datasets, photo compression, and linked lectures are incorporated.";
+  part2Roadmap.coverage = "Slides, course text, Tutorial 3-4 questions, Tutorial 3-4 official solutions where supplied, R code, datasets, photo compression, and linked lectures are incorporated.";
   part2Roadmap.topics = ["PCA geometry", "Covariance", "Eigenvectors", "Explained variance", "Houses", "Image compression"];
 }
 
@@ -145,13 +146,40 @@ ERRATA_NOTES.push(
     action: "Interpret the printed matrix as ordinary correlations between PC1 and the selected original variables."
   },
   {
+    id: "err-t4-q1-orthogonality",
+    severity: "incomplete wording",
+    source: "Tutorial 4 Solutions, Question 1(b), page 1",
+    relatedQuestionId: "t4q1",
+    title: "The official orthogonality sentence is incomplete",
+    note: "The official solution says, 'This condition states that the vectors alpha1 and alpha2 .' and omits the word 'are orthogonal'. It then describes Z1 and Z2 as orthogonal variables, although the displayed condition directly states orthogonality of the loading vectors.",
+    action: "The official transcription is preserved. The explanation clarifies that alpha1 and alpha2 are orthogonal; PCA eigenvector scores are then uncorrelated."
+  },
+  {
+    id: "err-t4-q5-mpg",
+    severity: "interpretation error",
+    source: "Tutorial 4 Solutions, Question 5, page 5",
+    relatedQuestionId: "t4q5",
+    title: "The official solution reverses the meaning of MPG",
+    note: "The PDF says a large gas-mileage value means that a car consumes a lot of fuel. MPG means miles travelled per gallon, so a larger value indicates better fuel efficiency and lower fuel consumption per mile.",
+    action: "The official wording is preserved. The explanation uses the correct MPG interpretation while retaining the official PC1 size-versus-efficiency conclusion."
+  },
+  {
+    id: "err-t4-exam-missing-solution",
+    severity: "missing solution",
+    source: "Tutorial 4 Solutions, pages 7-8",
+    relatedQuestionId: "t4exam1",
+    title: "The official file does not solve the exam question",
+    note: "The file headed as Tutorial 4 solutions repeats the exam prompt and its four-row table, but contains no worked answer for parts (a)-(c).",
+    action: "The website keeps the exam answer provisional and does not label it official."
+  },
+  {
     id: "err-t4-exam-variance",
     severity: "numerical mismatch",
     source: "Tutorial 4 Exam Question 1",
     relatedQuestionId: "t4exam1",
     title: "The printed variance of X2 does not match the four listed observations",
     note: "Using the four observations and the sample-variance denominator n-1 gives Var(X2)=125.67, while the prompt states 126.67. The other printed values, including Var(X1+X2)=714, use the sample-variance convention.",
-    action: "The provisional solution follows the explicitly supplied summary value 126.67, giving covariance 155.83 and 92.93% explained variance. Recalculation from the table gives covariance 156.33 and about 93.20%."
+    action: "Because the official file does not solve the exam question, the provisional solution follows the explicitly supplied summary value 126.67, giving covariance 155.83 and 92.93% explained variance. Recalculation from the table gives covariance 156.33 and about 93.20%."
   }
 );
 
@@ -518,60 +546,167 @@ as desired.`,
   },
   {
     id: "t4q1", topic: "pca-theory", topicName: "PCA Optimization and Eigenvectors", source: "Tutorial 4 Questions, Q1",
-    difficulty: "medium", type: "long", solutionStatus: "unofficial",
+    difficulty: "medium", type: "long", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "Consider 50 observations on 5 standardized variables. Z1 and Z2 are linear combinations with coefficient vectors alpha1 and alpha2, each of norm 1. (a) True or false: the sums of squared Z1 and Z2 scores are equal. (b) Explain why additionally assuming sum_j alpha1,j alpha2,j=0 may be a good idea. (c) True or false: sum_j alpha1,j^2 + sum_j alpha2,j^2=1. (d) True or false: Var[Z1]=1. Which statements are always correct?",
     questionHtml: `<p>Consider a data set consisting of 50 observations in 5 different variables \\(X_1,X_2,X_3,X_4\\) and \\(X_5\\). We use the notation \\(x_{i,j}\\) to denote the \\(i\\)-th observation of \\(X_j\\) and we assume this data set is standardized. Assume that \\(Z_1\\) and \\(Z_2\\) can be defined as follows:</p><div class="math-block">\\[Z_1=\\alpha_{1,1}X_1+\\alpha_{1,2}X_2+\\alpha_{1,3}X_3+\\alpha_{1,4}X_4+\\alpha_{1,5}X_5,\\]\\[Z_2=\\alpha_{2,1}X_1+\\alpha_{2,2}X_2+\\alpha_{2,3}X_3+\\alpha_{2,4}X_4+\\alpha_{2,5}X_5.\\]</div><p>The vectors \\(\\alpha_1\\) and \\(\\alpha_2\\) are assumed to have norm 1.</p><p>(a) True or false? Explain your answer. \\(\\sum_{i=1}^{50}(\\sum_{j=1}^{5}\\alpha_{1,j}x_{i,j})^2=\\sum_{i=1}^{50}(\\sum_{j=1}^{5}\\alpha_{2,j}x_{i,j})^2\\).</p><p>(b) Explain why it might be a good idea to additionally assume that \\(\\sum_{j=1}^{5}\\alpha_{1,j}\\alpha_{2,j}=0\\).</p><p>(c) True or false? \\(\\sum_{j=1}^{5}\\alpha_{1,j}^2+\\sum_{j=1}^{5}\\alpha_{2,j}^2=1\\).</p><p>(d) True or false? \\(\\operatorname{Var}[Z_1]=1\\).</p><p>Which of these statements is always correct?</p>`,
-    explanation: "Provisional solution: (a) False; unit loading norms do not force equal score variance. (b) Orthogonality prevents the components from describing the same direction and, for covariance eigenvectors, gives uncorrelated scores. (c) False: each norm-square sum is 1, so their sum is 2. (d) False: Var(Z1)=alpha1^T Sigma alpha1, which equals an eigenvalue for a principal direction and need not be 1. The always-correct facts are the stated individual norm constraints; among (a), (c), and (d), none is always true."
+    officialSolution: `Question a: Note that since the data is standardized, the components Z1 and Z2 are also having mean zero. Then sum from i=1 to 50 of (sum from j=1 to 5 alpha1,j xi,j)^2 is proportional to the variance of Z1 whereas sum from i=1 to 50 of (sum from j=1 to 5 alpha2,j xi,j)^2 is proportional to the variance of Z2. The variances of Z1 and Z2 are in general not the same and therefore this equality is not true.
+
+Question b. This condition states that the vectors alpha1 and alpha2 . It means that we transform the variables X1,...,X5 into two new variables Z1 and Z2 which are orthogonal.
+
+Question c. The vectors alpha1 and alpha2 are having norm 1, which implies that sum from j=1 to 5 alpha1,j^2=1 and sum from j=1 to 5 alpha2,j^2=1. Therefore, this statement is not correct.
+
+Question d. False.`,
+    officialSolutionHtml: `<p><strong>Question a:</strong> Since the standardized variables and therefore the scores have mean zero, each displayed sum of squared scores is proportional to the corresponding score variance. The variances of \\(Z_1\\) and \\(Z_2\\) need not be equal, so the statement is false.</p><p><strong>Question b:</strong> The condition is</p><div class="math-block">\\[\\sum_{j=1}^{5}\\alpha_{1,j}\\alpha_{2,j}=\\alpha_1^T\\alpha_2=0.\\]</div><p>The official solution says this makes the two directions orthogonal.</p><p><strong>Question c:</strong> Each loading vector has norm one, so</p><div class="math-block">\\[\\sum_{j=1}^{5}\\alpha_{1,j}^2=1,\\qquad \\sum_{j=1}^{5}\\alpha_{2,j}^2=1.\\]</div><p>Their sum is therefore 2, not 1. The statement is false.</p><p><strong>Question d:</strong> False.</p>`,
+    sourceNote: "The official Question 1(b) sentence is incomplete: it omits 'are orthogonal' after naming alpha1 and alpha2. The official transcription is preserved.",
+    explanation: "(a) False: unit loading norms do not force equal score variance. (b) Orthogonal loading directions avoid duplicating the same direction; for covariance-matrix eigenvectors, the resulting score variables are uncorrelated. (c) False because 1+1=2. (d) False because Var(Z1)=alpha1^T Sigma alpha1, which equals an eigenvalue for a principal direction and need not equal 1."
   },
   {
     id: "t4q2", topic: "pca-variance", topicName: "Explained Variance and Dimension Reduction", source: "Tutorial 4 Questions, Q2",
-    difficulty: "medium", type: "multiple choice", solutionStatus: "unofficial",
+    difficulty: "medium", type: "multiple choice", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "A data set has 1000 observations and 10 mean-zero variables with equal variance. Total variance is 5. For first-PC scores zi=sum_j alpha1,j xi,j, sum_i zi^2=1253. What proportion of variance is explained? A <10%; B 10-20%; C 20-30%; D 30-40%.",
     questionHtml: `<p>Consider a data set with 1000 observations. Each observation contains 10 different variables with mean zero and equal variance. We perform a principal component analysis. We determine the scores \\(z_1,z_2,\\ldots,z_{1000}\\) for each observation using the first principal component as follows:</p><div class="math-block">\\[z_i=\\sum_{j=1}^{10}\\alpha_{1,j}x_{i,j}.\\]</div><p>The total variance of the data set is equal to 5 and you are given \\(\\sum_{i=1}^{1000}z_i^2=1253\\). What is proportion of the variance that is explained by the first principal component?</p><p>A. Smaller than 10%<br>B. Between 10% and 20%.<br>C. Between 20% and 30%.<br>D. Between 30% and 40%.</p>`,
-    explanation: "Provisional solution: because the scores have mean zero, Var(Z1)=(1/1000)sum zi^2=1.253 using the course denominator n. The explained proportion is 1.253/5=0.2506, or about 25.1%. Answer C."
+    officialSolution: `The variance of the first principal component can be determined as follows:
+Var[Z1] = 1/(n-1) sum from i=1 to 1000 zi^2 = 1253/999 = 1.25.
+
+The variance explained by the first principal component is given by
+Variance explained = 1.25/5 = 0.25.
+
+Therefore, the correct answer is C.`,
+    officialSolutionHtml: `<p>The variance of the first principal component can be determined as follows:</p><div class="math-block">\\[\\operatorname{Var}(Z_1)=\\frac{1}{n-1}\\sum_{i=1}^{1000}z_i^2=\\frac{1253}{999}\\approx1.25.\\]</div><p>The variance explained by the first principal component is</p><div class="math-block">\\[\\frac{1.25}{5}=0.25.\\]</div><p>Therefore, the correct answer is <strong>C</strong>.</p>`,
+    explanation: "The official solution uses the sample-variance denominator n-1. The exact intermediate value is 1253/999=1.2543, which rounds to 1.25; dividing by total variance 5 gives about 0.2509, still between 20% and 30%."
   },
   {
     id: "t4q3", topic: "pca-variance", topicName: "Explained Variance and Dimension Reduction", source: "Tutorial 4 Questions, Q3",
-    difficulty: "medium", type: "long", solutionStatus: "unofficial",
+    difficulty: "medium", type: "long", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "For a standardized PCA of 9 numerical mtcars variables, standard deviations are 2.3782, 1.4429, 0.71008, 0.51481, 0.42797, 0.35184, 0.32413, 0.2419, 0.14896. Proportions include 0.6284, 0.2313, ?, 0.02945, 0.02035, 0.01375, 0.01167, 0.0065, 0.00247. (a) Relate standard deviations and eigenvalues. (b) Determine PC3 proportion. (c) How many components reach 95% cumulative variance?",
     questionHtml: `<p>The Motor-Trend-Car-Road dataset consists of data that was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973-74 models). There are 32 observations on 11 numeric variables:</p><p>1 <code>mpg</code> Miles/(US) gallon: more powerful and heavier cars tend to consume more fuel<br>2 <code>cyl</code> Number of cylinders: more powerful cars often have more cylinders<br>3 <code>disp</code> Displacement (cu.in.): the combined volume of the engine's cylinders<br>4 <code>hp</code> Gross horsepower: this is a measure of the power generated by the car<br>5 <code>drat</code> Rear axle ratio: higher values will decrease fuel efficiency<br>6 <code>wt</code> Weight (1000 lbs)<br>7 <code>qsec</code> 1/4 mile time: the cars speed and acceleration<br>8 <code>vs</code> Engine block: 0 = V-shaped or 1 = straight<br>9 <code>am</code> Transmission: 0 = automatic or 1 = manual<br>10 <code>gear</code> Number of forward gears: sports cars tend to have more gears<br>11 <code>carb</code> Number of carburetors: associated with more powerful engines</p><p>Because PCA works best with numerical data, the two categorical variables (<code>vs</code> and <code>am</code>) are excluded so we are left with a matrix of 9 columns and 32 rows. The data is standardized before PCA is applied and gives the following result:</p><div class="source-table-wrap"><table class="source-table"><thead><tr><th></th><th>PC1</th><th>PC2</th><th>PC3</th><th>PC4</th><th>PC5</th><th>PC6</th><th>PC7</th><th>PC8</th><th>PC9</th></tr></thead><tbody><tr><td>Standard deviation</td><td>2.3782</td><td>1.4429</td><td>0.71008</td><td>0.51481</td><td>0.42797</td><td>0.35184</td><td>0.32413</td><td>0.2419</td><td>0.14896</td></tr><tr><td>Proportion of Variance</td><td>0.6284</td><td>0.2313</td><td>?</td><td>0.02945</td><td>0.02035</td><td>0.01375</td><td>0.01167</td><td>0.0065</td><td>0.00247</td></tr></tbody></table></div><p>(a) What is the relation between the first row (Stand. dev.) and the eigenvalues \\(\\lambda_i\\)?</p><p>(b) Determine the Proportion of Variance for PC3.</p><p>(c) How many components should be retained according to the proportion of variance explained criterion at level 95%?</p>`,
-    explanation: "Provisional solution: (a) lambda_k=(standard deviation of PC k)^2. (b) lambda3=0.71008^2, and total standardized variance is 9, so PVE3=0.71008^2/9=0.05602. (c) The first four total about 0.94517, below 95%; adding PC5 gives about 0.96552. Retain 5 components."
+    officialSolution: `Question a: Since lambda_i denotes the variance of the ith PC, Y_i say, the squared value of Standard deviation equals lambda_i.
+
+Question b: Using lambda_3/9 = 0.71008^2/9 = 0.05602.
+
+Question c: We can obtain the cumulative proportion:
+PC1 0.6284; PC2 0.8598; PC3 0.91581; PC4 0.94525; PC5 0.96560; PC6 0.97936; PC7 0.99103; PC8 0.9975; PC9 1.00000.
+We keep 5 components.`,
+    officialSolutionHtml: `<p><strong>Question a:</strong> Since \\(\\lambda_i\\) is the variance of the \\(i\\)-th principal component, the squared standard deviation equals the eigenvalue:</p><div class="math-block">\\[\\lambda_i=\\operatorname{sd}(PC_i)^2.\\]</div><p><strong>Question b:</strong></p><div class="math-block">\\[\\operatorname{PVE}_3=\\frac{\\lambda_3}{9}=\\frac{0.71008^2}{9}=0.05602.\\]</div><p><strong>Question c:</strong> The official cumulative proportions are 0.6284, 0.8598, 0.91581, 0.94525, 0.96560, 0.97936, 0.99103, 0.9975, and 1.00000. The first four remain below 95%; the first five exceed it. Keep <strong>5 components</strong>.</p>`,
+    explanation: "Standardization makes total variance equal to the number of retained numerical variables, here 9. Squaring each score standard deviation gives its eigenvalue. The 95% rule chooses the smallest k whose cumulative PVE reaches at least 0.95, which is k=5."
   },
   {
     id: "t4q4", topic: "pca-dependence", topicName: "Dependence, Covariance, and Principal Axes", source: "Tutorial 4 Questions, Q4",
-    difficulty: "hard", type: "proof", solutionStatus: "unofficial",
+    difficulty: "hard", type: "proof", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "Let (X1,X2)^T be bivariate normal with mean zero and covariance R=[[1,r],[r,1]], where r>0. (a) Determine eigenvectors alpha1 and alpha2. (b) Explain intuitively why the principal-component directions are independent of r. (c) What is the effect of r on PCA?",
     questionHtml: `<p>Let</p><div class="math-block">\\[X=\\begin{pmatrix}X_1\\\\X_2\\end{pmatrix}\\sim N\\left(\\begin{pmatrix}0\\\\0\\end{pmatrix},R\\right),\\qquad R=\\begin{pmatrix}1&r\\\\r&1\\end{pmatrix}.\\]</div><p>Assume that the distributions \\(X_1\\) and \\(X_2\\) are standardized and \\(r&gt;0\\).</p><p>(a) Determine the eigenvectors \\(\\alpha_1\\) and \\(\\alpha_2\\) of the covariance matrix \\(R\\).</p><p>(b) The results from the previous question imply that the principal components of a bivariate normal distribution are independent of the correlation coefficient \\(r\\). Explain this intuitively.</p><p>(c) What is the effect of the correlation \\(r\\) when performing a principal component analysis on a bivariate normal data set.</p>`,
-    explanation: "Provisional solution: normalized eigenvectors are alpha1=(1,1)/sqrt2 with eigenvalue 1+r and alpha2=(1,-1)/sqrt2 with eigenvalue 1-r. Equal marginal variances make the cloud symmetric around the 45-degree and -45-degree axes, so changing positive r stretches or compresses those axes without rotating them. As r rises, PC1 explains (1+r)/2 and PC2 explains (1-r)/2, so dimension reduction becomes more effective."
+    officialSolution: `Question a: To find the eigenvalues, we need to solve the following equation with respect to lambda:
+0 = det(lambda I2 - R) = (lambda-1)^2-r^2,
+which implies that (lambda-1)=plus or minus r; or that the eigenvalues lambda are 1 plus or minus r. The eigenvector alpha=(alpha1,alpha2) is given by (R-lambda I)alpha'=0.
+When lambda1=1+r, we get alpha1,1=alpha1,2 and alpha1,1^2+alpha1,2^2=1. Thus alpha1,1=alpha1,2=1/sqrt(2). Similarly when lambda2=1-r, alpha2,1=1/sqrt(2) and alpha2,2=-1/sqrt(2).
+
+Question b: The observations from a bivariate normal distribution with correlation r are always centered around the line y=x. Therefore, the principal components will be based on the orthogonal lines y=x and y=-x.
+
+Question c: The correlation r determines the proportion of the variance that is explained by each of the principal components. For the first principal component, the variance explained is given by:
+Variance explained by the first PC = lambda1/(Var[X1]+Var[X2])=(1+r)/2.
+We find that the first principal component explains more variance when r is becoming larger. This is intuitively clear, since a larger value for the correlation r implies that the observations are 'closer' to the line y=x, which is exactly the first principal component.`,
+    officialSolutionHtml: `<p><strong>Question a:</strong></p><div class="math-block">\\[0=\\det(\\lambda I_2-R)=(\\lambda-1)^2-r^2,\\]</div><p>so \\(\\lambda_1=1+r\\) and \\(\\lambda_2=1-r\\). Normalization gives</p><div class="math-block">\\[\\alpha_1=\\frac{1}{\\sqrt2}\\begin{pmatrix}1\\\\1\\end{pmatrix},\\qquad \\alpha_2=\\frac{1}{\\sqrt2}\\begin{pmatrix}1\\\\-1\\end{pmatrix}.\\]</div><p><strong>Question b:</strong> The official solution identifies the orthogonal axes \\(y=x\\) and \\(y=-x\\); changing positive \\(r\\) changes the cloud's spread along them, not their directions.</p><p><strong>Question c:</strong></p><div class="math-block">\\[\\operatorname{PVE}_1=\\frac{\\lambda_1}{\\operatorname{Var}(X_1)+\\operatorname{Var}(X_2)}=\\frac{1+r}{2}.\\]</div><p>As \\(r\\) increases, PC1 explains more variance.</p>`,
+    explanation: "The equal diagonal entries force the eigenvectors to remain the two 45-degree directions. Correlation changes the eigenvalues, not those directions: larger positive r stretches the y=x axis and compresses y=-x, making one-component reduction more effective."
   },
   {
     id: "t4q5", topic: "pca-houses", topicName: "Interpreting Loadings", source: "Tutorial 4 Questions, Q5",
-    difficulty: "medium", type: "long", solutionStatus: "unofficial",
+    difficulty: "medium", type: "long", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "Car loadings are: MPG (0.3,0.02), Weight (-0.36,0.18), Length (-0.27,0.42), Engine (-0.34,0.02), Horsepower (-0.32,-0.29), Price (-0.26,-0.47). Interpret PC1 and PC2.",
     questionHtml: `<p>Consider a data set with car information.</p><div class="source-table-wrap"><table class="source-table compact"><thead><tr><th>Variable</th><th>PC 1</th><th>PC2</th></tr></thead><tbody><tr><td>gas mileage (MPG)</td><td>0.3</td><td>0.02</td></tr><tr><td>Weight</td><td>-0.36</td><td>0.18</td></tr><tr><td>Length</td><td>-0.27</td><td>0.42</td></tr><tr><td>Engine</td><td>-0.34</td><td>0.02</td></tr><tr><td>Horsepower</td><td>-0.32</td><td>-0.29</td></tr><tr><td>Price</td><td>-0.26</td><td>-0.47</td></tr></tbody></table></div><p>Give an interpretation of the first and second principal component.</p>`,
-    explanation: "Provisional solution: PC1 contrasts fuel economy with vehicle size/power/price: high PC1 means higher MPG and generally lighter, shorter, smaller-engined, less powerful, cheaper cars. PC2 loads positively on length/weight and negatively on horsepower/price, so it contrasts physical body size with performance/value. Reversing every sign of either component gives an equivalent interpretation."
+    officialSolution: `The first principal component is influenced equally by all the variables except for gas mileage. Moreover, gas mileage has the opposite sign, but same magnitude. Note, however, that a large number for gas mileage implies a car that consumes a lot of fuel. Therefore, larger cars will have lower gas mileage. Therefore, the first principal component corresponds with the general size of the car. More expensive, large cars on one end of the spectrum to smaller, fuel efficient cars on the other end of the spectrum.
+
+The second principal component only very weakly depends on the variables gas mileage and engine. The effect of horsepower is the opposite than the effects of weight and length. Therefore, we can think of the second principal component as the variable that separates large family cars that are relatively cheap from the expensive sports cars (with lots of horsepower).`,
+    officialSolutionHtml: `<p>The first principal component is influenced similarly by the variables, with gas mileage having the opposite sign. The official solution interprets PC1 as general car size: expensive, large cars at one end and smaller, fuel-efficient cars at the other.</p><p>The second principal component depends only weakly on gas mileage and engine. Horsepower has the opposite sign from weight and length, so the official interpretation contrasts relatively cheap, large family cars with expensive sports cars having high horsepower.</p>`,
+    sourceNote: "The official solution says that a large MPG value means consuming a lot of fuel. MPG measures miles per gallon, so a larger value actually means better fuel efficiency. The official wording is preserved above.",
+    explanation: "Correcting the MPG sentence: PC1 contrasts high-MPG, lighter, shorter, smaller-engined, less powerful, cheaper cars with larger, heavier, more powerful, more expensive, lower-MPG cars. PC2 contrasts length/weight against horsepower/price, roughly separating large family cars from expensive sports cars. Reversing every loading sign gives an equivalent component."
   },
   {
     id: "t4q6", topic: "pca-theory", topicName: "PCA Optimization and Eigenvectors", source: "Tutorial 4 Questions, Q6",
-    difficulty: "medium", type: "proof", solutionStatus: "unofficial",
+    difficulty: "medium", type: "proof", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "For X=(X1,...,Xp) with covariance Sigma and Z1=alpha1,1 X1+...+alpha1,p Xp, show that Var[Z1]=alpha1 Sigma alpha1', where alpha1 is written as a row vector.",
     questionHtml: `<p>Consider the random variables \\(X=(X_1,X_2,\\ldots,X_p)\\) with covariance matrix denoted by \\(\\Sigma\\). Define the variable \\(Z_1\\) as a linear combination of the variables \\(X\\):</p><div class="math-block">\\[Z_1=\\alpha_{1,1}X_1+\\alpha_{1,2}X_2+\\cdots+\\alpha_{1,p}X_p.\\]</div><p>Show that</p><div class="math-block">\\[\\operatorname{Var}[Z_1]=\\alpha_1\\Sigma\\alpha_1',\\]</div><p>where \\(\\alpha_1=(\\alpha_{1,1},\\alpha_{1,2},\\ldots,\\alpha_{1,p})\\).</p>`,
-    explanation: "Provisional solution: write Z1=alpha1 X. Then Var(Z1)=Var(alpha1 X)=alpha1 Var(X) alpha1'=alpha1 Sigma alpha1'. In sums, this is sum_j sum_k alpha1,j alpha1,k Cov(Xj,Xk)."
+    officialSolution: `We can write the variance of Z1 as follows
+Var[Z1] = sum from i=1 to p sum from j=1 to p alpha1,i alpha1,j Cov[Xi,Xj]
+= sum from i=1 to p alpha1,i (sum from j=1 to p alpha1,j sigma_i,j)
+= (alpha1,1, alpha1,2, ..., alpha1,p)
+  (sum from j=1 to p sigma1,j alpha1,j,
+   sum from j=1 to p sigma2,j alpha1,j,
+   ...,
+   sum from j=1 to p sigmap,j alpha1,j)'.
+
+It is then easy to verify that
+Sigma alpha1' =
+  (sum from j=1 to p sigma1,j alpha1,j,
+   sum from j=1 to p sigma2,j alpha1,j,
+   ...,
+   sum from j=1 to p sigmap,j alpha1,j)',
+which ends the proof.`,
+    officialSolutionHtml: `<p>Expanding the variance gives</p><div class="math-block">\\[\\begin{aligned}\\operatorname{Var}(Z_1)&=\\sum_{i=1}^{p}\\sum_{j=1}^{p}\\alpha_{1,i}\\alpha_{1,j}\\operatorname{Cov}(X_i,X_j)\\\\&=\\sum_{i=1}^{p}\\alpha_{1,i}\\left(\\sum_{j=1}^{p}\\alpha_{1,j}\\sigma_{i,j}\\right).\\end{aligned}\\]</div><p>The inner sums are the entries of \\(\\Sigma\\alpha_1'\\). Therefore,</p><div class="math-block">\\[\\operatorname{Var}(Z_1)=\\alpha_1\\Sigma\\alpha_1'.\\]</div>`,
+    explanation: "This is the componentwise proof of the matrix identity Var(BX)=B Var(X) B'. Every pair of original variables contributes a covariance term weighted by the two corresponding loadings."
   },
   {
     id: "t4q7", topic: "pca-theory", topicName: "PCA Optimization and Eigenvectors", source: "Tutorial 4 Questions, Q7",
-    difficulty: "hard", type: "proof", solutionStatus: "unofficial",
+    difficulty: "hard", type: "proof", solutionStatus: "official", solutionSource: SOURCES.tut4s,
     text: "For f(alpha1)=alpha1 Sigma alpha1' - lambda(alpha1 dot alpha1 -1), show that partial f / partial alpha1 = 2(Sigma alpha1' - lambda alpha1').",
     questionHtml: `<p>Consider the covariance matrix \\(\\Sigma\\) of a \\(n\\)-dimensional random vector \\(X\\). Define \\(\\alpha_1=(\\alpha_{1,1},\\alpha_{1,2},\\ldots,\\alpha_{1,n})\\) and</p><div class="math-block">\\[f(\\alpha_1)=\\alpha_1\\Sigma\\alpha_1'-\\lambda(\\alpha_1\\cdot\\alpha_1-1).\\]</div><p>Show that</p><div class="math-block">\\[\\frac{\\partial f}{\\partial\\alpha_1}=2(\\Sigma\\alpha_1'-\\lambda\\alpha_1').\\]</div>`,
-    explanation: "Provisional solution: for symmetric Sigma, the gradient of alpha Sigma alpha' is 2 Sigma alpha'. The gradient of lambda(alpha alpha'-1) is 2 lambda alpha'. Subtracting gives 2(Sigma alpha'-lambda alpha'). Setting it to zero recovers Sigma alpha'=lambda alpha'."
+    officialSolution: `Note that:
+partial f / partial alpha1 =
+  (partial f / partial alpha1,1,
+   partial f / partial alpha1,2,
+   ...,
+   partial f / partial alpha1,n)'.
+
+We therefore first calculate partial f / partial alpha1,k. We have that
+alpha1 Sigma alpha1'
+= sum from i=1 to n alpha1,i (sum from j=1 to n alpha1,j sigma_i,j)
+= sum over i not equal to k alpha1,i (sum from j=1 to n alpha1,j sigma_i,j)
+  + sum from j=1 to n alpha1,k alpha1,j sigma_k,j
+= sum over i not equal to k alpha1,i (sum from j=1 to n alpha1,j sigma_i,j)
+  + sum over j not equal to k alpha1,k alpha1,j sigma_k,j
+  + alpha1,k^2 sigma_k,k.
+
+Then:
+partial(alpha1 Sigma alpha1') / partial alpha1,k
+= sum over i not equal to k alpha1,i sigma_i,k
+  + sum over j not equal to k alpha1,j sigma_k,j
+  + 2 alpha1,k sigma_k,k
+= 2 sum over i not equal to k alpha1,i sigma_i,k + 2 alpha1,k sigma_k,k
+= 2 sum from i=1 to n alpha1,i sigma_i,k.
+
+Note that we can write the following:
+Sigma alpha1' =
+  (sigma1,1 sigma1,2 ... sigma1,n;
+   sigma2,1 sigma2,2 ... sigma2,n;
+   ...;
+   sigman,1 sigman,2 ... sigman,n)
+  (alpha1,1, alpha1,2, ..., alpha1,n)'
+= (sum from i=1 to n alpha1,i sigma1,i,
+   sum from i=1 to n alpha1,i sigma2,i,
+   ...,
+   sum from i=1 to n alpha1,i sigman,i)'.
+
+If we use that sigma_j,k = sigma_k,j, we can write
+partial(alpha1 Sigma alpha1') / partial alpha1,k
+= 2 sum from i=1 to n alpha1,i sigma_i,k,
+and therefore
+partial(alpha1 Sigma alpha1') / partial alpha1 = 2 Sigma alpha1'.
+
+We also have that
+partial[lambda(alpha1 dot alpha1' - 1)] / partial alpha1,k = 2 lambda alpha1,k,
+which implies that
+partial[lambda(alpha1 dot alpha1' - 1)] / partial alpha1 = 2 lambda alpha1.
+
+Combining these formulas proves the result.`,
+    officialSolutionHtml: `<p>The official solution differentiates one coordinate \\(\\alpha_{1,k}\\) at a time. Since \\(\\Sigma\\) is symmetric,</p><div class="math-block">\\[\\frac{\\partial(\\alpha_1\\Sigma\\alpha_1')}{\\partial\\alpha_{1,k}}=2\\sum_{i=1}^{n}\\alpha_{1,i}\\sigma_{i,k}.\\]</div><p>Stacking these coordinate derivatives gives</p><div class="math-block">\\[\\frac{\\partial(\\alpha_1\\Sigma\\alpha_1')}{\\partial\\alpha_1}=2\\Sigma\\alpha_1'.\\]</div><p>For the constraint term,</p><div class="math-block">\\[\\frac{\\partial\\{\\lambda(\\alpha_1\\cdot\\alpha_1-1)\\}}{\\partial\\alpha_1}=2\\lambda\\alpha_1'.\\]</div><p>Subtracting the two gradients yields</p><div class="math-block">\\[\\frac{\\partial f}{\\partial\\alpha_1}=2(\\Sigma\\alpha_1'-\\lambda\\alpha_1').\\]</div>`,
+    explanation: "The short route is the symmetric quadratic-form rule: the gradient of a Sigma a' is (Sigma+Sigma')a'=2 Sigma a'. The norm constraint has gradient 2a'. Setting the final gradient to zero produces the PCA eigenvalue equation."
   },
   {
     id: "t4exam1", topic: "pca-theory", topicName: "PCA Optimization and Eigenvectors", source: "Tutorial 4 Exam Question, Q1",
     difficulty: "hard", type: "exam", solutionStatus: "unofficial",
     text: "For observations (160,70), (180,81), (200,90), (174,65), E[X1]=178.5, E[X2]=76.5, Var[X1]=275.67, Var[X2]=126.67, and Var[X1+X2]=714. (a) Determine the first principal component without standardizing. (b) Determine its proportion of total variance. (c) Determine the variance of the second principal component.",
     questionHtml: `<p>Consider a data set with two variables, denoted by \\(X_1\\) and \\(X_2\\). You are also given the following information</p><div class="math-block">\\[E[X_1]=178.5,\\quad E[X_2]=76.5,\\quad \\operatorname{Var}[X_1]=275.67,\\quad \\operatorname{Var}[X_2]=126.67.\\]</div><p>Moreover, you are also given that</p><div class="math-block">\\[\\operatorname{Var}[X_1+X_2]=714.\\]</div><div class="source-table-wrap"><div class="source-caption">Table 1: Data set with four observations.</div><table class="source-table compact"><thead><tr><th>Observation</th><th>X1</th><th>X2</th></tr></thead><tbody><tr><td>1</td><td>160</td><td>70</td></tr><tr><td>2</td><td>180</td><td>81</td></tr><tr><td>3</td><td>200</td><td>90</td></tr><tr><td>4</td><td>174</td><td>65</td></tr></tbody></table></div><p>(a) (4 points) Determine the first principal component. You do not need to standardize or scale the data.</p><p>(b) (1 point) Determine the proportion of the total variance explained by the first principal component.</p><p>(c) (2 points) Denote by \\((\\beta_1,\\beta_2)\\) the second principal component. Determine the variance of the second principal component.</p>`,
-    sourceNote: "The listed observations give sample Var(X2)=125.67, but the prompt states 126.67. The provisional solution follows the explicitly supplied summary values; the source-audit panel records the table-based alternative.",
-    explanation: "Provisional solution: Cov(X1,X2)=[714-275.67-126.67]/2=155.83, so Sigma=[[275.67,155.83],[155.83,126.67]]. Its eigenvalues are approximately 373.893 and 28.447. A normalized first eigenvector may be (0.84597,0.53323) (the simultaneous negative is equivalent), so Z1=0.84597 X1+0.53323 X2. It explains 373.893/(275.67+126.67)=0.92930, about 92.93%. The second-component variance is lambda2 approximately 28.447."
+    sourceNote: "The official Tutorial 4 solution file repeats this exam prompt but supplies no solution. The listed observations give sample Var(X2)=125.67, while the prompt states 126.67. The provisional answer follows the explicitly supplied summary values; the source-audit panel records the table-based alternative.",
+    explanation: "Provisional solution because no official exam answer was supplied: Cov(X1,X2)=[714-275.67-126.67]/2=155.83, so Sigma=[[275.67,155.83],[155.83,126.67]]. Its eigenvalues are approximately 373.893 and 28.447. A normalized first eigenvector may be (0.84597,0.53323) (the simultaneous negative is equivalent), so Z1=0.84597 X1+0.53323 X2. It explains 373.893/(275.67+126.67)=0.92930, about 92.93%. The second-component variance is lambda2 approximately 28.447."
   }
 );
 

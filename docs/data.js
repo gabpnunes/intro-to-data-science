@@ -1,4 +1,4 @@
-const SITE_VERSION = "2026.06.12-math-churn.33";
+const SITE_VERSION = "2026.06.14-tutorial4.34";
 
 const SOURCES = {
   intro: "Introduction_Data_Science.md",
@@ -83,7 +83,7 @@ const SOURCE_INVENTORY = [
   },
   {
     label: "Future official solutions",
-    source: "Tutorial 2 exam questions, Tutorial 3 Questions 1-2, and Tutorial 4 official solutions",
+    source: "Tutorial 2 exam questions, Tutorial 3 Questions 1-2, and Tutorial 4 exam question",
     status: "pending",
     detail: "These question-bank explanations remain provisional unless an official solution source is supplied."
   }

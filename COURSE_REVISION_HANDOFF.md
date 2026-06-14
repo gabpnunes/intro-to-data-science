@@ -33,6 +33,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 - `Part2/IntroductionDataScience_Tutorial 3_Questions.pdf`: all Tutorial 3 questions incorporated.
 - `Part2/IntroductionDataScience_Tutorial 3_Solutions.pdf`: official solutions for Question 3 and the exam question incorporated; the PDF does not solve Questions 1-2.
 - `Part2/IntroductionDataScience_Tutorial 4_Questions.pdf`: all seven tutorial questions and the exam question incorporated.
+- `Part2/IntroductionDataScience_Tutorial 4_Solutions.pdf`: official solutions for Questions 1-7 incorporated on 2026-06-14; the PDF repeats but does not solve the exam question.
 - `Part2/RCode_Part2_PCA.R`, `Tutorial_3_Exercise_1_Solution.R`, `Photo_R.R`: PCA, diagnostic, and image-compression code incorporated.
 - `Part2/DataOutliers.csv`, `Inflation.csv`, `houses.csv`, `QuintenJuno.jpg`: verified and incorporated into explanations/visuals.
 
@@ -57,7 +58,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - PCA for Photo Compression
 - Part 2 content is isolated in `docs/part2-data.js`, loaded after `docs/data.js`, so future course parts can be extended without destabilizing Part 1.
 - Tutorial 3 official solutions are included only where the supplied PDF actually gives them: Question 3 and the exam question.
-- Tutorial 3 Questions 1-2 and all Tutorial 4 solutions are marked `unofficial` pending official files.
+- Tutorial 4 Questions 1-7 now preserve the official solution transcription and a separate formatted explanation. The Tutorial 4 exam answer remains `unofficial` because the official file repeats the prompt without providing a solution.
 - Four Part 2 Visual Lab panels cover correlated-variable rotation, houses scree/retention, houses loading interpretation, and PCA photo compression.
 - Generated web image assets and PCA reconstructions are stored in `docs/assets/part2/`.
 - Tutorial 0, Tutorial 1, and Tutorial 2 exercise official solutions are included in `docs/data.js`.
@@ -140,6 +141,9 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
   - Houses import: `houses.csv` has no header, while the R script uses `header=TRUE`, consuming the first observation as column names.
   - Houses R code: the section labeled partial correlations calls `cor(...)`, which computes ordinary Pearson correlations rather than partial correlations.
   - Tutorial 4 exam question: the four listed observations imply sample `Var(X2)=125.67`, while the prompt states `126.67`. The provisional solution follows the printed summary value and records the table-based alternative.
+  - Tutorial 4 Question 1(b): the official sentence is incomplete after naming the two loading vectors; the intended missing phrase is that they are orthogonal.
+  - Tutorial 4 Question 5: the official solution says larger MPG means greater fuel consumption, but larger miles per gallon means better fuel efficiency.
+  - Tutorial 4 solution PDF: pages 7-8 repeat the exam question and data table but do not contain an exam solution.
 
 ## Verification Workflow
 
@@ -164,7 +168,7 @@ Build and maintain a GitHub Pages-ready revision website that helps the user dee
 
 - Replace Tutorial 2 exam-style provisional solutions with official wording if an official solution source is supplied.
 - Add Part 3 materials as soon as the user provides the files.
-- Reconcile Tutorial 3 Questions 1-2 and every Tutorial 4 solution when an official solution source is supplied.
+- Reconcile Tutorial 3 Questions 1-2, the Tutorial 4 exam question, and Tutorial 2 exam-style questions if official solutions are supplied.
 - When adding Part 3, change its `COURSE_PARTS` entry from `coming soon` to `live` only after study guide content, question-bank entries, flashcards, source notes, and verification have been completed.
 - Expand question bank with quizzes/past exam questions if provided.
 - Add more precise dataset-driven charts by running the remaining R examples and exporting values/plots if needed; churn EDA summaries are already embedded as `CHURN_EDA` in `docs/data.js`.
